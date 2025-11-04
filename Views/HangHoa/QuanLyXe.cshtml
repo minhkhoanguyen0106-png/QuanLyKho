@@ -1,0 +1,234 @@
+@{
+    ViewBag.Title = "Quản lý kho";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* ====== XANH BƠ NHẸ ====== */
+    .btn-xanhbo {
+        background-color: #A8E6A3;
+        color: #fff;
+        border: none;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+    .btn-xanhbo:hover {
+        background-color: #9cd59a;
+    }
+
+    /* ====== KHUNG LỌC ====== */
+    .filter-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+        padding: 18px;
+    }
+
+    .filter-card h5 {
+        font-weight: 600;
+        color: #28a745;
+    }
+
+    .filter-label {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .radio-label {
+        margin-left: 5px;
+        font-size: 13.5px;
+    }
+
+    /* ====== BẢNG ====== */
+    .table th {
+        background-color: #dff6da !important;
+        color: #2b542c;
+        font-weight: 600;
+        border-bottom: 1px solid #cde8c8;
+    }
+
+    .table td {
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8fff7;
+    }
+
+    /* ====== THANH TÌM KIẾM + NÚT ====== */
+    .action-bar {
+        background-color: #fff;
+        padding: 12px 16px;
+        border-radius: 10px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.15rem rgba(72, 191, 88, 0.25);
+        border-color: #A8E6A3;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+    }
+
+    body {
+        background-color: #b1e6bbd4;
+        font-family: "Segoe UI", sans-serif;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="row g-4">
+        <!-- ===== CỘT TRÁI: KHUNG LỌC ===== -->
+        <div class="col-lg-3">
+            <div class="filter-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Hàng hóa</h5>
+                    <a href="#" class="text-success fw-semibold">Tạo mới</a>
+                </div>
+
+                <div class="mb-3">
+                    <label class="filter-label">Nhóm hàng</label>
+                    <select class="form-select">
+                        <option>Chọn nhóm hàng</option>
+                        <option>Xe tay ga</option>
+                        <option>Xe đạp điện</option>
+                        <option>Xe máy điện</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="filter-label">Tồn kho</label>
+                    <select class="form-select">
+                        <option>Tất cả</option>
+                        <option>Còn hàng</option>
+                        <option>Hết hàng</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="filter-label">Dự kiến hết hàng</label><br>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="duKienHetHang" checked>
+                        <label class="radio-label">Toàn thời gian</label>
+                    </div>
+                    <div class="form-check d-flex align-items-center">
+                        <input class="form-check-input" type="radio" name="duKienHetHang">
+                        <label class="radio-label">Tùy chỉnh</label>
+                        <input type="date" class="form-control ms-2" style="width: 130px;">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="filter-label">Thời gian tạo</label><br>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="thoiGianTao" checked>
+                        <label class="radio-label">Toàn thời gian</label>
+                    </div>
+                    <div class="form-check d-flex align-items-center">
+                        <input class="form-check-input" type="radio" name="thoiGianTao">
+                        <label class="radio-label">Tùy chỉnh</label>
+                        <input type="date" class="form-control ms-2" style="width: 130px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CỘT PHẢI: DANH SÁCH ===== -->
+        <div class="col-lg-9">
+            <h4 class="fw-bold text-success mb-3">
+                <i class="fa-solid fa-motorcycle"></i> Kho xe điện
+            </h4>
+
+            <div class="action-bar mb-3 d-flex justify-content-between flex-wrap align-items-center">
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <input type="text" class="form-control shadow-sm" placeholder="🔍 Theo mã, tên xe điện..." style="width: 250px;">
+                    <select class="form-select shadow-sm" style="width: 160px;">
+                        <option>Tất cả nhóm xe</option>
+                        <option>Xe tay ga</option>
+                        <option>Xe đạp điện</option>
+                        <option>Xe máy điện</option>
+                    </select>
+                    <select class="form-select shadow-sm" style="width: 140px;">
+                        <option>Tất cả tồn kho</option>
+                        <option>Còn hàng</option>
+                        <option>Hết hàng</option>
+                    </select>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                    <button class="btn btn-xanhbo shadow-sm">
+                        <i class="fa fa-plus"></i> Tạo mới
+                    </button>
+                    <button class="btn btn-outline-success shadow-sm">
+                        <i class="fa fa-gear"></i>
+                    </button>
+                </div>
+            </div>
+
+            <table class="table table-hover border rounded-3 shadow-sm bg-white">
+                <thead class="text-center">
+                    <tr>
+                        <th>Mã xe</th>
+                        <th>Tên xe</th>
+                        <th>Giá bán</th>
+                        <th>Giá vốn</th>
+                        <th>Tồn kho</th>
+                        <th>Khách đặt</th>
+                        <th>Thời gian tạo</th>
+                        <th>Dự kiến hết hàng</th>
+                        <th>Đặt NCC</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr>
+                        <td>XD001</td>
+                        <td class="text-start">VinFast Klara S</td>
+                        <td>34,000,000</td>
+                        <td>30,000,000</td>
+                        <td>15</td>
+                        <td>2</td>
+                        <td>03/11/2025 09:30</td>
+                        <td>---</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>XD002</td>
+                        <td class="text-start">Yadea G5</td>
+                        <td>31,500,000</td>
+                        <td>27,000,000</td>
+                        <td>20</td>
+                        <td>0</td>
+                        <td>02/11/2025 14:22</td>
+                        <td>---</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>XD003</td>
+                        <td class="text-start">DatBike Gogo SS</td>
+                        <td>39,000,000</td>
+                        <td>35,000,000</td>
+                        <td>10</td>
+                        <td>1</td>
+                        <td>01/11/2025 15:15</td>
+                        <td>---</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="text-end text-secondary small mt-2">
+                <i>Hiển thị 1–3 / 3 xe điện</i>
+            </div>
+        </div>
+    </div>
+</div>

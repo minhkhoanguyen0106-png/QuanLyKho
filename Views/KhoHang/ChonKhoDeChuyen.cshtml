@@ -1,0 +1,38 @@
+@{
+    ViewBag.Title = "Chọn kho để chuyển";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h4 class="fw-bold text-success mb-4">🏷️ Chọn kho để chuyển</h4>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Kho gửi</label>
+                    <select class="form-select">
+                        <option>Kho Trung tâm</option>
+                        <option>Kho Chi nhánh 1</option>
+                        <option>Kho Chi nhánh 2</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Kho nhận</label>
+                    <select class="form-select">
+                        <option>Kho Trung tâm</option>
+                        <option>Kho Chi nhánh 1</option>
+                        <option>Kho Chi nhánh 2</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label mt-3">Ghi chú</label>
+                    <textarea class="form-control" rows="3" placeholder="Nhập ghi chú nếu có..."></textarea>
+                </div>
+                <div class="col-12 text-end mt-3">
+                    <button class="btn btn-success">✔️ Tạo phiếu chuyển kho</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

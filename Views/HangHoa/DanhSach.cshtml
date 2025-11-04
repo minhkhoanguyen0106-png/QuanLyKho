@@ -1,0 +1,171 @@
+@{
+    ViewBag.Title = "Danh sách hàng hóa";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* ====== MÀU VÀ GIAO DIỆN CHUNG ====== */
+    body {
+        background-color: #b1e6bbd4;
+        font-family: "Segoe UI", sans-serif;
+    }
+
+    .btn-xanhbo {
+        background-color: #A8E6A3;
+        color: #fff;
+        border: none;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+
+    .btn-xanhbo:hover {
+        background-color: #9cd59a;
+    }
+
+    .action-bar {
+        background-color: #fff;
+        padding: 12px 16px;
+        border-radius: 10px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+
+    .table th {
+        background-color: #dff6da !important;
+        color: #2b542c;
+        font-weight: 600;
+        border-bottom: 1px solid #cde8c8;
+    }
+
+    .table td {
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8fff7;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <h4 class="fw-bold text-success mb-3">
+        <i class="fa-solid fa-boxes-stacked"></i> Tất cả hàng hóa
+    </h4>
+
+    <!-- Thanh công cụ -->
+    <div class="action-bar mb-3 d-flex justify-content-between flex-wrap align-items-center">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <input type="text" class="form-control shadow-sm" placeholder="🔍 Tìm theo mã, tên hàng hóa..." style="width: 250px;">
+            <select class="form-select shadow-sm" style="width: 180px;">
+                <option>Tất cả loại hàng</option>
+                <option>Xe điện</option>
+                <option>Linh kiện</option>
+            </select>
+            <select class="form-select shadow-sm" style="width: 150px;">
+                <option>Tất cả tồn kho</option>
+                <option>Còn hàng</option>
+                <option>Hết hàng</option>
+            </select>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+            <button class="btn btn-xanhbo shadow-sm">
+                <i class="fa fa-plus"></i> Tạo mới
+            </button>
+            <button class="btn btn-outline-success shadow-sm">
+                <i class="fa fa-gear"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- BẢNG TỔNG HỢP -->
+    <table class="table table-hover border rounded-3 shadow-sm bg-white">
+        <thead class="text-center">
+            <tr>
+                <th>Loại hàng</th>
+                <th>Mã hàng</th>
+                <th>Tên hàng</th>
+                <th>Giá bán</th>
+                <th>Giá vốn</th>
+                <th>Tồn kho</th>
+                <th>Khách đặt</th>
+                <th>Thời gian tạo</th>
+                <th>Ghi chú</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            <!-- === XE ĐIỆN === -->
+            <tr>
+                <td><span class="badge bg-success">Xe điện</span></td>
+                <td>XD001</td>
+                <td class="text-start">VinFast Klara S</td>
+                <td>34,000,000</td>
+                <td>30,000,000</td>
+                <td>15</td>
+                <td>2</td>
+                <td>03/11/2025 09:30</td>
+                <td>---</td>
+            </tr>
+            <tr>
+                <td><span class="badge bg-success">Xe điện</span></td>
+                <td>XD002</td>
+                <td class="text-start">Yadea G5</td>
+                <td>31,500,000</td>
+                <td>27,000,000</td>
+                <td>20</td>
+                <td>0</td>
+                <td>02/11/2025 14:22</td>
+                <td>---</td>
+            </tr>
+            <tr>
+                <td><span class="badge bg-success">Xe điện</span></td>
+                <td>XD003</td>
+                <td class="text-start">DatBike Gogo SS</td>
+                <td>39,000,000</td>
+                <td>35,000,000</td>
+                <td>10</td>
+                <td>1</td>
+                <td>01/11/2025 15:15</td>
+                <td>---</td>
+            </tr>
+
+            <!-- === LINH KIỆN === -->
+            <tr>
+                <td><span class="badge bg-warning text-dark">Linh kiện</span></td>
+                <td>LK001</td>
+                <td class="text-start">Ắc quy Lithium 60V</td>
+                <td>3,200,000</td>
+                <td>2,700,000</td>
+                <td>25</td>
+                <td>3</td>
+                <td>03/11/2025 09:30</td>
+                <td>---</td>
+            </tr>
+            <tr>
+                <td><span class="badge bg-warning text-dark">Linh kiện</span></td>
+                <td>LK002</td>
+                <td class="text-start">Động cơ 1200W</td>
+                <td>2,800,000</td>
+                <td>2,300,000</td>
+                <td>18</td>
+                <td>1</td>
+                <td>02/11/2025 14:22</td>
+                <td>---</td>
+            </tr>
+            <tr>
+                <td><span class="badge bg-warning text-dark">Linh kiện</span></td>
+                <td>LK003</td>
+                <td class="text-start">Phanh đĩa thủy lực</td>
+                <td>950,000</td>
+                <td>700,000</td>
+                <td>30</td>
+                <td>0</td>
+                <td>01/11/2025 15:15</td>
+                <td>---</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-end text-secondary small mt-2">
+        <i>Hiển thị 1–6 / 6 hàng hóa</i>
+    </div>
+</div>

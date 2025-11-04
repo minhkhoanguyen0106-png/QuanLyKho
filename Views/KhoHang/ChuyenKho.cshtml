@@ -1,0 +1,137 @@
+@{
+    ViewBag.Title = "Chuyển kho";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <!-- Bộ lọc bên trái -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h5 class="text-success fw-bold mb-3">Chuyển hàng</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Chuyển đi</label>
+                        <select class="form-select">
+                            <option>Chọn chi nhánh</option>
+                            <option>Kho hàng bán</option>
+                            <option>CN Nguyễn Văn Cừ</option>
+                            <option>CN Trần Hoàng Na</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nhận về</label>
+                        <select class="form-select">
+                            <option>Chọn chi nhánh</option>
+                            <option>CN Nguyễn Văn Cừ</option>
+                            <option>Kho hàng bán</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Trạng thái</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-secondary text-white px-3 py-2">Phiếu tạm</span>
+                            <span class="badge bg-primary text-white px-3 py-2">Đang chuyển</span>
+                            <span class="badge bg-success text-white px-3 py-2">Đã nhận</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Thời gian</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="thoigian" checked>
+                            <label class="form-check-label">Tháng này</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="thoigian">
+                            <label class="form-check-label">Tùy chỉnh</label>
+                        </div>
+                        <input type="date" class="form-control mt-2" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách chuyển hàng -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="input-group" style="max-width: 400px;">
+                    <input type="text" class="form-control" placeholder="Theo mã phiếu chuyển..." />
+                    <button class="btn btn-outline-success"><i class="bi bi-funnel"></i></button>
+                </div>
+                <div>
+                    <button class="btn btn-success me-2"><i class="bi bi-plus-lg"></i> Chuyển hàng</button>
+                    <button class="btn btn-outline-secondary me-2">Import file</button>
+                    <button class="btn btn-outline-secondary">Xuất file</button>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white fw-semibold">
+                    Danh sách phiếu chuyển
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-success text-center">
+                            <tr>
+                                <th></th>
+                                <th>Mã chuyển hàng</th>
+                                <th>Ngày chuyển</th>
+                                <th>Ngày nhận</th>
+                                <th>Từ chi nhánh</th>
+                                <th>Tới chi nhánh</th>
+                                <th>Giá trị chuyển</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>TRF004454</td>
+                                <td>03/11/2025 16:48</td>
+                                <td>-</td>
+                                <td>Kho hàng bán</td>
+                                <td>CN Nguyễn Văn Cừ - Cần Thơ</td>
+                                <td>25,187,900</td>
+                                <td><span class="badge bg-primary">Đang chuyển</span></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>TRF004453</td>
+                                <td>03/11/2025 16:40</td>
+                                <td>03/11/2025 19:25</td>
+                                <td>CN Nguyễn Văn Cừ - Cần Thơ</td>
+                                <td>CN Trần Hoàng Na - Cần Thơ</td>
+                                <td>18,600,004</td>
+                                <td><span class="badge bg-success">Đã nhận</span></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>TRF004450</td>
+                                <td>02/11/2025 16:39</td>
+                                <td>02/11/2025 16:46</td>
+                                <td>CN Trần Hoàng Na</td>
+                                <td>CN Nguyễn Văn Cừ</td>
+                                <td>12,060,000</td>
+                                <td><span class="badge bg-success">Đã nhận</span></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>TRF004449</td>
+                                <td>02/11/2025 13:11</td>
+                                <td>02/11/2025 13:18</td>
+                                <td>CN Trần Hoàng Na</td>
+                                <td>CN Nguyễn Văn Cừ</td>
+                                <td>11,621,720</td>
+                                <td><span class="badge bg-success">Đã nhận</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

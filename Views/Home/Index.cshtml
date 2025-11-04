@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Tổng quan";
+    var user = Context.Session.GetString("User");
+}
+
+    <!-- Phần thống kê chính -->
+    <div class="row">
+        <!-- Kết quả bán hàng hôm nay -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header fw-semibold" style="background-color:#428446; color:white;">
+                    Kết quả bán hàng hôm nay
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h5 style="color:#428446;">Doanh thu</h5>
+                            <p class="fs-4 fw-bold text-success">42,238,000</p>
+                            <small>8 hóa đơn</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 style="color:#428446;">Trả hàng</h5>
+                            <p class="fs-4 fw-bold text-danger">0</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 style="color:#428446;">Doanh thu thuần</h5>
+                            <p class="fs-4 fw-bold text-dark">186,776,000</p>
+                            <small>
+                                <span class="text-danger">▼ -6.24%</span> so với hôm qua<br />
+                                <span class="text-success">▲ 106.07%</span> so với cùng kỳ
+                            </small>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <!-- Biểu đồ -->
+                    <h6 class="fw-semibold" style="color:#428446;">Doanh thu thuần theo ngày</h6>
+                    <canvas id="chartDoanhThu" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hoạt động gần đây -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-semibold" style="background-color:#428446; color:white;">
+                    Hoạt động gần đây
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item">
+                            <strong style="color:#428446;">LEADER - HUỲNH GIANG</strong> vừa nhận hàng trị giá <strong>12,060,000</strong><br/>
+                            <small class="text-muted">4 giờ trước</small>
+                        </li>
+                        <li class="list-group-item">
+                            <strong style="color:#428446;">SALE - DI PHÚC</strong> vừa nhận đặt hàng trị giá <strong>15,090,000</strong><br/>
+                            <small class="text-muted">6 giờ trước</small>
+                        </li>
+                        <li class="list-group-item">
+                            <strong style="color:#428446;">CỬU HỘ - KHÁNH</strong> vừa bán đơn hàng <strong>55,000</strong><br/>
+                            <small class="text-muted">8 giờ trước</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('chartDoanhThu');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','CN'],
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: [140000000, 180000000, 160000000, 200000000, 190000000, 170000000, 186776000],
+                backgroundColor: '#428446'
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>

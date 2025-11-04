@@ -1,0 +1,218 @@
+@{
+    ViewBag.Title = "Danh sách Nhà Cung Cấp";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    body {
+        background-color: #fff;
+        font-family: "Segoe UI", sans-serif;
+    }
+
+    .sidebar-filter {
+        background-color: #fafafa;
+        border-right: 1px solid #eee;
+        padding: 16px;
+        min-width: 260px;
+    }
+
+    .sidebar-filter h6 {
+        font-weight: 600;
+        color: #555;
+        margin-top: 15px;
+    }
+
+    .sidebar-filter input,
+    .sidebar-filter select {
+        font-size: 14px;
+    }
+
+    .sidebar-filter .btn {
+        font-size: 13px;
+        border-radius: 20px;
+    }
+
+    .btn-active {
+        background-color: #62df5bff;
+        color: white;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .search-bar input {
+        width: 280px;
+    }
+
+    .btn-outline {
+        border: 1px solid #ddd;
+        background-color: #fff;
+        color: #555;
+    }
+
+    .btn-outline:hover {
+        background-color: #f6f6f6;
+    }
+
+    .badge-status {
+        border-radius: 10px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .badge-active {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+    }
+</style>
+
+<div class="d-flex" style="min-height: 90vh;">
+    <!-- SIDEBAR -->
+    <div class="sidebar-filter">
+        <h5 class="fw-bold mb-3">Nhà cung cấp</h5>
+
+        <h6>Nhóm nhà cung cấp</h6>
+        <select class="form-select form-select-sm mb-2">
+            <option>Tất cả các nhóm</option>
+            <option>Nhóm linh kiện</option>
+            <option>Nhóm xe điện</option>
+        </select>
+        <a href="#" class="text-primary small text-decoration-none">Tạo mới</a>
+
+        <h6 class="mt-3">Tổng mua</h6>
+        <div class="d-flex gap-2">
+            <input type="number" class="form-control form-control-sm" placeholder="Từ">
+            <input type="number" class="form-control form-control-sm" placeholder="Tới">
+        </div>
+
+        <h6 class="mt-3">Thời gian</h6>
+        <select class="form-select form-select-sm mb-1">
+            <option>Toàn thời gian</option>
+            <option>Tháng này</option>
+            <option>Năm nay</option>
+            <option>Tùy chỉnh</option>
+        </select>
+
+        <h6 class="mt-3">Nợ hiện tại</h6>
+        <div class="d-flex gap-2">
+            <input type="number" class="form-control form-control-sm" placeholder="Từ">
+            <input type="number" class="form-control form-control-sm" placeholder="Tới">
+        </div>
+
+        <h6 class="mt-3">Trạng thái</h6>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline btn-sm">Tất cả</button>
+            <button class="btn btn-active btn-sm">Đang hoạt động</button>
+        </div>
+        <button class="btn btn-outline btn-sm mt-1">Ngừng hoạt động</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="search-bar d-flex gap-2">
+                <input type="text" class="form-control" placeholder="🔍 Theo mã, tên, số điện thoại...">
+                <button class="btn btn-outline"><i class="fa fa-filter"></i></button>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Nhà cung cấp</button>
+                <button class="btn btn-outline btn-sm"><i class="fa fa-file-import"></i> Import file</button>
+                <button class="btn btn-outline btn-sm"><i class="fa fa-file-export"></i> Xuất file</button>
+                <button class="btn btn-outline btn-sm"><i class="fa fa-gear"></i></button>
+            </div>
+        </div>
+
+        <table class="table table-hover border rounded-3 shadow-sm bg-white">
+            <thead>
+                <tr class="text-center">
+                    <th><input type="checkbox"></th>
+                    <th>Mã nhà cung cấp</th>
+                    <th>Tên nhà cung cấp</th>
+                    <th>Điện thoại</th>
+                    <th>Email</th>
+                    <th>Nợ cần trả hiện tại</th>
+                    <th>Tổng mua</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-center">
+                    <td><input type="checkbox"></td>
+                    <td>NCC000057</td>
+                    <td>VIPOMALL</td>
+                    <td>11134</td>
+                    <td></td>
+                    <td>15,034,252,588</td>
+                    <td>56,702,548,564</td>
+                </tr>
+                <tr class="text-center">
+                    <td><input type="checkbox"></td>
+                    <td>NCC000056</td>
+                    <td>SAKI</td>
+                    <td>123</td>
+                    <td></td>
+                    <td>92,155,000</td>
+                    <td>388,766,000</td>
+                </tr>
+                <tr class="text-center">
+                    <td><input type="checkbox"></td>
+                    <td>NCC000055</td>
+                    <td>HTC</td>
+                    <td>0123453338</td>
+                    <td></td>
+                    <td>320,000</td>
+                    <td>182,000,000</td>
+                </tr>
+                <tr class="text-center">
+                    <td><input type="checkbox"></td>
+                    <td>NCC000054</td>
+                    <td>EBIKE PHỤ TÙNG</td>
+                    <td>09090</td>
+                    <td></td>
+                    <td>-2,339,000</td>
+                    <td>3,640,000</td>
+                </tr>
+                <tr class="text-center">
+                    <td><input type="checkbox"></td>
+                    <td>NCC000053</td>
+                    <td>HỒNG THANH</td>
+                    <td>0986058326</td>
+                    <td></td>
+                    <td>14,822,000</td>
+                    <td>35,857,000</td>
+                </tr>
+                <tr class="text-center">
+                    <td><input type="checkbox"></td>
+                    <td>NCC000052</td>
+                    <td>NAM TIẾN PHÁT</td>
+                    <td>9657</td>
+                    <td></td>
+                    <td>490,000</td>
+                    <td>188,288,000</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="text-end text-secondary small mt-2">
+            Hiển thị 1–6 / 6 nhà cung cấp
+        </div>
+    </div>
+</div>

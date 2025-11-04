@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "Danh sách Báo cáo";
+    var user = Context.Session.GetString("User");
+}
+
+<div class="container-fluid mt-3" style="font-family:'Segoe UI', sans-serif;">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center p-3 rounded shadow-sm"
+         style="background-color:#428446; color:white;">
+        <h4 class="fw-semibold m-0">📊 Danh sách Báo cáo</h4>
+        <div class="fw-semibold">
+            Xin chào, @(user ?? "Người dùng")
+        </div>
+    </div>
+
+    <!-- Bộ lọc tìm kiếm -->
+    <div class="card shadow-sm border-0 my-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold" style="color:#428446;">Loại báo cáo</label>
+                    <select class="form-select border-success">
+                        <option>Tất cả</option>
+                        <option>Báo cáo doanh thu</option>
+                        <option>Báo cáo tồn kho</option>
+                        <option>Báo cáo công nợ</option>
+                        <option>Báo cáo bán hàng</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold" style="color:#428446;">Từ ngày</label>
+                    <input type="date" class="form-control border-success">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold" style="color:#428446;">Đến ngày</label>
+                    <input type="date" class="form-control border-success">
+                </div>
+                <div class="col-md-3 text-end">
+                    <button class="btn fw-semibold text-white px-4"
+                            style="background-color:#428446;">🔍 Tra cứu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách báo cáo -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header fw-semibold text-white"
+             style="background-color:#428446;">Danh sách báo cáo gần đây</div>
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color:#cde9cd; color:#1f421f;">
+                    <tr>
+                        <th>#</th>
+                        <th>Tên báo cáo</th>
+                        <th>Loại</th>
+                        <th>Ngày tạo</th>
+                        <th>Người lập</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Báo cáo doanh thu tháng 10</td>
+                        <td>Doanh thu</td>
+                        <td>01/11/2025</td>
+                        <td>Nguyễn Văn C</td>
+                        <td><span class="badge bg-success">Hoàn tất</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm text-white" style="background-color:#428446;">📄 Xem</button>
+                            <button class="btn btn-sm btn-outline-success">⬇ Tải</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Báo cáo tồn kho quý IV</td>
+                        <td>Tồn kho</td>
+                        <td>28/10/2025</td>
+                        <td>Trần Thị B</td>
+                        <td><span class="badge bg-warning text-dark">Đang xử lý</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm text-white" style="background-color:#428446;">📄 Xem</button>
+                            <button class="btn btn-sm btn-outline-success">⬇ Tải</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Báo cáo bán hàng tuần 43</td>
+                        <td>Bán hàng</td>
+                        <td>25/10/2025</td>
+                        <td>Phạm Minh D</td>
+                        <td><span class="badge bg-success">Hoàn tất</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm text-white" style="background-color:#428446;">📄 Xem</button>
+                            <button class="btn btn-sm btn-outline-success">⬇ Tải</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

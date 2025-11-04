@@ -1,0 +1,148 @@
+@{
+    ViewBag.Title = "Thống kê sai lệch kho";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h4 class="fw-bold text-success mb-4">📊 Thống kê sai lệch kho</h4>
+
+    <!-- Bộ lọc -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-success text-white">
+            Bộ lọc sai lệch
+        </div>
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Kho hàng</label>
+                    <select class="form-select">
+                        <option>Tất cả</option>
+                        <option>Kho chính</option>
+                        <option>Kho chi nhánh</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select">
+                        <option>Tất cả</option>
+                        <option>Có sai lệch</option>
+                        <option>Không sai lệch</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Ngày kiểm kê</label>
+                    <input type="date" class="form-control" />
+                </div>
+                <div class="col-md-3 text-end">
+                    <button class="btn btn-success">🔍 Lọc dữ liệu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ sai lệch -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-success text-white">
+            Biểu đồ sai lệch tồn kho
+        </div>
+        <div class="card-body">
+            <canvas id="chartSaiLech" height="120"></canvas>
+        </div>
+    </div>
+
+    <!-- Bảng dữ liệu -->
+    <table class="table table-hover bg-white shadow-sm rounded">
+        <thead class="table-success text-center">
+            <tr>
+                <th>Mã hàng</th>
+                <th>Tên hàng hóa</th>
+                <th>Tồn hệ thống</th>
+                <th>Tồn thực tế</th>
+                <th>Chênh lệch</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            <tr>
+                <td>HH001</td>
+                <td class="text-start">Pin Lithium 60V</td>
+                <td>120</td>
+                <td>118</td>
+                <td class="text-danger fw-bold">-2</td>
+            </tr>
+            <tr>
+                <td>HH002</td>
+                <td class="text-start">Yadea G5</td>
+                <td>30</td>
+                <td>30</td>
+                <td class="text-success fw-bold">0</td>
+            </tr>
+            <tr>
+                <td>HH003</td>
+                <td class="text-start">Đèn pha LED</td>
+                <td>45</td>
+                <td>50</td>
+                <td class="text-primary fw-bold">+5</td>
+            </tr>
+            <tr>
+                <td>HH004</td>
+                <td class="text-start">Khung xe điện</td>
+                <td>80</td>
+                <td>75</td>
+                <td class="text-danger fw-bold">-5</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const ctx = document.getElementById('chartSaiLech').getContext('2d');
+
+        const chartSaiLech = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Pin Lithium 60V', 'Yadea G5', 'Đèn pha LED', 'Khung xe điện'],
+                datasets: [{
+                    label: 'Chênh lệch (đơn vị)',
+                    data: [-2, 0, 5, -5],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)'
+                    ],
+                    borderColor: 'rgba(0,0,0,0.2)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return 'Sai lệch: ' + context.raw;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Số lượng chênh lệch' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Tên hàng hóa' }
+                    }
+                }
+            }
+        });
+    </script>
+}
