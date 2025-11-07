@@ -12,31 +12,28 @@ namespace YourProjectName.Controllers
 
         [HttpPost]
         public IActionResult Login(string username, string password, string role)
-{
-    if (username == "admin" && password == "123" && role == "manager")
-    {
-        HttpContext.Session.SetString("User", username);
-        HttpContext.Session.SetString("Role", "Manager");
-        return RedirectToAction("Index", "Home");
-    }
-    else if (username == "nhanvien" && password == "123" && role == "employee")
-    {
-        HttpContext.Session.SetString("User", username);
-        HttpContext.Session.SetString("Role", "Employee");
-        return RedirectToAction("Index", "Home");
-    }
+        {
+            if (username == "admin" && password == "123" && role == "manager")
+            {
+                HttpContext.Session.SetString("User", username);
+                HttpContext.Session.SetString("Role", "Manager");
+                return RedirectToAction("Index", "Home"); // ← trang quản lý
+            }
+            else if (username == "nhanvien" && password == "123" && role == "employee")
+            {
+                HttpContext.Session.SetString("User", username);
+                HttpContext.Session.SetString("Role", "Employee");
+                return RedirectToAction("Index", "NV"); // ← trang nhân viên
+            }
 
-    ViewBag.Error = "Sai tài khoản, mật khẩu hoặc vai trò!";
+            ViewBag.Error = "Sai tài khoản, mật khẩu hoặc vai trò!";
             return View();
         }
 
         public IActionResult Logout()
         {
-            // Xóa toàn bộ session (đăng xuất)
-    HttpContext.Session.Clear();
-
-    // Chuyển hướng về trang đăng nhập
-    return RedirectToAction("Login", "Account");
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Account");
         }
     }
 }

@@ -79,11 +79,11 @@
     <div class="login-container">
         <h2>Đăng nhập hệ thống</h2>
 
-        <form asp-action="Login" method="post">
+        <form asp-controller="Account" asp-action="Login" method="post">
             <input type="text" name="username" placeholder="Tên đăng nhập" required />
             <input type="password" name="password" placeholder="Mật khẩu" required />
 
-            <div style="margin-top:15px;">
+            <div class="d-flex justify-content-between">
                 <button type="submit" name="role" value="manager" class="btn-role btn-manager">Quản lý</button>
                 <button type="submit" name="role" value="employee" class="btn-role btn-employee">Nhân viên</button>
             </div>

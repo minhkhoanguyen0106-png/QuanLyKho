@@ -15,18 +15,13 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        var user = HttpContext.Session.GetString("User");
-            if (string.IsNullOrEmpty(user))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-        return View();
-    }
-
-
-    public IActionResult Privacy()
-    {
-        return View();
+      
+    var role = HttpContext.Session.GetString("VaiTro");
+    if (role == "QuanLy")
+        ViewBag.Layout = "_Layout";
+    else
+        ViewBag.Layout = "_LayoutNV";
+    return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

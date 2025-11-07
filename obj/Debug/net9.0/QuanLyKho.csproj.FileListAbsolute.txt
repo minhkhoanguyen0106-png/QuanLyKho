@@ -94,3 +94,4 @@ D:\QuanLyKho\obj\Debug\net9.0\ref\QuanLyKho.dll
 D:\QuanLyKho\obj\Debug\net9.0\compressed\o3up8jrnw3-tqlkyarp42.gz
 D:\QuanLyKho\obj\Debug\net9.0\compressed\298itic9jp-tqlkyarp42.gz
 D:\QuanLyKho\obj\Debug\net9.0\compressed\f6p6j5cul2-s8se0w71bx.gz
+D:\QuanLyKho\obj\Debug\net9.0\QuanLyKho.sourcelink.json
