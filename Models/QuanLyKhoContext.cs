@@ -21,10 +21,11 @@ namespace QuanLyKho.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Fix cảnh báo decimal DonGia
+            // Fix cảnh báo decimal DonGia trong các entity
             modelBuilder.Entity<HangHoa>()
                 .Property(p => p.DonGia)
                 .HasPrecision(18, 2);
+
 
             modelBuilder.Entity<KhoHang>()
                 .Property(p => p.DonGia)
