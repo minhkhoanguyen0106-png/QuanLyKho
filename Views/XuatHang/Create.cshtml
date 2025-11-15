@@ -1,0 +1,207 @@
+@{
+    ViewData["Title"] = "Tạo phiếu xuất hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Nút quay lại -->
+<a href="@Url.Action("Index", "XuatHang")"
+   class="text-primary d-inline-block mb-3">
+   ⬅ Quay lại danh sách phiếu xuất
+</a>
+
+<h2 class="mb-4">Tạo phiếu xuất hàng</h2>
+
+<div class="row g-4">
+    <!-- Bên trái: danh sách sản phẩm -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm p-3">
+            <div class="d-flex gap-2 mb-3">
+                <input type="text" placeholder="Tìm hàng hóa theo mã hoặc tên (F3)" 
+                       class="form-control" />
+                <button id="btnAddProduct" type="button" class="btn btn-primary">
+                    ➕
+                </button>
+            </div>
+
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã hàng</th>
+                        <th>Tên hàng</th>
+                        <th>ĐVT</th>
+                        <th>Tồn kho</th>
+                        <th>Số lượng xuất</th>
+                        <th>Đơn giá</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <strong>Chưa có sản phẩm nào được chọn</strong><br />
+                            <small>Nhấn nút ➕ để thêm sản phẩm hoặc chọn file dữ liệu</small><br /><br />
+                            <input type="file" id="fileInput" style="display:none;" />
+                            <button type="button" class="btn btn-primary"
+                                onclick="document.getElementById('fileInput').click();">
+                                📂 Chọn file dữ liệu
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bên phải: thông tin phiếu -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm p-3">
+            <div class="mb-3">
+                <label>Khách hàng</label>
+                <input type="text" placeholder="Tìm khách hàng" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>Mã phiếu xuất</label>
+                <input type="text" placeholder="Mã phiếu tự động" class="form-control" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label>Trạng thái</label>
+                <input type="text" value="Phiếu tạm" class="form-control" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label>Tổng tiền hàng</label>
+                <input type="text" id="tongTienHang" value="0" class="form-control" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label>Giảm giá</label>
+                <input type="number" id="giamGia" value="0" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>Khách phải trả</label>
+                <input type="text" id="canTra" value="0" class="form-control fw-bold text-primary" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label>Ghi chú</label>
+                <textarea rows="3" placeholder="Ghi chú xuất hàng" class="form-control"></textarea>
+            </div>
+
+            <form method="post" action="/Phieu/Xuat/LuuTam">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        💾 Lưu tạm
+                    </button>
+                    <button type="submit" formaction="/Phieu/Xuat/HoanThanh" class="btn btn-success flex-grow-1">
+                        ✅ Hoàn thành xuất
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm sản phẩm -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="addProductLabel">Thêm sản phẩm xuất</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label class="form-label">Tên hàng</label>
+          <input type="text" id="tenHang" class="form-control" placeholder="Nhập tên hàng...">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Đơn vị tính</label>
+          <input type="text" id="dvt" class="form-control" placeholder="VD: cái, hộp...">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Tồn kho</label>
+          <input type="number" id="tonKho" class="form-control" value="50" readonly>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Số lượng xuất</label>
+          <input type="number" id="soLuong" class="form-control" min="1" value="1">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Đơn giá</label>
+          <input type="number" id="donGia" class="form-control" min="0" value="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" id="btnSaveProduct">Thêm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const btnAdd = document.getElementById("btnAddProduct");
+    const modal = new bootstrap.Modal(document.getElementById("addProductModal"));
+    const tbody = document.getElementById("productTableBody");
+    const tongTien = document.getElementById("tongTienHang");
+    const giamGia = document.getElementById("giamGia");
+    const canTra = document.getElementById("canTra");
+
+    btnAdd.addEventListener("click", () => modal.show());
+
+    document.getElementById("btnSaveProduct").addEventListener("click", () => {
+        const ten = tenHang.value.trim();
+        const dvtVal = dvt.value.trim();
+        const ton = parseInt(tonKho.value);
+        const sl = parseInt(soLuong.value);
+        const gia = parseFloat(donGia.value);
+
+        if (!ten || sl <= 0 || gia < 0) {
+            alert("Vui lòng nhập thông tin hợp lệ!");
+            return;
+        }
+
+        const thanhTien = sl * gia;
+
+        if (tbody.rows.length === 1 && tbody.rows[0].cells.length === 1)
+            tbody.innerHTML = "";
+
+        const newRow = `
+            <tr>
+                <td>${tbody.rows.length + 1}</td>
+                <td>SP00${tbody.rows.length + 1}</td>
+                <td>${ten}</td>
+                <td>${dvtVal}</td>
+                <td>${ton}</td>
+                <td>${sl}</td>
+                <td>${gia.toLocaleString()}</td>
+                <td>${thanhTien.toLocaleString()}</td>
+            </tr>`;
+        tbody.insertAdjacentHTML("beforeend", newRow);
+
+        // cập nhật tổng tiền
+        let total = 0;
+        tbody.querySelectorAll("tr").forEach(row => {
+            const val = row.cells[7]?.textContent.replace(/,/g, "");
+            if (!isNaN(val)) total += parseFloat(val);
+        });
+        tongTien.value = total.toLocaleString();
+        canTra.value = (total - parseFloat(giamGia.value || 0)).toLocaleString();
+
+        modal.hide();
+    });
+
+    giamGia.addEventListener("input", () => {
+        const total = parseFloat(tongTien.value.replace(/,/g, "") || 0);
+        const discount = parseFloat(giamGia.value || 0);
+        canTra.value = (total - discount).toLocaleString();
+    });
+});
+</script>
+}

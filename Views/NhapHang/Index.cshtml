@@ -1,0 +1,151 @@
+@{
+    ViewData["Title"] = "Danh sách phiếu nhập";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- CSS riêng -->
+<link rel="stylesheet" href="~/css/nhaphang.css" />
+
+<div class="nhaphang-container d-flex">
+
+    <!-- Filter sidebar -->
+    <aside class="filter-panel">
+        <h4>Chi nhánh</h4>
+        <select class="form-control mb-3">
+            <option>CN Nguyễn Văn Cừ - Cần Thơ</option>
+        </select>
+
+        <h4>Trạng thái</h4>
+        <div class="mb-3">
+            <label><input type="checkbox" checked /> Phiếu tạm</label><br />
+            <label><input type="checkbox" checked /> Đã nhập hàng</label><br />
+            <label><input type="checkbox" /> Đã hủy</label>
+        </div>
+
+        <h4>Thời gian</h4>
+        <div class="mb-3">
+            <label><input type="radio" name="thoigian" checked /> Tháng này</label><br />
+            <label><input type="radio" name="thoigian" /> Tùy chỉnh</label>
+            <input type="date" class="form-control mt-1" />
+        </div>
+
+        <h4>Người tạo</h4>
+        <input type="text" class="form-control mb-3" placeholder="Chọn người tạo" />
+
+        <h4>Người nhập</h4>
+        <input type="text" class="form-control mb-3" placeholder="Chọn người nhập" />
+
+        <button class="btn btn-success w-100" id="apply-filter">Apply</button>
+    </aside>
+
+    <!-- Overlay -->
+    <div class="filter-overlay" id="filter-overlay"></div>
+
+    <!-- Main content -->
+    <div class="content flex-grow-1 p-3">
+        <!-- Nút toggle filter mobile -->
+        <button class="btn btn-outline-secondary d-lg-none mb-3" id="filter-toggle">
+            ☰ Bộ lọc
+        </button>
+
+        <div class="header-bar d-flex justify-content-between align-items-center mb-3">
+            <h2>Nhập hàng</h2>
+            <div class="action-buttons d-flex gap-2">
+                <form asp-controller="NhapHang" asp-action="Create">
+                    <button type="submit" class="btn btn-primary">➕ Tạo phiếu nhập</button>
+                </form>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Xuất file
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Xuất Excel</a></li>
+                        <li><a class="dropdown-item" href="#">Xuất PDF</a></li>
+                    </ul>
+                </div>
+                <button class="icon-btn btn btn-outline-secondary">⚙️</button>
+                <button class="icon-btn btn btn-outline-secondary">❓</button>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách phiếu nhập -->
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã phiếu</th>
+                    <th>Nhà cung cấp</th>
+                    <th>Ngày tạo</th>
+                    <th>Người tạo</th>
+                    <th>Trạng thái</th>
+                    <th>Tổng tiền</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>PN001</td>
+                    <td>Nhà cung cấp A</td>
+                    <td>01/11/2025</td>
+                    <td>Nguyễn Văn B</td>
+                    <td>Phiếu tạm</td>
+                    <td>10,000,000</td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="openChiTietPN('PN001')">Xem</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>PN002</td>
+                    <td>Nhà cung cấp B</td>
+                    <td>02/11/2025</td>
+                    <td>Trần Thị C</td>
+                    <td>Đã nhập hàng</td>
+                    <td>5,500,000</td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="openChiTietPN('PN002')">Xem</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterPanel = document.querySelector('.filter-panel');
+    const filterOverlay = document.getElementById('filter-overlay');
+    const applyFilter = document.getElementById('apply-filter');
+    const body = document.body;
+
+    // Mở / đóng filter
+    filterToggle.addEventListener('click', () => {
+        filterPanel.classList.toggle('active');
+        filterOverlay.classList.toggle('active');
+        body.classList.toggle('menu-open-filter');
+    });
+
+    // Click overlay thì đóng
+    filterOverlay.addEventListener('click', () => {
+        filterPanel.classList.remove('active');
+        filterOverlay.classList.remove('active');
+        body.classList.remove('menu-open-filter');
+    });
+
+    // Apply filter
+    applyFilter.addEventListener('click', () => {
+        filterPanel.classList.remove('active');
+        filterOverlay.classList.remove('active');
+        body.classList.remove('menu-open-filter');
+        alert('Filter applied!');
+    });
+});
+
+// Xem chi tiết phiếu
+function openChiTietPN(maPN) {
+    alert("Xem chi tiết phiếu: " + maPN);
+}
+</script>
+}

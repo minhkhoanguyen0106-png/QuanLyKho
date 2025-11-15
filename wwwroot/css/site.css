@@ -135,9 +135,58 @@ body {
     background-color: #428446;
     color: white;
 }
+@media (max-width: 992px) {
+    /* Sidebar ẩn mặc định */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 230px;
+        height: 100%;
+        background-color: #62bb62dd;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out; /* 🔥 Thêm hiệu ứng trượt mượt hơn */
+        box-shadow: 3px 0 8px rgba(0, 0, 0, 0.3);
+    }
 
+    /* Khi sidebar mở */
+    .sidebar.active {
+        transform: translateX(0);
+    }
 
+    /* Nội dung full width khi sidebar ẩn */
+    .content {
+        width: 100%;
+    }
 
+    /* Khi mở menu, ngăn cuộn toàn trang */
+    body.menu-open {
+        overflow: hidden;
+    }
 
+    /* Overlay nền mờ */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1040;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
 
+    /* Khi overlay đang bật */
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
 
+    /* Nút hamburger chỉ hiện ở mobile */
+    #menu-toggle {
+        display: inline-block;
+    }
+}

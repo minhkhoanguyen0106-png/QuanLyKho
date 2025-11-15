@@ -2,35 +2,94 @@
     ViewBag.Title = "Chọn kho để chuyển";
     Layout = "/Views/Shared/_Layout.cshtml";
 }
+<div class="container-fluid py-3">
+    <div class="d-flex align-items-center mb-3">
+        <h4 class="mb-0 me-3">← Chuyển hàng</h4>
+        <div class="input-group flex-grow-1 me-3" style="max-width: 400px;">
+            <input type="text" class="form-control" placeholder="Tìm hàng hóa theo mã hoặc tên (F3)">
+            <button class="btn btn-outline-secondary" type="button"><i class="bi bi-search"></i></button></div>
+        <div class="ms-auto d-flex align-items-center">
+            <button class="btn btn-outline-secondary me-2" title="In"><i class="bi bi-printer"> In </i></button>
+            <button class="btn btn-outline-secondary me-2" title="Xuất File"><i class="bi bi-file-earmark-arrow-up">Xuất File </i></button>
+            <button class="btn btn-outline-secondary" title="Cài đặt"><i class="bi bi-gear">Cài Đặt</i></button>
+            <div class="ms-3 p-2 bg-light rounded text-center"> <small class="d-block text-muted">Người tạo: QUỐC TRÍ</small> <strong>14/11/2025 22:26</strong> </div></div>
+    </div>
 
-<div class="container-fluid mt-4">
-    <h4 class="fw-bold text-success mb-4">🏷️ Chọn kho để chuyển</h4>
+    <hr>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Kho gửi</label>
-                    <select class="form-select">
-                        <option>Kho Trung tâm</option>
-                        <option>Kho Chi nhánh 1</option>
-                        <option>Kho Chi nhánh 2</option>
-                    </select>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Danh sách phiếu chuyển</h5>
+                    
+                    <div class="table-responsive mt-3">
+                        <table class="table table-hover table-sm align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">STT</th>
+                                    <th scope="col">Mã hàng</th>
+                                    <th scope="col">Tên hàng</th>
+                                    <th scope="col">ĐVT</th>
+                                    <th scope="col">Tồn kho</th>
+                                    <th scope="col">Tồn kho nhận</th>
+                                    <th scope="col">SL chuyển</th>
+                                    <th scope="col">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-muted">
+                                        Không có sản phẩm nào được chọn.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Kho nhận</label>
-                    <select class="form-select">
-                        <option>Kho Trung tâm</option>
-                        <option>Kho Chi nhánh 1</option>
-                        <option>Kho Chi nhánh 2</option>
-                    </select>
-                </div>
-                <div class="col-12">
-                    <label class="form-label mt-3">Ghi chú</label>
-                    <textarea class="form-control" rows="3" placeholder="Nhập ghi chú nếu có..."></textarea>
-                </div>
-                <div class="col-12 text-end mt-3">
-                    <button class="btn btn-success">✔️ Tạo phiếu chuyển kho</button>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+<label for="maPhieu" class="form-label">Mã phiếu tự động</label>
+                            <input type="text" class="form-control" id="maPhieu" value="Tự động sinh" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phanLoai" class="form-label">Phân loại</label>
+                            <select class="form-select" id="phanLoai">
+                                <option>Phiếu tạm</option>
+                                <option>Phiếu chính thức</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tổng số lượng</label>
+                            <p class="form-control-static"><strong>0</strong></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chuyenToi" class="form-label">Chuyển tới</label>
+                            <select class="form-select" id="chuyenToi">
+                                <option>Chọn chi nhánh</option>
+                                <option>Kho 1</option>
+                                <option>Kho 2</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ghiChu" class="form-label">
+                                <i class="bi bi-pencil-square"></i> Ghi chú
+                            </label>
+                            <textarea class="form-control" id="ghiChu" rows="4"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="button" class="btn btn-lg btn-danger">Lưu tạm</button>
+                            <button type="submit" class="btn btn-lg btn-success">Hoàn thành</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

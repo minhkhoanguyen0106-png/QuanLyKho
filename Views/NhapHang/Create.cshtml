@@ -1,0 +1,155 @@
+@{
+    ViewData["Title"] = "Thêm phiếu nhập hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Link CSS riêng -->
+<link rel="stylesheet" href="~/css/nhaphang_create.css" />
+
+<div class="container mt-4">
+    <a href="@Url.Action("Index", "NhapHang")" class="text-primary d-inline-block mb-3">
+        ⬅ Quay lại danh sách phiếu nhập
+    </a>
+
+    <h2 class="mb-4">Thêm phiếu nhập hàng</h2>
+
+    <div class="row g-3">
+        <!-- Bảng hàng hóa -->
+        <div class="col-12 col-lg-8">
+            <div class="card p-3">
+                <input type="text" id="searchInput" class="form-control mb-3" placeholder="Tìm hàng hóa theo mã hoặc tên (F3)" />
+
+                <div class="table-responsive" style="max-height:500px; overflow:auto;">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã hàng</th>
+                                <th>Tên hàng</th>
+                                <th>ĐVT</th>
+                                <th>Số lượng</th>
+                                <th>Đơn giá</th>
+                                <th>Giảm giá</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTable">
+                            <!-- Demo: thêm sản phẩm từ JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-2">
+                    <input type="file" id="fileInput" style="display:none;" onchange="updateFileName()" />
+                    <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click();">
+                        📂 Chọn file dữ liệu
+                    </button>
+                    <span id="fileName" class="ms-2"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin phiếu -->
+        <div class="col-12 col-lg-4">
+            <div class="card p-3">
+                <div class="mb-3">
+                    <label>Nhà cung cấp</label>
+                    <input type="text" placeholder="Tìm nhà cung cấp" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Mã phiếu nhập</label>
+                    <input type="text" placeholder="Mã phiếu tự động" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Trạng thái</label>
+                    <input type="text" value="Phiếu tạm" readonly class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Tổng tiền hàng</label>
+                    <input type="text" value="0" readonly class="form-control" id="tongTien" />
+                </div>
+                <div class="mb-3">
+                    <label>Giảm giá</label>
+                    <input type="number" value="0" class="form-control" id="giamGia" />
+                </div>
+                <div class="mb-3">
+                    <label>Cần trả nhà cung cấp</label>
+                    <input type="text" value="0" readonly class="form-control text-primary fw-bold" id="canTra" />
+                </div>
+                <div class="mb-3">
+                    <label>Ghi chú</label>
+                    <textarea rows="3" placeholder="Ghi chú" class="form-control"></textarea>
+                </div>
+
+                <form method="post">
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <button type="submit" formaction="/Phieu/Nhap/LuuTam" class="btn btn-primary flex-fill">💾 Lưu tạm</button>
+                        <button type="submit" formaction="/Phieu/Nhap/HoanThanh" class="btn btn-success flex-fill">✅ Hoàn thành</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Hiển thị tên file
+    function updateFileName() {
+        const input = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        if(input.files.length > 0) fileName.textContent = input.files[0].name;
+    }
+
+    // Demo dữ liệu sản phẩm
+    const productTable = document.getElementById('productTable');
+    const demoProducts = [
+        {stt:1, ma:'H001', ten:'Xe đạp A', dvt:'Cái', sl:1, dg:5000000, gg:0},
+        {stt:2, ma:'H002', ten:'Xe đạp B', dvt:'Cái', sl:2, dg:3000000, gg:0}
+    ];
+
+    function renderProducts() {
+        productTable.innerHTML = '';
+        demoProducts.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${p.stt}</td>
+                <td>${p.ma}</td>
+                <td>${p.ten}</td>
+                <td>${p.dvt}</td>
+                <td><input type="number" class="form-control so-luong" value="${p.sl}" min="0"/></td>
+                <td><input type="number" class="form-control don-gia" value="${p.dg}" min="0"/></td>
+                <td><input type="number" class="form-control giam-gia" value="${p.gg}" min="0"/></td>
+                <td><input type="text" class="form-control thanh-tien" value="0" readonly/></td>
+            `;
+            productTable.appendChild(tr);
+        });
+        tinhTien();
+        addInputListeners();
+    }
+
+    function tinhTien() {
+        let tong = 0;
+        document.querySelectorAll('#productTable tr').forEach(row => {
+            const sl = parseFloat(row.querySelector('.so-luong')?.value || 0);
+            const dg = parseFloat(row.querySelector('.don-gia')?.value || 0);
+            const gg = parseFloat(row.querySelector('.giam-gia')?.value || 0);
+            const tt = sl * dg - gg;
+            row.querySelector('.thanh-tien')?.setAttribute('value', tt.toLocaleString());
+            tong += tt;
+        });
+        const giamGia = parseFloat(document.getElementById('giamGia').value || 0);
+        document.getElementById('tongTien').value = tong.toLocaleString();
+        document.getElementById('canTra').value = (tong - giamGia).toLocaleString();
+    }
+
+    function addInputListeners() {
+        document.querySelectorAll('.so-luong, .don-gia, .giam-gia').forEach(input => {
+            input.addEventListener('input', tinhTien);
+        });
+        document.getElementById('giamGia').addEventListener('input', tinhTien);
+    }
+
+    renderProducts();
+</script>
+}

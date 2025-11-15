@@ -20,7 +20,7 @@ public class HomeController : Controller
     if (role == "QuanLy")
         ViewBag.Layout = "_Layout";
     else
-        ViewBag.Layout = "_LayoutNV";
+        ViewBag.Layout = "_Layout";
     return View();
     }
 

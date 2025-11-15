@@ -1,11 +1,19 @@
 is_global = true
 build_property.TargetFramework = net9.0
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
 build_property.ProjectTypeGuids = 
 build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
 build_property.PlatformNeutralAssembly = 
 build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = QuanLyKho
 build_property.RootNamespace = QuanLyKho
@@ -76,6 +84,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2hvSGFuZ1xUaG9uZ0tlU2FpTGVjaC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/QuanLyKho/Views/KiemKho/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2llbUtob1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/QuanLyKho/Views/KiemKho/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2llbUtob1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/QuanLyKho/Views/NCC/DanhSachNCC.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTkNDXERhbmhTYWNoTkNDLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -100,8 +116,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhblZpZW5cTmhhblZpZW4uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/QuanLyKho/Views/NV/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTlZcSW5kZXguY3NodG1s
+[D:/QuanLyKho/Views/NhapHang/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhcEhhbmdcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/QuanLyKho/Views/NhapHang/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhcEhhbmdcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/QuanLyKho/Views/Shared/Error.cshtml]
@@ -114,6 +134,22 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/QuanLyKho/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/QuanLyKho/Views/TaoBaoCao/BaoCaoNhap.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFvQmFvQ2FvXEJhb0Nhb05oYXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/QuanLyKho/Views/TaoBaoCao/BaoCaoXuat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFvQmFvQ2FvXEJhb0Nhb1h1YXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/QuanLyKho/Views/XuatHang/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcWHVhdEhhbmdcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/QuanLyKho/Views/XuatHang/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcWHVhdEhhbmdcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/QuanLyKho/Views/_ViewImports.cshtml]
