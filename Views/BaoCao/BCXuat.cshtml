@@ -1,90 +1,111 @@
+@using Microsoft.AspNetCore.Http
 @{
     ViewData["Title"] = "Xem Báo Cáo Xuất";
+    // Giữ nguyên logic lấy user từ Session
     var user = Context.Session.GetString("User");
 }
 
-<div class="container-fluid mt-3" style="font-family:'Segoe UI', sans-serif;">
+<div class="container-fluid">
 
-    <!-- Tiêu đề -->
-    <div class="d-flex justify-content-between align-items-center p-3 rounded shadow-sm"
-         style="background-color:#428446; color:white;">
-        <h4 class="fw-semibold m-0">🚚 Báo cáo xuất hàng</h4>
-        <div class="fw-semibold">
-            Xin chào, @(user ?? "Người dùng")
-        </div>
+    <div class="callout callout-success mb-4">
+        <h4 class="fw-semibold">
+            <i class="fas fa-truck mr-2"></i> Báo cáo xuất hàng
+        </h4>
+        <p class="mb-0">
+            Xin chào, *@(user ?? "Người dùng")*
+        </p>
     </div>
 
-    <!-- Bộ lọc -->
-    <div class="card shadow-sm border-0 my-4">
+    <div class="card card-outline card-success">
+        <div class="card-header">
+            <h3 class="card-title">Bộ lọc báo cáo</h3>
+        </div>
         <div class="card-body">
-            <div class="row g-3 align-items-end">
+            <form class="row"> 
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold" style="color:#428446;">Chi nhánh</label>
-                    <select class="form-select border-success">
-                        <option selected>Tất cả</option>
-                        <option>CN Nguyễn Văn Cừ - Cần Thơ</option>
-                        <option>CN Lê Lợi - Đà Nẵng</option>
-                        <option>CN Quang Trung - HCM</option>
-                    </select>
+                    <div class="form-group">
+                        <label class="form-label">Chi nhánh</label>
+                        <select class="form-control">
+                            <option selected>Tất cả</option>
+                            <option>CN Nguyễn Văn Cừ - Cần Thơ</option>
+                            <option>CN Lê Lợi - Đà Nẵng</option>
+                            <option>CN Quang Trung - HCM</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold" style="color:#428446;">Khách hàng</label>
-                    <select class="form-select border-success">
-                        <option selected>Tất cả</option>
-                        <option>Trần Minh Phúc</option>
-                        <option>Phan Lê Huyền</option>
-                        <option>Nguyễn Thành Công</option>
-                    </select>
+                    <div class="form-group">
+                        <label class="form-label">Khách hàng</label>
+                        <select class="form-control">
+                            <option selected>Tất cả</option>
+                            <option>Trần Minh Phúc</option>
+                            <option>Phan Lê Huyền</option>
+                            <option>Nguyễn Thành Công</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label fw-semibold" style="color:#428446;">Từ ngày</label>
-                    <input type="date" class="form-control border-success">
+                    <div class="form-group">
+                        <label class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control">
+                    </div>
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label fw-semibold" style="color:#428446;">Đến ngày</label>
-                    <input type="date" class="form-control border-success">
+                    <div class="form-group">
+                        <label class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control">
+                    </div>
                 </div>
 
-                <div class="col-md-2 text-end">
-                    <button class="btn text-white fw-semibold px-4"
-                            style="background-color:#428446;">🔍 Lọc</button>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
-    <!-- Thống kê tổng quan -->
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 text-center p-3" style="background-color:#e8f3e8;">
-                <h6 class="text-success">Tổng số phiếu xuất</h6>
-                <h4 class="fw-bold text-dark">18</h4>
+        <div class="col-md-4 col-sm-6 col-12">
+            <div class="info-box bg-gradient-success">
+                <span class="info-box-icon"><i class="fas fa-file-export"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Tổng số phiếu xuất</span>
+                    <span class="info-box-number">18</span>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 text-center p-3" style="background-color:#e8f3e8;">
-                <h6 class="text-success">Tổng giá trị xuất</h6>
-                <h4 class="fw-bold text-dark">248,900,000 ₫</h4>
+        <div class="col-md-4 col-sm-6 col-12">
+            <div class="info-box bg-gradient-success">
+                <span class="info-box-icon"><i class="fas fa-coins"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Tổng giá trị xuất</span>
+                    <span class="info-box-number">248,900,000 ₫</span>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 text-center p-3" style="background-color:#e8f3e8;">
-                <h6 class="text-success">Số khách hàng giao dịch</h6>
-                <h4 class="fw-bold text-dark">5</h4>
+        <div class="col-md-4 col-sm-6 col-12">
+            <div class="info-box bg-gradient-success">
+                <span class="info-box-icon"><i class="fas fa-user-tag"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Số khách hàng giao dịch</span>
+                    <span class="info-box-number">5</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Bảng dữ liệu -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header fw-semibold text-white"
-             style="background-color:#428446;">Chi tiết phiếu xuất</div>
-        <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0">
-                <thead style="background-color:#cde9cd; color:#1f421f;">
+    <div class="card">
+        <div class="card-header bg-success">
+            <h3 class="card-title text-white">Chi tiết phiếu xuất</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-valign-middle" id="exportDetailTable">
+                <thead>
                     <tr>
                         <th>#</th>
                         <th>Mã phiếu xuất</th>
@@ -112,7 +133,7 @@
                         <td>Phan Lê Huyền</td>
                         <td>CN Nguyễn Văn Cừ</td>
                         <td>8,950,000 ₫</td>
-                        <td><span class="badge bg-info text-dark">Đang giao</span></td>
+                        <td><span class="badge bg-info">Đang giao</span></td>
                     </tr>
                     <tr>
                         <td>3</td>
@@ -121,17 +142,20 @@
                         <td>Nguyễn Thành Công</td>
                         <td>CN Nguyễn Văn Cừ</td>
                         <td>5,400,000 ₫</td>
-                        <td><span class="badge bg-warning text-dark">Chờ xác nhận</span></td>
+                        <td><span class="badge bg-warning">Chờ xác nhận</span></td>
                     </tr>
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Biểu đồ thống kê -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header fw-semibold text-white"
-             style="background-color:#428446;">Thống kê giá trị xuất theo chi nhánh</div>
+    <div class="card card-success card-outline">
+        <div class="card-header">
+            <h3 class="card-title text-white">
+                <i class="fas fa-chart-line mr-1"></i>
+                Thống kê giá trị xuất theo chi nhánh
+            </h3>
+        </div>
         <div class="card-body">
             <canvas id="chartXuat" height="100"></canvas>
         </div>
@@ -139,24 +163,114 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
-        const ctx = document.getElementById('chartXuat').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['CN Nguyễn Văn Cừ', 'CN Lê Lợi', 'CN Quang Trung'],
-                datasets: [{
-                    label: 'Giá trị xuất (VNĐ)',
-                    data: [12350000, 9850000, 15200000],
-                    backgroundColor: ['#428446', '#5fa05f', '#74b274']
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true } },
-                plugins: { legend: { display: false } }
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.card-body form');
+            const tuNgayInput = document.querySelector('.card-body form input[type="date"]:nth-of-type(1)');
+            const denNgayInput = document.querySelector('.card-body form input[type="date"]:nth-of-type(2)');
+            
+            // --- 1. LOGIC: THIẾT LẬP NGÀY MẶC ĐỊNH ---
+            function setDefaultDates() {
+                const now = new Date();
+                const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                
+                const formatDate = (date) => {
+                    const y = date.getFullYear();
+                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                    const d = String(date.getDate()).padStart(2, '0');
+                    return ${y}-${m}-${d};
+                };
+                
+                if (tuNgayInput) {
+                    tuNgayInput.value = formatDate(firstDayOfMonth);
+                }
+                if (denNgayInput) {
+                    denNgayInput.value = formatDate(lastDayOfMonth);
+                }
             }
+            
+            // --- 2. LOGIC: XỬ LÝ SỰ KIỆN LỌC (CLIENT-SIDE VALIDATION) ---
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const tuNgay = new Date(tuNgayInput.value);
+                    const denNgay = new Date(denNgayInput.value);
+                    
+                    if (tuNgay > denNgay) {
+                        e.preventDefault();
+                        alert('Lỗi: "Từ ngày" không được lớn hơn "Đến ngày". Vui lòng kiểm tra lại.');
+                        tuNgayInput.classList.add('is-invalid');
+                        denNgayInput.classList.add('is-invalid');
+                        return;
+                    }
+                    
+                    tuNgayInput.classList.remove('is-invalid');
+                    denNgayInput.classList.remove('is-invalid');
+                });
+            }
+
+            // --- 3. LOGIC: KHỞI TẠO BIỂU ĐỒ (CHART.JS) ---
+            const ctx = document.getElementById('chartXuat').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['CN Nguyễn Văn Cừ', 'CN Lê Lợi', 'CN Quang Trung'],
+                    datasets: [{
+                        label: 'Giá trị xuất (VNĐ)',
+                        data: [12350000, 9850000, 15200000],
+                        backgroundColor: ['#28a745', '#4caf50', '#6bc36e'] 
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN');
+                                }
+                            }
+                        } 
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (context.parsed.y !== null) {
+                                        label += ': ' + context.parsed.y.toLocaleString('vi-VN') + ' ₫';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // --- 4. LOGIC: KHỞI TẠO DATATABLES CHO BẢNG DỮ LIỆU ---
+            if (document.getElementById('exportDetailTable')) {
+                new DataTable('#exportDetailTable', {
+                    // Cài đặt ngôn ngữ hiển thị tiếng Việt
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/vi.json'
+                    },
+                    // Kích hoạt tìm kiếm, phân trang, sắp xếp
+                    searching: true,
+                    paging: true,
+                    ordering: true,
+                    info: true
+                });
+            }
+            
+            // Khởi tạo các giá trị
+            setDefaultDates(); 
         });
     </script>
 }

@@ -9,7 +9,7 @@ namespace QuanLyKho.Controllers
             return View();
         }
 
-         public IActionResult BCNhap()
+        public IActionResult BCNhap()
         {
             return View();
         }

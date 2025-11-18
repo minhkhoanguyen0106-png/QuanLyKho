@@ -1,65 +1,100 @@
-﻿@{
+﻿﻿@using Microsoft.AspNetCore.Http
+@{
     ViewData["Title"] = "Tổng quan";
     var user = Context.Session.GetString("User");
+    
+    // Thiết lập biến màu chủ đạo (Green Style)
+    var primaryGreen = "#428446"; 
+    var lightGreen = "#e8f9e8"; 
 }
 
-    <!-- Phần thống kê chính -->
-    <div class="row">
-        <!-- Kết quả bán hàng hôm nay -->
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0 mb-3">
-                <div class="card-header fw-semibold" style="background-color:#428446; color:white;">
-                    Kết quả bán hàng hôm nay
-                </div>
+<div class="container-fluid mt-3" style="font-family:'Segoe UI', sans-serif;">
+
+    <div class="d-flex justify-content-between align-items-center p-3 mb-3 rounded-top" 
+         style="background-color: @primaryGreen; color: white; border-bottom: 2px solid white;">
+        <h5 class="m-0 fw-bold">Tổng quan hoạt động</h5>
+        <small>Chi nhánh: **@(user ?? "Người dùng")**</small>
+    </div>
+
+    <div class="row mb-4">
+        
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid @primaryGreen !important;">
                 <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <h5 style="color:#428446;">Doanh thu</h5>
-                            <p class="fs-4 fw-bold text-success">42,238,000</p>
-                            <small>8 hóa đơn</small>
-                        </div>
-                        <div class="col-md-4">
-                            <h5 style="color:#428446;">Trả hàng</h5>
-                            <p class="fs-4 fw-bold text-danger">0</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h5 style="color:#428446;">Doanh thu thuần</h5>
-                            <p class="fs-4 fw-bold text-dark">186,776,000</p>
-                            <small>
-                                <span class="text-danger">▼ -6.24%</span> so với hôm qua<br />
-                                <span class="text-success">▲ 106.07%</span> so với cùng kỳ
-                            </small>
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <!-- Biểu đồ -->
-                    <h6 class="fw-semibold" style="color:#428446;">Doanh thu thuần theo ngày</h6>
-                    <canvas id="chartDoanhThu" height="120"></canvas>
+                    <h6 class="text-muted fw-semibold mb-0">Doanh thu thuần</h6>
+                    <p class="fs-4 fw-bold mt-1 mb-1" style="color: @primaryGreen;">186,776,000 ₫</p>
+                    <small>
+                        <span class="text-danger fw-semibold">▼ -6.24%</span> so với hôm qua
+                    </small>
                 </div>
             </div>
         </div>
 
-        <!-- Hoạt động gần đây -->
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header fw-semibold" style="background-color:#428446; color:white;">
-                    Hoạt động gần đây
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #28a745 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted fw-semibold mb-0">Doanh thu</h6>
+                    <p class="fs-4 fw-bold mt-1 mb-1 text-success">42,238,000 ₫</p>
+                    <small>8 hóa đơn</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #dc3545 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted fw-semibold mb-0">Trả hàng</h6>
+                    <p class="fs-4 fw-bold mt-1 mb-1 text-danger">0 ₫</p>
+                    <small>0 hóa đơn</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+             <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #ffc107 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted fw-semibold mb-0">Hàng hóa hết hạn</h6>
+                    <p class="fs-4 fw-bold mt-1 mb-1 text-warning">403</p>
+                    <small>trong 20 ngày tới</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        
+        <div class="col-md-9"> 
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header fw-semibold" style="background-color: @primaryGreen; color: white;">
+                    Doanh thu thuần theo ngày (Tháng này)
                 </div>
                 <div class="card-body">
+                    <canvas id="chartDoanhThu" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3"> 
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header fw-semibold" style="background-color: @lightGreen; color: @primaryGreen;">
+                    Hoạt động gần đây
+                </div>
+                <div class="card-body p-0">
                     <ul class="list-group list-group-flush small">
                         <li class="list-group-item">
-                            <strong style="color:#428446;">LEADER - HUỲNH GIANG</strong> vừa nhận hàng trị giá <strong>12,060,000</strong><br/>
+                            <strong style="color:@primaryGreen;">LEADER - HUỲNH GIANG</strong> vừa nhận hàng trị giá <strong>12,060,000 ₫</strong><br/>
                             <small class="text-muted">4 giờ trước</small>
                         </li>
                         <li class="list-group-item">
-                            <strong style="color:#428446;">SALE - DI PHÚC</strong> vừa nhận đặt hàng trị giá <strong>15,090,000</strong><br/>
+                            <strong style="color:@primaryGreen;">SALE - DI PHÚC</strong> vừa nhận đặt hàng trị giá <strong>15,090,000 ₫</strong><br/>
                             <small class="text-muted">6 giờ trước</small>
                         </li>
                         <li class="list-group-item">
-                            <strong style="color:#428446;">CỬU HỘ - KHÁNH</strong> vừa bán đơn hàng <strong>55,000</strong><br/>
+                            <strong style="color:@primaryGreen;">CỬU HỘ - KHÁNH</strong> vừa bán đơn hàng <strong>55,000 ₫</strong><br/>
                             <small class="text-muted">8 giờ trước</small>
+                        </li>
+                        <li class="list-group-item text-center">
+                            <a href="#" class="btn btn-sm text-decoration-none" style="color:@primaryGreen;">Xem tất cả hoạt động &raquo;</a>
                         </li>
                     </ul>
                 </div>
@@ -68,24 +103,85 @@
     </div>
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('chartDoanhThu');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','CN'],
-            datasets: [{
-                label: 'Doanh thu (VNĐ)',
-                data: [140000000, 180000000, 160000000, 200000000, 190000000, 170000000, 186776000],
-                backgroundColor: '#428446'
-            }]
-        },
-        options: {
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
-</script>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- DỮ LIỆU CỐ ĐỊNH (5 CỘT) ---
+            const cnCanThoData = [180, 195, 170, 150, 140, 160, 130, 120, 170, 185, 190, 175, 180, 190, 200, 210, 205, 190, 210, 220, 215, 200, 195, 210, 220, 225, 210, 200, 190, 180, 190];
+            const cnDaNangData = [80, 95, 70, 50, 40, 60, 30, 20, 70, 85, 90, 75, 80, 90, 100, 110, 105, 90, 110, 120, 115, 100, 95, 110, 120, 125, 110, 100, 90, 80, 90];
+            const cnHCMData = [70, 85, 60, 40, 30, 50, 20, 10, 60, 75, 80, 65, 70, 80, 90, 100, 95, 80, 100, 110, 105, 90, 85, 100, 110, 115, 100, 90, 80, 70, 80];
+            const onlineData = [100, 115, 90, 70, 60, 80, 50, 40, 90, 105, 110, 95, 100, 110, 120, 130, 125, 110, 130, 140, 135, 120, 115, 130, 140, 145, 130, 120, 110, 100, 110];
+            const cnNhaTrangData = [50, 60, 70, 80, 75, 90, 85, 100, 110, 120, 115, 105, 95, 85, 75, 65, 55, 65, 75, 85, 95, 105, 115, 120, 110, 100, 90, 80, 70, 60, 50]; 
+
+            const daysInMonth = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+            const ctx = document.getElementById('chartDoanhThu');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: daysInMonth,
+                    datasets: [
+                        { label: 'CN Cần Thơ', data: cnCanThoData, backgroundColor: '#28a745', stack: 'Stack 0' },
+                        { label: 'CN Đà Nẵng', data: cnDaNangData, backgroundColor: '#007bff', stack: 'Stack 0' },
+                        { label: 'CN HCM', data: cnHCMData, backgroundColor: '#dc3545', stack: 'Stack 0' },
+                        { label: 'Bán hàng Online', data: onlineData, backgroundColor: '#ffc107', stack: 'Stack 0' },
+                        { label: 'CN Nha Trang', data: cnNhaTrangData, backgroundColor: '#6f42c1', stack: 'Stack 0' } 
+                    ]
+                },
+                options: {
+                    responsive: false,           
+                    maintainAspectRatio: false, 
+                    
+                    scales: {
+                        x: {
+                            stacked: true,
+                            categoryPercentage: 1.0, // <-- Độ rộng cột tối đa
+                            barPercentage: 1.0,      // <-- Độ rộng cột tối đa
+                            title: {
+                                display: true,
+                                text: 'Ngày trong tháng'
+                            },
+                            grid: {
+                                display: false 
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            max: 600, 
+                            ticks: {
+                                stepSize: 100, 
+                                callback: function(value) {
+                                    return value + ' Tr';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (context.parsed.y !== null) {
+                                        label += ': ' + context.parsed.y.toLocaleString('vi-VN') + ' Triệu ₫';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}
