@@ -2,54 +2,243 @@
 @{
     ViewData["Title"] = "Danh sách Báo cáo";
     var user = Context.Session.GetString("User");
-    var primaryGreen = "#428446";
-    var lightGreen = "#e8f9e8";
+    
+    // ĐỒNG BỘ MÀU CHỦ ĐẠO (TỪ TRANG LINH KIỆN/NCC)
+    // Giữ lại primaryGreenDark vì nó được sử dụng ở dòng 117
+    var primaryGreenDark = "#28a745"; 
+    // Xóa var primaryGreenLight = "#e8f9e8"; để loại bỏ cảnh báo CS0219
 }
 
-<div class="container-fluid mt-3" style="font-family:'Segoe UI', sans-serif;">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <div class="d-flex justify-content-between align-items-center p-3 rounded shadow-sm"
-         style="background-color:@primaryGreen; color:white;">
+<style>
+    /* Sử dụng biến CSS để quản lý màu sắc nhất quán */
+    :root {
+        --primary-green-dark: #28a745; 
+        --primary-green-light: #e8f9e8;
+        --secondary-green-text: #1f421f;
+        --background-color: #f7fcf7;
+        --shadow-color: rgba(0, 0, 0, 0.08);
+        --border-color: #e1e1e1;
+        --light-green-border: #cde8c8;
+        --action-blue: #007bff; /* Màu xanh dương cho các nút action */
+    }
+
+    body {
+        background-color: var(--background-color);
+        font-family: "Segoe UI", sans-serif;
+    }
+
+    /* ====== HEADER CHUNG ====== */
+    .app-header {
+        background-color: var(--primary-green-dark) !important;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px var(--shadow-color);
+        margin-bottom: 20px;
+    }
+
+    /* ====== CARD CHUNG (SIDEBAR FILTER/DATA CARDS) ====== */
+    .custom-card {
+        background-color: #fff;
+        border-radius: 8px; 
+        box-shadow: 0 1px 6px var(--shadow-color);
+        border: 1px solid var(--border-color);
+        margin-bottom: 16px; /* Khoảng cách dưới */
+    }
+    
+    .card-header-green {
+        background-color: var(--primary-green-light);
+        color: var(--primary-green-dark);
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 16px;
+    }
+    
+    .card-header-dark-green {
+        background-color: var(--primary-green-dark);
+        color: white;
+        font-weight: 600;
+        border-bottom: none;
+    }
+
+    /* ====== NÚT & FORM CONTROL ====== */
+    .btn-xanhbo {
+        background-color: var(--primary-green-dark);
+        color: #fff;
+        border: none;
+        transition: 0.3s;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    .btn-xanhbo:hover {
+        background-color: #218838; 
+        color: #fff;
+    }
+    
+    .btn-outline-success-custom {
+        color: var(--primary-green-dark);
+        border-color: var(--primary-green-dark);
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    .btn-outline-success-custom:hover {
+        background-color: var(--primary-green-dark);
+        color: white;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 6px;
+        font-size: 14px;
+        border-color: var(--light-green-border);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.15rem rgba(40, 167, 69, 0.25);
+        border-color: var(--primary-green-dark);
+    }
+    
+    .filter-label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: var(--secondary-green-text);
+    }
+    
+    /* Nút toggle filter cho mobile/tablet */
+    @@media (max-width: 991.98px) {
+        .filter-toggle-btn {
+            display: block;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .filter-sidebar {
+            display: none; /* Mặc định ẩn trên màn hình nhỏ */
+        }
+        .filter-sidebar.show-filter {
+            display: block; /* Hiển thị khi được toggle */
+        }
+    }
+    @@media (min-width: 992px) {
+        .filter-toggle-btn {
+            display: none; /* Ẩn trên màn hình lớn */
+        }
+        .filter-sidebar {
+            display: block;
+        }
+    }
+
+    /* ====== THANH HÀNH ĐỘNG (ACTION BAR) ====== */
+    .action-bar {
+        background-color: #fff;
+        padding: 12px 16px;
+        border-radius: 8px; 
+        box-shadow: 0 1px 6px var(--shadow-color);
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+    }
+    
+    /* ====== BẢNG DỮ LIỆU ====== */
+    .table thead {
+        background-color: #cde9cd; 
+        color: var(--secondary-green-text);
+        font-weight: 600;
+        font-size: 13.5px;
+    }
+    .table th {
+        padding: 10px 8px;
+        border-bottom: 1px solid #b7dbb7 !important;
+    }
+    .table td {
+        font-size: 13px;
+        padding: 8px;
+        vertical-align: middle;
+    }
+    .table-hover > tbody > tr:hover {
+        background-color: #f5fff5; 
+    }
+    
+    /* BADGES */
+    .badge-status {
+        font-size: 12px;
+        padding: 6px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    .bg-success { background-color: #28a745 !important; color: white !important; }
+    .bg-warning { background-color: #ffc107 !important; }
+    .bg-info { background-color: #17a2b8 !important; color: white !important; }
+
+</style>
+
+<div class="container-fluid mt-4">
+    
+    <div class="app-header mb-4 d-flex justify-content-between align-items-center">
         <h4 class="fw-semibold m-0">📊 Danh sách Báo cáo</h4>
         <div class="fw-semibold">
             Xin chào, @(user ?? "Người dùng")
         </div>
     </div>
+    
+    <div class="row g-4">
+        
+        <div class="col-12">
+            <button class="btn btn-xanhbo filter-toggle-btn d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebar" aria-expanded="false" aria-controls="filterSidebar">
+                <i class="fa-solid fa-filter"></i> Hiện/Ẩn Bộ lọc
+            </button>
+        </div>
 
-    <div class="card shadow-sm border-0 my-4">
-        <div class="card-body">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold" style="color:@primaryGreen;">Loại báo cáo</label>
-                    <select class="form-select border-success">
-                        <option>Tất cả</option>
-                        <option>Báo cáo doanh thu</option>
-                        <option>Báo cáo tồn kho</option>
-                        <option>Báo cáo công nợ</option>
-                        <option>Báo cáo bán hàng</option>
+        <div class="col-lg-3 collapse d-lg-block filter-sidebar" id="filterSidebar">
+            <div class="custom-card p-3">
+                @* SỬ DỤNG BIẾN C# primaryGreenDark Ở ĐÂY *@
+                <h5 class="mb-3 fw-bold" style="color:@primaryGreenDark;"><i class="fa-solid fa-filter"></i> Bộ lọc Báo cáo</h5>
+
+                <div class="mb-3">
+                    <label class="filter-label" for="filterLoaiBaoCao">Loại báo cáo</label>
+                    <select id="filterLoaiBaoCao" class="form-select">
+                        <option value="">Tất cả loại báo cáo</option>
+                        <option value="Doanh thu">Báo cáo doanh thu</option>
+                        <option value="Tồn kho">Báo cáo tồn kho</option>
+                        <option value="Công nợ">Báo cáo công nợ</option>
+                        <option value="Bán hàng">Báo cáo bán hàng</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold" style="color:@primaryGreen;">Từ ngày</label>
-                    <input type="date" class="form-control border-success">
+
+                <div class="mb-3">
+                    <label class="filter-label" for="filterTrangThai">Trạng thái</label>
+                    <select id="filterTrangThai" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="Hoàn tất">Hoàn tất</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="Đã gửi">Đã gửi</option>
+                    </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold" style="color:@primaryGreen;">Đến ngày</label>
-                    <input type="date" class="form-control border-success">
+                
+                <div class="mt-4">
+                    <label class="filter-label">Khoảng thời gian tạo</label>
+                    <div class="mb-2">
+                        <label class="filter-label">Từ ngày</label>
+                        <input type="date" class="form-control" id="startDateFilter">
+                    </div>
+                    <div>
+                        <label class="filter-label">Đến ngày</label>
+                        <input type="date" class="form-control" id="endDateFilter">
+                    </div>
                 </div>
-                <div class="col-md-3 text-end">
-                    <button class="btn fw-semibold text-white px-4"
-                            style="background-color:@primaryGreen;">🔍 Tra cứu</button>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-sm btn-xanhbo w-100" onclick="applyFilters()">
+                        <i class="fa-solid fa-magnifying-glass"></i> Áp dụng bộ lọc
+                    </button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="row mb-4">
-        
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header fw-semibold" style="background-color:@lightGreen; color:@primaryGreen;">
+            
+            <div class="custom-card h-auto">
+                <div class="card-header-green">
                     Phân bổ theo Loại báo cáo
                 </div>
                 <div class="card-body">
@@ -57,108 +246,232 @@
                 </div>
             </div>
         </div>
+        
+        <div class="col-lg-9">
+            
+            <div class="action-bar d-flex justify-content-between flex-wrap align-items-center">
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <input type="text" id="globalSearchBox" class="form-control" placeholder="🔍 Tìm theo Tên, Mã báo cáo..." style="width: 250px;">
+                    <button class="btn btn-xanhbo" onclick="createNewReport()">
+                        <i class="fa fa-plus"></i> Tạo báo cáo mới
+                    </button>
+                </div>
 
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header fw-semibold" style="background-color:@lightGreen; color:@primaryGreen;">
+                <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                    <button class="btn btn-sm btn-outline-success-custom" onclick="exportToExcel()">
+                        <i class="fa-solid fa-file-export"></i> Xuất Excel
+                    </button>
+                </div>
+            </div>
+
+            <div class="custom-card mb-4">
+                <div class="card-header-green">
                     Thống kê theo Trạng thái
                 </div>
                 <div class="card-body">
-                    <canvas id="chartTrangThai" height="200"></canvas>
+                    <canvas id="chartTrangThai" height="120"></canvas>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-header fw-semibold text-white"
-             style="background-color:@primaryGreen;">Danh sách báo cáo gần đây</div>
-        <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0">
-                <thead style="background-color:#cde9cd; color:#1f421f;">
-                    <tr>
-                        <th>#</th>
-                        <th>Tên báo cáo</th>
-                        <th>Loại</th>
-                        <th>Ngày tạo</th>
-                        <th>Người lập</th>
-                        <th>Trạng thái</th>
-                        <th class="text-center">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Báo cáo doanh thu tháng 10</td>
-                        <td>Doanh thu</td>
-                        <td>01/11/2025</td>
-                        <td>Nguyễn Văn C</td>
-                        <td><span class="badge bg-success">Hoàn tất</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm text-white" style="background-color:@primaryGreen;">📄 Xem</button>
-                            <button class="btn btn-sm btn-outline-success">⬇ Tải</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Báo cáo tồn kho quý IV</td>
-                        <td>Tồn kho</td>
-                        <td>28/10/2025</td>
-                        <td>Trần Thị B</td>
-                        <td><span class="badge bg-warning text-dark">Đang xử lý</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm text-white" style="background-color:@primaryGreen;">📄 Xem</button>
-                            <button class="btn btn-sm btn-outline-success">⬇ Tải</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Báo cáo bán hàng tuần 43</td>
-                        <td>Bán hàng</td>
-                        <td>25/10/2025</td>
-                        <td>Phạm Minh D</td>
-                        <td><span class="badge bg-success">Hoàn tất</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm text-white" style="background-color:@primaryGreen;">📄 Xem</button>
-                            <button class="btn btn-sm btn-outline-success">⬇ Tải</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Báo cáo công nợ khách hàng Q4</td>
-                        <td>Công nợ</td>
-                        <td>20/10/2025</td>
-                        <td>Nguyễn Văn C</td>
-                        <td><span class="badge bg-info text-dark">Đã gửi</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm text-white" style="background-color:@primaryGreen;">📄 Xem</button>
-                            <button class="btn btn-sm btn-outline-success">⬇ Tải</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            
+            <div class="custom-card">
+                <div class="card-header-dark-green">
+                    Danh sách báo cáo gần đây
+                </div>
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên báo cáo</th>
+                                <th>Loại</th>
+                                <th>Ngày tạo</th>
+                                <th>Người lập</th>
+                                <th>Trạng thái</th>
+                                <th class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @* Dữ liệu sẽ được render bằng JavaScript *@
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Giả lập dữ liệu bảng
+        const reportData = [
+            { id: 1, name: 'Báo cáo doanh thu tháng 10', type: 'Doanh thu', date: '01/11/2025', user: 'Nguyễn Văn C', status: 'Hoàn tất' },
+            { id: 2, name: 'Báo cáo tồn kho quý IV', type: 'Tồn kho', date: '28/10/2025', user: 'Trần Thị B', status: 'Đang xử lý' },
+            { id: 3, name: 'Báo cáo bán hàng tuần 43', type: 'Bán hàng', date: '25/10/2025', user: 'Phạm Minh D', status: 'Hoàn tất' },
+            { id: 4, name: 'Báo cáo công nợ khách hàng Q4', type: 'Công nợ', date: '20/10/2025', user: 'Nguyễn Văn C', status: 'Đã gửi' },
+            { id: 5, name: 'Báo cáo doanh thu tháng 9', type: 'Doanh thu', date: '01/10/2025', user: 'Nguyễn Văn C', status: 'Hoàn tất' },
+            { id: 6, name: 'Báo cáo bán hàng tuần 42', type: 'Bán hàng', date: '18/10/2025', user: 'Phạm Minh D', status: 'Hoàn tất' },
+        ];
+        
+        let filteredData = [...reportData];
+        
+        /**
+        * Giả lập chức năng xem báo cáo.
+        * @@param {object} report - Đối tượng báo cáo.
+        */
+        function viewReport(report) {
+            alert(`Đang mở báo cáo: ${report.name} (Loại: ${report.type}, ID: ${report.id})\n\n[Trang chi tiết báo cáo sẽ hiện ra ở đây]`);
+            // Trong thực tế, sẽ là window.location.href = `/reports/view/${report.id}`;
+        }
+
+        /**
+        * Giả lập chức năng tải báo cáo.
+        * @@param {object} report - Đối tượng báo cáo.
+        */
+        function downloadReport(report) {
+            alert(`Đang tải file: ${report.name}.pdf`);
+            // Trong thực tế, sẽ là request API để tải file
+        }
+
+        /**
+        * Giả lập chức năng xuất tất cả dữ liệu đã lọc ra Excel.
+        */
+        function exportToExcel() {
+            alert(`Đang xuất ${filteredData.length} báo cáo ra file Excel...`);
+            // Trong thực tế, sẽ là window.location.href = `/reports/export-excel?filters=...`;
+        }
+        
+        /**
+        * Giả lập chức năng chuyển sang trang tạo báo cáo mới.
+        */
+        function createNewReport() {
+            alert("Chuyển hướng đến trang Tạo báo cáo mới. (Ví dụ: /reports/create)");
+            // Trong thực tế, sẽ là window.location.href = '/reports/create';
+        }
+
+        // Cần dùng JavaScript để hiển thị lại bảng (nếu không dùng DataTables)
+        function renderTable(data) {
+            const tbody = document.querySelector('.table tbody');
+            tbody.innerHTML = ''; 
+            
+            const btnOutlineClass = "btn-outline-success-custom"; 
+
+            data.forEach((report, index) => {
+                let statusBadgeClass = '';
+                switch (report.status) {
+                    case 'Hoàn tất': statusBadgeClass = 'bg-success'; break;
+                    case 'Đang xử lý': statusBadgeClass = 'bg-warning text-dark'; break;
+                    case 'Đã gửi': statusBadgeClass = 'bg-info'; break;
+                    default: statusBadgeClass = 'bg-secondary';
+                }
+                
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${report.name}</td>
+                        <td>${report.type}</td>
+                        <td>${report.date}</td>
+                        <td>${report.user}</td>
+                        <td><span class="badge badge-status ${statusBadgeClass}">${report.status}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-xanhbo" onclick="viewReport(reportData.find(r => r.id === ${report.id}))">📄 Xem</button>
+                            <button class="btn btn-sm ${btnOutlineClass}" onclick="downloadReport(reportData.find(r => r.id === ${report.id}))">⬇ Tải</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+        
+        function applyFilters() {
+            const typeFilter = document.getElementById('filterLoaiBaoCao').value;
+            const statusFilter = document.getElementById('filterTrangThai').value;
+            const startDate = document.getElementById('startDateFilter').value;
+            const endDate = document.getElementById('endDateFilter').value;
+            const search = document.getElementById('globalSearchBox').value.toLowerCase();
+
+            filteredData = reportData.filter(report => {
+                // Lọc theo Loại
+                if (typeFilter && report.type !== typeFilter) return false;
+                
+                // Lọc theo Trạng thái
+                if (statusFilter && report.status !== statusFilter) return false;
+                
+                // Lọc theo Tìm kiếm (Tên hoặc ID)
+                if (search && !(report.name.toLowerCase().includes(search) || report.id.toString().includes(search))) return false;
+                
+                // Lọc theo Ngày
+                if (startDate || endDate) {
+                    // Chuyển đổi định dạng dd/mm/yyyy sang yyyy-mm-dd để tạo Date object
+                    const dateParts = report.date.split('/');
+                    // new Date(year, monthIndex, day)
+                    const reportDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); 
+                    
+                    if (startDate) {
+                         const start = new Date(startDate);
+                         // Đặt giờ về 0 để so sánh chính xác ngày
+                         start.setHours(0, 0, 0, 0); 
+                         if (reportDate.getTime() < start.getTime()) return false;
+                    }
+                    if (endDate) {
+                         const end = new Date(endDate);
+                         // Đặt giờ về cuối ngày để bao gồm cả ngày đó
+                         end.setHours(23, 59, 59, 999); 
+                         if (reportDate.getTime() > end.getTime()) return false;
+                    }
+                }
+
+                return true;
+            });
+
+            renderTable(filteredData);
+            updateChartData(filteredData);
+        }
+        
+        function updateChartData(data) {
+            // Cập nhật dữ liệu cho Biểu đồ Loại Báo cáo (Doughnut)
+            const typeCounts = { 'Doanh thu': 0, 'Tồn kho': 0, 'Công nợ': 0, 'Bán hàng': 0 };
+            const statusCounts = { 'Hoàn tất': 0, 'Đang xử lý': 0, 'Đã gửi': 0 };
+
+            data.forEach(report => {
+                if (typeCounts.hasOwnProperty(report.type)) {
+                    typeCounts[report.type]++;
+                }
+                if (statusCounts.hasOwnProperty(report.status)) {
+                    statusCounts[report.status]++;
+                }
+            });
+            
+            // Biểu đồ 1
+            const typeLabels = Object.keys(typeCounts);
+            const typeValues = Object.values(typeCounts);
+            chartLoai.data.labels = typeLabels.filter((_, i) => typeValues[i] > 0);
+            chartLoai.data.datasets[0].data = typeValues.filter(v => v > 0);
+            chartLoai.options.plugins.title.text = `Tổng số báo cáo: ${data.length}`;
+            chartLoai.update();
+            
+            // Biểu đồ 2
+            chartTrangThai.data.datasets[0].data = Object.values(statusCounts);
+            chartTrangThai.update();
+        }
+
+        // --- KHỞI TẠO BIỂU ĐỒ ---
+        let chartLoai, chartTrangThai;
+
         document.addEventListener('DOMContentLoaded', function() {
             
-            // --- BIỂU ĐỒ 1: PHÂN BỔ LOẠI BÁO CÁO (DOUGHNUT CHART) ---
+            // Biểu đồ 1: PHÂN BỔ LOẠI BÁO CÁO (DOUGHNUT CHART)
             const ctxLoai = document.getElementById('chartLoaiBaoCao').getContext('2d');
-            new Chart(ctxLoai, {
+            chartLoai = new Chart(ctxLoai, {
                 type: 'doughnut',
                 data: {
                     labels: ['Doanh thu', 'Tồn kho', 'Công nợ', 'Bán hàng'],
                     datasets: [{
-                        data: [45, 25, 15, 15], // Dữ liệu giả định
+                        data: [3, 1, 1, 1], // Dữ liệu giả định dựa trên reportData có 6 mục
                         backgroundColor: [
-                            '#428446', // Primary Green
-                            '#007bff', // Blue (Tồn kho)
-                            '#ffc107', // Yellow (Công nợ)
-                            '#dc3545'  // Red (Bán hàng)
+                            '#28a745', // Xanh đậm
+                            '#007bff', // Xanh dương (Tồn kho)
+                            '#ffc107', // Vàng (Công nợ)
+                            '#dc3545'  // Đỏ (Bán hàng)
                         ],
                         hoverOffset: 4
                     }]
@@ -167,30 +480,29 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'right',
-                        },
+                        legend: { position: 'bottom' }, 
                         title: {
                             display: true,
-                            text: 'Tổng số báo cáo: 100' // Tổng giả định
+                            text: 'Tổng số báo cáo: 6', 
+                            font: { size: 14, weight: 'bold' }
                         }
                     }
                 }
             });
 
-            // --- BIỂU ĐỒ 2: THỐNG KÊ TRẠNG THÁI (BAR CHART) ---
+            // Biểu đồ 2: THỐNG KÊ TRẠNG THÁI (BAR CHART)
             const ctxTrangThai = document.getElementById('chartTrangThai').getContext('2d');
-            new Chart(ctxTrangThai, {
+            chartTrangThai = new Chart(ctxTrangThai, {
                 type: 'bar',
                 data: {
                     labels: ['Hoàn tất', 'Đang xử lý', 'Đã gửi'],
                     datasets: [{
                         label: 'Số lượng báo cáo',
-                        data: [70, 20, 10], // Dữ liệu giả định
+                        data: [4, 1, 1], // Dữ liệu giả định dựa trên reportData có 6 mục
                         backgroundColor: [
-                            '#28a745', // Success (Hoàn tất)
-                            '#ffc107', // Warning (Đang xử lý)
-                            '#17a2b8'  // Info (Đã gửi)
+                            '#28a745', 
+                            '#ffc107', 
+                            '#17a2b8'  
                         ]
                     }]
                 },
@@ -200,22 +512,26 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Số lượng'
-                            }
+                            title: { display: true, text: 'Số lượng' }
                         },
-                        x: {
-                            grid: {
-                                display: false 
-                            }
-                        }
+                        x: { grid: { display: false } }
                     },
                     plugins: {
                         legend: { display: false }
                     }
                 }
             });
+            
+            // Gán sự kiện cho các bộ lọc
+            document.getElementById('filterLoaiBaoCao').addEventListener('change', applyFilters);
+            document.getElementById('filterTrangThai').addEventListener('change', applyFilters);
+            document.getElementById('startDateFilter').addEventListener('change', applyFilters);
+            document.getElementById('endDateFilter').addEventListener('change', applyFilters);
+            document.getElementById('globalSearchBox').addEventListener('keyup', applyFilters);
+
+            // Render bảng và biểu đồ lần đầu
+            renderTable(reportData);
+            updateChartData(reportData);
         });
     </script>
 }

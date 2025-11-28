@@ -1,92 +1,185 @@
 @{
     ViewBag.Title = "Lịch sử nhập của nhà cung cấp";
-    Layout = "/Views/Shared/_Layout.cshtml";
+    Layout = "/Views/Shared/_Layout.cshtml"; /* Giữ nguyên Layout của bạn */
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
 <style>
+    /* ----------------------------------------------------- */
+    /* KIOTVIET-STYLE CSS & CUSTOM BOOTSTRAP */
+    /* ----------------------------------------------------- */
+
     body {
-        background-color: #fff;
-        font-family: "Segoe UI", sans-serif;
+        background-color: #f5f7fa;
     }
 
     /* ====== SIDEBAR LỌC ====== */
     .filter-sidebar {
-        background-color: #fafafa;
+        background-color: #fff;
         border-right: 1px solid #eee;
         padding: 16px;
-        min-width: 260px;
+        min-width: 280px;
+        max-width: 280px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
     .filter-sidebar h5 {
         font-weight: 600;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         color: #444;
+        font-size: 1.15rem;
     }
 
     .filter-sidebar h6 {
         font-weight: 600;
         font-size: 14px;
-        margin-top: 16px;
-        color: #666;
+        margin-top: 18px;
+        margin-bottom: 5px;
+        color: #333;
     }
 
     .filter-sidebar input,
-    .filter-sidebar select {
-        font-size: 14px;
+    .filter-sidebar select,
+    .form-control-sm,
+    .form-select-sm {
+        font-size: 14px !important;
+        border-radius: 4px;
+        border: 1px solid #ddd;
     }
 
-    .filter-sidebar .btn {
+    /* FIX MẠNH MẼ LỖI DATEPICKER: Tăng z-index cao cho input date */
+    #customDateRange input {
+        position: relative;
+        z-index: 1051; /* Đặt giá trị cao hơn cả modal (1050) để đảm bảo Datepicker nổi lên */
+    }
+
+    /* Nút lọc Trạng thái */
+    .filter-btn-group button {
         font-size: 13px;
-        border-radius: 20px;
+        border-radius: 4px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        color: #555;
+        font-weight: 500;
+        transition: none;
+        margin-right: 5px;
+        margin-bottom: 5px;
     }
 
-    .btn-active {
-        background-color: #6fbf73;
+    .filter-btn-group button.btn-active {
+        background-color: #28a745; 
         color: #fff;
+        border-color: #28a745;
     }
 
     /* ====== MAIN CONTENT ====== */
     .main-content {
         flex: 1;
         padding: 20px;
+        max-width: calc(100% - 280px);
     }
 
     .top-bar {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
-    }
-
-    .table thead th {
-        background-color: #e6f8e5;
-        font-weight: 600;
-        color: #2e7d32;
-    }
-
-    .table td, .table th {
-        vertical-align: middle;
-        font-size: 14px;
+        flex-wrap: wrap;
     }
 
     .search-bar input {
-        width: 300px;
-    }
-
-    .btn-outline {
+        width: 350px;
+        max-width: 100%;
+        border-radius: 4px;
         border: 1px solid #ddd;
+        padding: 8px 12px;
+    }
+    
+    /* Nút hành động phải */
+    .action-buttons button {
+        font-size: 14px;
+        border-radius: 4px;
+        padding: 8px 15px;
+        font-weight: 500;
         background-color: #fff;
         color: #555;
+        border: 1px solid #ddd;
     }
 
-    .btn-outline:hover {
+    /* Nút xuất file màu xanh lá */
+    #exportBtn {
+        background-color: #28a745;
+        color: #fff;
+        border-color: #28a745;
+    }
+
+    /* DATATABLES & TABLE STYLE */
+    .dataTables_wrapper { padding-top: 5px; }
+    .dataTables_info {
+        font-size: 13px;
+        padding-top: 10px !important;
+        display: inline-block;
+    }
+    .dataTables_paginate {
+        float: right;
+        padding-top: 10px !important;
+    }
+    .dataTables_paginate .paginate_button {
+        padding: 4px 8px !important; 
+        border-radius: 4px !important;
+        margin: 2px !important;
+        border: 1px solid #ddd !important;
+        color: #333 !important; 
+        background: #fff !important; 
+        font-size: 13px; 
+    }
+    .dataTables_paginate .paginate_button:hover {
+        background: #f1f1f1 !important;
+    }
+    .dataTables_paginate .paginate_button.current {
+        background: #28a745 !important; /* Màu xanh cho nút hiện tại */
+        color: white !important;
+        border-color: #28a745 !important;
+    }
+
+
+    .table thead th {
         background-color: #f1f1f1;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #e6f8e5;
     }
 
     .badge-status {
-        border-radius: 10px;
-        padding: 4px 8px;
+        border-radius: 4px;
+        padding: 5px 10px;
         font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+        min-width: 80px;
     }
 
     .badge-completed {
@@ -101,67 +194,72 @@
 
     .badge-pending {
         background-color: #fff8e1;
-        color: #8d6e63;
+        color: #9c6800;
+    }
+    
+    /* Responsive for Sidebar */
+    @@media (max-width: 992px) {
+        .filter-sidebar {
+            position: fixed;
+            z-index: 1050;
+        }
+        .main-content {
+            max-width: 100%;
+        }
     }
 </style>
 
 <div class="d-flex" style="min-height: 90vh;">
-    <!-- SIDEBAR BỘ LỌC -->
-    <div class="filter-sidebar">
+    <div class="filter-sidebar" id="filterSidebar">
+        <button id="closeSidebar" class="btn btn-sm btn-outline-secondary d-lg-none float-end" style="margin-top: -10px;"><i class="fa fa-times"></i></button>
+
         <h5>Lịch sử nhập hàng</h5>
 
         <h6>Nhà cung cấp</h6>
-        <select class="form-select form-select-sm mb-2">
-            <option>Tất cả nhà cung cấp</option>
-            <option>VIPOMALL</option>
-            <option>EBIKE PHỤ TÙNG</option>
-            <option>HUỲNH THUẬN (PIN)</option>
+        <select id="supplierFilter" class="form-select form-select-sm mb-2">
+            <option value="">Tất cả nhà cung cấp</option>
+            <option value="VIPOMALL">VIPOMALL</option>
+            <option value="EBIKE PHỤ TÙNG">EBIKE PHỤ TÙNG</option>
+            <option value="HUỲNH THUẬN (PIN)">HUỲNH THUẬN (PIN)</option>
         </select>
 
         <h6>Thời gian</h6>
-        <select class="form-select form-select-sm mb-2">
-            <option>Toàn thời gian</option>
-            <option>Hôm nay</option>
-            <option>7 ngày qua</option>
-            <option>Tháng này</option>
-            <option>Tùy chỉnh</option>
+        <select id="timeRangeFilter" class="form-select form-select-sm mb-2">
+            <option value="all">Toàn thời gian</option>
+            <option value="today">Hôm nay</option>
+            <option value="last7days">7 ngày qua</option>
+            <option value="thisMonth">Tháng này</option>
+            <option value="custom">Tùy chỉnh</option>
         </select>
-        <div class="d-flex gap-2">
-            <input type="date" class="form-control form-control-sm">
-            <input type="date" class="form-control form-control-sm">
+        <div class="d-flex gap-2" id="customDateRange">
+            <input type="date" id="dateStart" class="form-control form-control-sm" disabled>
+            <input type="date" id="dateEnd" class="form-control form-control-sm" disabled>
         </div>
-
-        <h6 class="mt-3">Loại chứng từ</h6>
-        <select class="form-select form-select-sm mb-2">
-            <option>Tất cả</option>
-            <option>Phiếu nhập hàng</option>
-            <option>Phiếu nhập trả NCC</option>
-        </select>
 
         <h6 class="mt-3">Trạng thái</h6>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline btn-sm">Tất cả</button>
-            <button class="btn btn-active btn-sm">Hoàn tất</button>
+        <div class="filter-btn-group">
+            <button class="btn btn-sm btn-active statusFilter" data-val="">Tất cả</button>
+            <button class="btn btn-sm statusFilter" data-val="Hoàn tất">Hoàn tất</button>
+            <button class="btn btn-sm statusFilter" data-val="Đang xử lý">Đang xử lý</button>
+            <button class="btn btn-sm statusFilter" data-val="Hủy">Hủy</button>
         </div>
-        <button class="btn btn-outline btn-sm mt-1">Đang xử lý</button>
+        
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
         <div class="top-bar">
-            <div class="search-bar d-flex gap-2">
-                <input type="text" class="form-control shadow-sm" placeholder="🔍 Theo mã phiếu, nhà cung cấp...">
-                <button class="btn btn-outline shadow-sm"><i class="fa fa-filter"></i></button>
-            </div>
+            <button id="openSidebar" class="btn btn-success d-lg-none me-3" style="padding: 8px 12px;"><i class="fa fa-filter"></i> Bộ lọc</button>
 
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline btn-sm"><i class="fa fa-print"></i> In</button>
-                <button class="btn btn-outline btn-sm"><i class="fa fa-file-export"></i> Xuất file</button>
-                <button class="btn btn-outline btn-sm"><i class="fa fa-gear"></i></button>
-            </div>
+            <div class="search-bar d-flex gap-2">
+                <input type="text" id="globalSearchBox" class="form-control shadow-sm" placeholder="🔍 Theo mã phiếu, nhà cung cấp...">
+                </div>
+
+            <div class="d-flex gap-2 action-buttons">
+                <button class="btn" id="exportBtn"><i class="fa fa-file-export"></i> Xuất file</button>
+                </div>
         </div>
 
-        <table class="table table-hover border rounded-3 shadow-sm bg-white">
+        <table id="importHistoryTable" class="table table-hover border rounded-3 shadow-sm bg-white" style="width:100%">
             <thead>
                 <tr class="text-center">
                     <th>Mã phiếu</th>
@@ -179,7 +277,7 @@
                     <td>03/11/2025</td>
                     <td>VIPOMALL</td>
                     <td>Nguyễn Văn Cử</td>
-                    <td>42,500,000</td>
+                    <td>42500000</td>
                     <td><span class="badge-status badge-completed">Hoàn tất</span></td>
                     <td>Nhập xe điện Klara S</td>
                 </tr>
@@ -188,7 +286,7 @@
                     <td>02/11/2025</td>
                     <td>EBIKE PHỤ TÙNG</td>
                     <td>Hồng Thanh</td>
-                    <td>7,200,000</td>
+                    <td>7200000</td>
                     <td><span class="badge-status badge-pending">Đang xử lý</span></td>
                     <td>Chờ kiểm tra linh kiện</td>
                 </tr>
@@ -197,15 +295,190 @@
                     <td>30/10/2025</td>
                     <td>HUỲNH THUẬN (PIN)</td>
                     <td>Trần Mỹ</td>
-                    <td>13,800,000</td>
+                    <td>13800000</td>
                     <td><span class="badge-status badge-canceled">Hủy</span></td>
                     <td>Phiếu nhập nhầm mã</td>
+                </tr>
+                 <tr>
+                    <td>PT0001</td>
+                    <td>01/11/2025</td>
+                    <td>VIPOMALL</td>
+                    <td>Nguyễn Văn Cử</td>
+                    <td>-5000000</td>
+                    <td><span class="badge-status badge-completed">Hoàn tất</span></td>
+                    <td>Đã trả lại 1 Pin</td>
                 </tr>
             </tbody>
         </table>
 
-        <div class="text-end text-secondary small mt-2">
-            Hiển thị 1–3 / 3 phiếu nhập
+        <div class="d-flex justify-content-between align-items-center mt-3">
+             <div class="dataTables_info" id="importHistoryTable_info" role="status" aria-live="polite"></div>
+             <div class="dataTables_paginate paging_simple_numbers" id="importHistoryTable_paginate"></div>
         </div>
     </div>
 </div>
+
+<script>
+    /* ----------------------------------------------------- */
+    /* JAVASCRIPT LOGIC VÀ DATATABLES */
+    /* ----------------------------------------------------- */
+
+    // Hàm chuyển đổi định dạng ngày (dd/mm/yyyy sang yyyy-mm-dd)
+    function parseDate(dateString) {
+        if (!dateString) return null;
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+        return null;
+    }
+
+    // Hàm kiểm tra định dạng ngày yyyy-mm-dd
+    function isValidDate(dateStr) {
+        return !isNaN(new Date(dateStr));
+    }
+
+    $(document).ready(function () {
+
+        /* --- DATATABLES INITIALIZATION --- */
+        var table = $('#importHistoryTable').DataTable({
+            dom: 'rtip', 
+            pagingType: 'simple_numbers',
+            order: [[1, 'desc']], 
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: 'LichSuNhapHang',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] } 
+                }
+            ],
+            "aoColumns": [null, null, null, null, null, null, null],
+            columnDefs: [
+                { 
+                    targets: 4, 
+                    render: function (data, type, row) {
+                        const num = parseInt(data.toString().replace(/\D/g, '')) || 0;
+                        if (type === 'display' || type === 'filter') {
+                            const formatted = new Intl.NumberFormat('vi-VN').format(num) + 'đ';
+                            return num < 0 ? `<span style="color:#dc3545;">${formatted}</span>` : formatted;
+                        }
+                        return num;
+                    }
+                },
+                { 
+                    targets: 5, 
+                    render: function (data, type, row) {
+                         if (type === 'display') {
+                            let statusText = data.replace(/<.*?>/g, ''); 
+                            let className = '';
+                            if (statusText === 'Hoàn tất') className = 'badge-completed';
+                            else if (statusText === 'Hủy') className = 'badge-canceled';
+                            else if (statusText === 'Đang xử lý') className = 'badge-pending';
+
+                            return `<span class="badge-status ${className}">${statusText}</span>`;
+                        }
+                        return data.toString().replace(/<.*?>/g, '');
+                    }
+                }
+            ]
+        });
+
+        /* --- CUSTOM DATATABLES FILTER LOGIC --- */
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                
+                // 1. Nhà cung cấp (Cột 2)
+                const selectedSupplier = $('#supplierFilter').val();
+                if (selectedSupplier && selectedSupplier !== data[2]) {
+                    return false;
+                }
+                
+                // 2. Thời gian (Cột 1)
+                const dateString = data[1];
+                const date = parseDate(dateString);
+
+                const timeRange = $('#timeRangeFilter').val();
+                let filterPass = true;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); 
+                
+                if (timeRange === 'today') {
+                    if (!date || date.getTime() !== today.getTime()) filterPass = false;
+                } else if (timeRange === 'last7days') {
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(today.getDate() - 7);
+                    if (!date || date < sevenDaysAgo) filterPass = false;
+                } else if (timeRange === 'thisMonth') {
+                    if (!date || date.getMonth() !== today.getMonth() || date.getFullYear() !== today.getFullYear()) filterPass = false;
+                } else if (timeRange === 'custom') {
+                    const dateStartStr = $('#dateStart').val();
+                    const dateEndStr = $('#dateEnd').val();
+                    
+                    if (isValidDate(dateStartStr) && date) {
+                        const start = new Date(dateStartStr);
+                        start.setHours(0, 0, 0, 0);
+                        if (date < start) filterPass = false;
+                    }
+                    if (isValidDate(dateEndStr) && date) {
+                        const end = new Date(dateEndStr);
+                        end.setHours(23, 59, 59, 999);
+                        if (date > end) filterPass = false;
+                    }
+                }
+                
+                if (!filterPass) return false;
+                
+                return true;
+            }
+        );
+
+        /* --- EVENT HANDLERS --- */
+
+        // 1. Global Search Box (cho DataTables)
+        $('#globalSearchBox').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+
+        // 2. Supplier Filter
+        $('#supplierFilter').on('change', function () {
+            table.draw();
+        });
+
+        // 3. Time Range Filter Logic
+        $('#timeRangeFilter').on('change', function () {
+            const range = $(this).val();
+            if (range === 'custom') {
+                $('#dateStart, #dateEnd').prop('disabled', false).val('');
+            } else {
+                $('#dateStart, #dateEnd').prop('disabled', true).val('');
+            }
+            table.draw();
+        });
+        $('#dateStart, #dateEnd').on('change', function() {
+            table.draw();
+        });
+
+        // 4. Status Filter Logic
+        $('.statusFilter').on('click', function () {
+            const status = $(this).data('val');
+            $('.statusFilter').removeClass('btn-active');
+            $(this).addClass('btn-active');
+            
+            table.column(5).search(status ? status : '', true, false).draw();
+        });
+
+        // 5. Export Button
+        $('#exportBtn').on('click', function () {
+            table.button(0).trigger();
+        });
+        
+        // 6. Sidebar Responsive Toggle
+        $('#openSidebar').on('click', function() {
+            $('#filterSidebar').addClass('show');
+        });
+        $('#closeSidebar').on('click', function() {
+            $('#filterSidebar').removeClass('show');
+        });
+
+    });
+</script>

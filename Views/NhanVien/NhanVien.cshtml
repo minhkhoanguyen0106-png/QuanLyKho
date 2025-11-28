@@ -1,72 +1,403 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản lý nhân viên</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f9fff8; /* xanh bơ nhạt */
-    }
-    .btn-green {
-      background-color: #A8E6CF; /* xanh bơ */
-      border: none;
-      color: #2E7D32;
-      font-weight: 500;
-    }
-    .btn-green:hover {
-      background-color: #9cd9c3;
-    }
-    .card {
-      border-radius: 15px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    h3 {
-      color: #2E7D32;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhân viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* Biến CSS đồng bộ theo giao diện của bạn (image_b1f803.png) */
+        :root {
+            --primary-green-dark: #28a745; 
+            --primary-green-light: #e8f9e8;
+            --secondary-green-text: #1f421f;
+            --background-color: #f7fcf7;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-color: #e1e1e1;
+            --light-green-border: #cde8c8;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: "Segoe UI", sans-serif;
+        }
+        
+        /* ====== HEADER CHUNG ====== */
+        .app-header {
+            background-color: var(--primary-green-dark);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            margin-bottom: 20px;
+        }
+        
+        /* ====== CARD CHUNG ====== */
+        .custom-card {
+            background-color: #fff;
+            border-radius: 8px; 
+            box-shadow: 0 1px 6px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px; 
+        }
+
+        /* ====== NÚT XANH ĐẬM (btn-xanhbo) & NÚT TRÊN HEADER ====== */
+        .btn-xanhbo {
+            background-color: var(--primary-green-dark);
+            color: #fff;
+            border: none;
+            transition: 0.3s;
+            font-weight: 500;
+            border-radius: 4px; /* Hơi vuông hơn so với trước để khớp với hình ảnh */
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        .btn-xanhbo:hover {
+            background-color: #218838; 
+            color: #fff;
+        }
+        .btn-outline-green {
+             border: 1px solid var(--primary-green-dark);
+             color: var(--primary-green-dark);
+             background-color: transparent;
+        }
+        .btn-outline-green:hover {
+            background-color: var(--primary-green-light);
+            color: var(--primary-green-dark);
+        }
+        
+        /* ====== THANH TÌM KIẾM & HÀNH ĐỘNG ====== */
+        .action-bar {
+            padding: 12px 16px;
+            display: flex; /* Đảm bảo layout ngang */
+            gap: 10px;
+        }
+        .form-control, .form-select {
+            border-radius: 4px;
+            font-size: 14px;
+            border-color: var(--light-green-border);
+        }
+        
+        /* ====== BẢNG DỮ LIỆU ====== */
+        .table thead {
+            background-color: var(--primary-green-light); 
+            color: var(--secondary-green-text);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .table th, .table td {
+            padding: 10px 15px;
+            vertical-align: middle;
+        }
+        /* Dòng xen kẽ không cần nữa vì hình ảnh gốc không có striped, nhưng giữ lại cho rõ ràng */
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: var(--primary-green-light); 
+        }
+
+        /* BADGES - Đồng bộ màu sắc với hình ảnh gốc */
+        .badge-status {
+            font-size: 12px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            display: inline-block;
+            line-height: 1; /* Cố định chiều cao badge */
+        }
+        .bg-active { background-color: #28a745; color: white; } /* Xanh lá cho Đang hoạt động */
+        .bg-locked { background-color: #dc3545; color: white; } /* Đỏ cho Bị khóa */
+        .bg-inactive { background-color: #ffc107; color: black; } /* Vàng cho Nghỉ việc */
+        
+        /* Nút Sửa/Khóa trong bảng - Làm cho gọn */
+        .btn-sm-action {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        /* Footer đơn giản */
+        .app-footer {
+            padding: 10px 0;
+            text-align: right;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
-  <div class="container mt-4">
-    <h3 class="text-center mb-4">Quản lý nhân viên</h3>
+    <div class="container-fluid mt-4">
+        
+        <div class="app-header d-flex justify-content-between align-items-center">
+            <h4 class="fw-semibold m-0"><i class="fa-solid fa-users"></i> Quản lý Nhân viên</h4>
+            </div>
+        
+        <div class="custom-card action-bar">
+            <input type="text" id="globalSearchBox" class="form-control" placeholder="🔍 Tìm theo Mã NV, Họ tên..." style="max-width: 250px;">
+            
+            <button class="btn btn-xanhbo" data-bs-toggle="modal" data-bs-target="#employeeModal" onclick="prepareForm('add')">
+                <i class="fa fa-plus"></i> Thêm Nhân viên mới
+            </button>
+            
+            <div class="ms-auto d-flex align-items-center">
+                <select id="filterStatus" class="form-select form-select-sm" style="width: 150px;" onchange="applyFilter()">
+                    <option value="">Tất cả Trạng thái</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="locked">Bị khóa</option>
+                    <option value="inactive">Nghỉ việc</option>
+                </select>
+            </div>
+        </div>
 
-    <!-- Bảng danh sách nhân viên -->
-    <div class="card p-3">
-      <table class="table table-bordered table-striped">
-        <thead class="table-success">
-          <tr>
-            <th>Mã NV</th>
-            <th>Họ tên</th>
-            <th>Chức vụ</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>NV001</td>
-            <td>Nguyễn Văn A</td>
-            <td>Quản lý</td>
-            <td>Đang hoạt động</td>
-            <td>
-              <button class="btn btn-green btn-sm" onclick="openAccount()">Mở tài khoản</button>
-              <button class="btn btn-warning btn-sm" onclick="lockAccount()">Khóa tài khoản</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <div class="custom-card p-0 table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-success">
+                    <tr>
+                        <th>Mã NV</th>
+                        <th>Họ tên</th>
+                        <th>Chức vụ</th>
+                        <th>Số điện thoại</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    </tbody>
+            </table>
+        </div>
+        
+        <div class="app-footer">
+            <span>© 2025</span> | <span>Kho Ebike System</span>
+        </div>
     </div>
-  </div>
 
-  <script>
-    function openAccount() {
-      alert("Chức năng mở tài khoản!");
-    }
+    <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--primary-green-dark); color: white;">
+                    <h5 class="modal-title" id="employeeModalLabel">Thêm Nhân viên mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="employeeForm">
+                        <input type="hidden" id="employeeIdInput">
+                        <div class="mb-3">
+                            <label for="nameInput" class="form-label">Họ tên</label>
+                            <input type="text" class="form-control" id="nameInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="positionInput" class="form-label">Chức vụ</label>
+                            <select class="form-select" id="positionInput" required>
+                                <option value="">Chọn chức vụ</option>
+                                <option value="Quản lý kho">Quản lý kho</option>
+                                <option value="Nhân viên bán hàng">Nhân viên bán hàng</option>
+                                <option value="Kế toán">Kế toán</option>
+                                <option value="Nhân viên kho">Nhân viên kho</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneInput" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="phoneInput" pattern="[0-9]{10,11}" title="Chỉ chấp nhận số điện thoại" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="statusInput" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="statusInput" required>
+                                <option value="active">Đang hoạt động</option>
+                                <option value="locked">Bị khóa</option>
+                                <option value="inactive">Nghỉ việc</option>
+                            </select>
+                        </div>
+                        </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-xanhbo" id="saveEmployeeBtn" onclick="saveEmployee()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    function lockAccount() {
-      alert("Chức năng khóa tài khoản!");
-    }
-  </script>
+    <script>
+        // Dữ liệu giả lập
+        let employeeData = [
+            { id: 'NV001', name: 'Nguyễn Văn A', position: 'Quản lý kho', phone: '0901xxx123', status: 'active' },
+            { id: 'NV002', name: 'Trần Thị B', position: 'Nhân viên bán hàng', phone: '0902xxx456', status: 'active' },
+            { id: 'NV003', name: 'Lê Văn C', position: 'Kế toán', phone: '0903xxx789', status: 'locked' },
+            { id: 'NV004', name: 'Phạm Thị D', position: 'Nhân viên kho', phone: '0904xxx012', status: 'inactive' },
+        ];
+        
+        let filteredEmployees = [...employeeData];
+        let currentMode = 'add'; // 'add' or 'edit'
+
+        function getStatusBadge(status) {
+            let text, className;
+            switch (status) {
+                case 'active':
+                    text = 'Đang hoạt động';
+                    className = 'bg-active';
+                    break;
+                case 'locked':
+                    text = 'Bị khóa';
+                    className = 'bg-locked';
+                    break;
+                case 'inactive':
+                    text = 'Nghỉ việc';
+                    className = 'bg-inactive';
+                    break;
+                default:
+                    text = 'Không xác định';
+                    className = 'bg-secondary';
+            }
+            return `<span class="badge badge-status ${className}">${text}</span>`;
+        }
+        
+        function renderActionButtons(employeeId) {
+            // Chỉ giữ lại nút "Sửa" theo yêu cầu mới
+            return `
+                <button class="btn btn-sm-action btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#employeeModal" onclick="prepareForm('edit', '${employeeId}')">
+                    <i class="fa fa-pen"></i> Sửa
+                </button>
+            `;
+        }
+
+        /**
+         * Render lại bảng nhân viên dựa trên dữ liệu đã lọc.
+         */
+        function renderTable(data) {
+            const tbody = document.getElementById('employeeTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-muted">Không tìm thấy nhân viên nào phù hợp.</td></tr>`;
+                return;
+            }
+
+            data.forEach(emp => {
+                const row = `
+                    <tr>
+                        <td>${emp.id}</td>
+                        <td>${emp.name}</td>
+                        <td>${emp.position}</td>
+                        <td>${emp.phone}</td>
+                        <td>${getStatusBadge(emp.status)}</td>
+                        <td class="text-center">
+                            ${renderActionButtons(emp.id)}
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+        
+        /**
+         * Áp dụng bộ lọc và tìm kiếm.
+         */
+        function applyFilter() {
+            const statusFilter = document.getElementById('filterStatus').value;
+            const searchInput = document.getElementById('globalSearchBox').value.toLowerCase();
+
+            filteredEmployees = employeeData.filter(emp => {
+                // Lọc theo Trạng thái
+                if (statusFilter && emp.status !== statusFilter) return false;
+                
+                // Lọc theo Tìm kiếm (Mã NV hoặc Họ tên)
+                if (searchInput && !(emp.id.toLowerCase().includes(searchInput) || emp.name.toLowerCase().includes(searchInput))) return false;
+
+                return true;
+            });
+
+            renderTable(filteredEmployees);
+        }
+
+        // --- Quản lý Form Modal ---
+
+        /**
+         * Thiết lập form cho chế độ Thêm mới hoặc Chỉnh sửa.
+         */
+        function prepareForm(mode, id = null) {
+            currentMode = mode;
+            const modalTitle = document.getElementById('employeeModalLabel');
+            const saveBtn = document.getElementById('saveEmployeeBtn');
+            const form = document.getElementById('employeeForm');
+            
+            // 1. Reset Form
+            form.reset(); 
+            document.getElementById('employeeIdInput').value = '';
+            
+            if (mode === 'add') {
+                modalTitle.textContent = 'Thêm Nhân viên mới';
+                saveBtn.textContent = 'Lưu';
+                // Tự động sinh ID giả định cho chế độ Add
+                const newIdNum = employeeData.length > 0 ? parseInt(employeeData[employeeData.length - 1].id.substring(2)) + 1 : 1;
+                const newId = 'NV' + newIdNum.toString().padStart(3, '0');
+                document.getElementById('employeeIdInput').value = newId;
+                
+            } else if (mode === 'edit' && id) {
+                modalTitle.textContent = 'Chỉnh sửa thông tin Nhân viên';
+                saveBtn.textContent = 'Cập nhật';
+                
+                const emp = employeeData.find(e => e.id === id);
+                if (emp) {
+                    // Đổ dữ liệu vào form
+                    document.getElementById('employeeIdInput').value = emp.id;
+                    document.getElementById('nameInput').value = emp.name;
+                    document.getElementById('positionInput').value = emp.position;
+                    document.getElementById('phoneInput').value = emp.phone;
+                    document.getElementById('statusInput').value = emp.status;
+                }
+            }
+        }
+        
+        /**
+         * Xử lý lưu thông tin (Thêm mới hoặc Cập nhật).
+         */
+        function saveEmployee() {
+            const id = document.getElementById('employeeIdInput').value;
+            const name = document.getElementById('nameInput').value;
+            const position = document.getElementById('positionInput').value;
+            const phone = document.getElementById('phoneInput').value;
+            const status = document.getElementById('statusInput').value;
+            
+            if (!name || !position || !phone || !status) {
+                alert("Vui lòng nhập đầy đủ thông tin.");
+                return;
+            }
+
+            if (currentMode === 'add') {
+                // Thêm mới
+                const newEmployee = { id, name, position, phone, status };
+                employeeData.push(newEmployee);
+                alert(`Đã thêm nhân viên mới: ${name} (${id})`);
+                
+            } else if (currentMode === 'edit') {
+                // Cập nhật
+                const index = employeeData.findIndex(e => e.id === id);
+                if (index !== -1) {
+                    employeeData[index].name = name;
+                    employeeData[index].position = position;
+                    employeeData[index].phone = phone;
+                    employeeData[index].status = status;
+                    alert(`Đã cập nhật thông tin nhân viên: ${name} (${id})`);
+                }
+            }
+            
+            // Đóng Modal và render lại bảng
+            const modal = bootstrap.Modal.getInstance(document.getElementById('employeeModal'));
+            modal.hide();
+            applyFilter(); 
+        }
+
+        // Gắn sự kiện cho ô tìm kiếm
+        document.getElementById('globalSearchBox').addEventListener('keyup', applyFilter);
+
+
+        // Khởi tạo bảng khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(employeeData);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -3,82 +3,185 @@
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <style>
-    /* ====== MÀU VÀ GIAO DIỆN CHUNG ====== */
+    /* ====== MÀU VÀ GIAO DIỆN ĐỒNG BỘ NCC (MÀU XANH CHỦ ĐẠO: #28a745) ====== */
+    :root {
+        --main-green: #28a745; /* Màu xanh lá đậm cho nút chính và tiêu đề */
+        --light-green: #dff6da; /* Màu nền nhẹ cho table header (giữ lại) */
+    }
+    
     body {
-        background-color: #f7fcf7; /* Màu nền nhẹ hơn cho trang hàng hóa */
+        background-color: #f7fcf7;
         font-family: "Segoe UI", sans-serif;
     }
 
-    .btn-xanhbo {
-        background-color: #A8E6A3; /* Xanh bơ nhạt */
+    /* NÚT TẠO MỚI (Giống nút + Nhà cung cấp) */
+    .btn-primary-green {
+        background-color: var(--main-green);
         color: #fff;
         border: none;
-        transition: 0.3s;
+        transition: 0.2s;
         font-weight: 500;
+        border-radius: 6px;
     }
-
-    .btn-xanhbo:hover {
-        background-color: #9cd59a;
+    .btn-primary-green:hover {
+        background-color: #218838; /* Xanh đậm hơn khi hover */
+        color: #fff;
+    }
+    
+    /* Nút HÀNH ĐỘNG khác (Xuất file) - Giống màu xanh dương trong hình */
+    .btn-action-blue {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        transition: 0.2s;
+        font-weight: 500;
+        border-radius: 6px;
+    }
+    .btn-action-blue:hover {
+        background-color: #0069d9;
     }
 
     .action-bar {
         background-color: #fff;
         padding: 12px 16px;
-        border-radius: 10px;
+        border-radius: 8px; /* Giảm bo tròn */
         box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-        border: 1px solid #cde8c8;
+        border: 1px solid #e1e1e1; /* Viền nhẹ hơn */
+    }
+
+    /* ĐỊNH DẠNG BẢNG */
+    #productTable {
+        border: none !important; /* BỎ VIỀN NGOÀI */
+        box-shadow: none !important; /* BỎ SHADOW */
+    }
+    
+    /* BỎ VIỀN BORDER và SHADOW CỦA TABLE WRAPPER */
+    .table-responsive > .dataTables_wrapper > .bg-white { 
+        border: none !important; 
+        box-shadow: none !important;
+    }
+    
+    .table thead tr {
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
     }
 
     .table th {
-        background-color: #dff6da !important; /* Màu xanh nhạt cho tiêu đề bảng */
-        color: #2b542c;
+        background-color: white !important; /* Thay màu header thành TRẮNG */
+        color: #4a4a4a; /* Màu chữ đậm hơn */
         font-weight: 600;
-        border-bottom: 1px solid #cde8c8;
+        font-size: 13px; /* Kích thước chữ nhỏ hơn */
+        border-bottom: 2px solid #ddd !important; /* Đường kẻ dưới rõ ràng hơn */
+        border-top: none !important;
     }
 
     .table td {
         vertical-align: middle;
-        font-size: 14px;
+        font-size: 13px; /* Kích thước chữ nhỏ hơn */
+        border-top: 1px solid #f0f0f0;
     }
 
     .table-hover tbody tr:hover {
-        background-color: #f8fff7;
+        background-color: #f5fcf5; /* Màu hover nhẹ hơn */
+    }
+    
+    /* TIÊU ĐỀ CHÍNH */
+    h4 {
+        color: var(--main-green) !important;
+    }
+
+    /* INPUT/SELECT */
+    .form-control, .form-select {
+        border-radius: 6px;
+    }
+    .form-control::placeholder {
+        color: #999;
+    }
+
+    /* ĐỊNH DẠNG DATATABLES */
+    .dataTables_wrapper {
+        padding-top: 5px;
+    }
+    .dataTables_info {
+        font-size: 13px;
+        padding-top: 10px !important;
+        color: #6c757d;
+    }
+    .dataTables_paginate {
+        float: right;
+    }
+    
+    /* Thiết kế nút phân trang giống hình image_ae4d89.png */
+    .dataTables_paginate .paginate_button {
+        padding: 6px 12px !important;
+        border-radius: 4px !important;
+        margin: 0 2px !important;
+        border: 1px solid #ddd !important;
+        color: #333 !important;
+        background: #fff !important;
+        font-size: 13px;
+        transition: 0.2s;
+    }
+    .dataTables_paginate .paginate_button:hover:not(.current) {
+        background: #f0f0f0 !important;
+        border-color: #ccc !important;
+    }
+    .dataTables_paginate .paginate_button.current {
+        background: #007bff !important; /* Màu xanh dương cho nút hiện tại */
+        color: white !important;
+        border-color: #007bff !important;
+    }
+    .dataTables_paginate .paginate_button.disabled {
+        color: #ccc !important;
+    }
+    
+    /* Modal Header */
+    #newProductModal .modal-header {
+        background-color: var(--main-green) !important;
     }
 </style>
 
 <div class="container-fluid mt-4">
-    <h4 class="fw-bold mb-3" style="color:#428446;">
-        <i class="fa-solid fa-boxes-stacked"></i> Tất cả hàng hóa
+    <h4 class="fw-bold mb-3">
+        <i class="fa-solid fa-boxes-stacked"></i> Danh sách hàng hóa
     </h4>
 
     <div class="action-bar mb-3 d-flex justify-content-between flex-wrap align-items-center">
         <div class="d-flex flex-wrap gap-2 align-items-center">
-            <input type="text" class="form-control shadow-sm" placeholder="🔍 Tìm theo mã, tên hàng hóa..." style="width: 250px; border-color: #cde8c8;">
-            <select class="form-select shadow-sm" style="width: 180px; border-color: #cde8c8;">
-                <option>Tất cả loại hàng</option>
-                <option>Xe điện</option>
-                <option>Linh kiện</option>
+            <input type="text" id="globalSearchBox" class="form-control" placeholder="🔍 Tìm theo mã, tên hàng hóa..." style="width: 250px; border-color: #cde8c8;">
+            <select id="typeFilter" class="form-select" style="width: 180px; border-color: #cde8c8;">
+                <option value="">Tất cả loại hàng</option>
+                <option value="Xe điện">Xe điện</option>
+                <option value="Linh kiện">Linh kiện</option>
             </select>
-            <select class="form-select shadow-sm" style="width: 150px; border-color: #cde8c8;">
-                <option>Tất cả tồn kho</option>
-                <option>Còn hàng</option>
-                <option>Hết hàng</option>
+            <select id="stockFilter" class="form-select" style="width: 150px; border-color: #cde8c8;">
+                <option value="">Tất cả tồn kho</option>
+                <option value="available">Còn hàng</option>
+                <option value="outOfStock">Hết hàng</option>
             </select>
         </div>
 
         <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
-            <button class="btn btn-xanhbo shadow-sm" style="background-color:#428446; color:white;">
+            <button class="btn btn-primary-green" data-bs-toggle="modal" data-bs-target="#newProductModal">
                 <i class="fa fa-plus"></i> Tạo mới
             </button>
-            <button class="btn btn-outline-success shadow-sm" style="color:#428446; border-color:#428446;">
-                <i class="fa fa-gear"></i>
+            <button class="btn btn-action-blue" onclick="alert('Chức năng Xuất file chưa được lập trình.');">
+                 <i class="fa-solid fa-file-export"></i> Xuất file
             </button>
         </div>
     </div>
 
     <div class="table-responsive">
-        <table class="table table-hover border rounded-3 shadow-sm bg-white">
+        <table id="productTable" class="table table-hover bg-white" style="width:100%">
             <thead class="text-center">
                 <tr>
                     <th>Loại hàng</th>
@@ -93,78 +196,216 @@
                 </tr>
             </thead>
             <tbody class="text-center">
-                <tr>
-                    <td><span class="badge bg-success">Xe điện</span></td>
-                    <td>XD001</td>
-                    <td class="text-start">VinFast Klara S</td>
-                    <td>34,000,000 ₫</td>
-                    <td>30,000,000 ₫</td>
-                    <td>15</td>
-                    <td>2</td>
-                    <td>03/11/2025 09:30</td>
-                    <td>---</td>
-                </tr>
-                <tr>
-                    <td><span class="badge bg-success">Xe điện</span></td>
-                    <td>XD002</td>
-                    <td class="text-start">Yadea G5</td>
-                    <td>31,500,000 ₫</td>
-                    <td>27,000,000 ₫</td>
-                    <td>20</td>
-                    <td>0</td>
-                    <td>02/11/2025 14:22</td>
-                    <td>---</td>
-                </tr>
-                <tr>
-                    <td><span class="badge bg-success">Xe điện</span></td>
-                    <td>XD003</td>
-                    <td class="text-start">DatBike Gogo SS</td>
-                    <td>39,000,000 ₫</td>
-                    <td>35,000,000 ₫</td>
-                    <td>10</td>
-                    <td>1</td>
-                    <td>01/11/2025 15:15</td>
-                    <td>---</td>
-                </tr>
-
-                <tr>
-                    <td><span class="badge bg-warning text-dark">Linh kiện</span></td>
-                    <td>LK001</td>
-                    <td class="text-start">Ắc quy Lithium 60V</td>
-                    <td>3,200,000 ₫</td>
-                    <td>2,700,000 ₫</td>
-                    <td>25</td>
-                    <td>3</td>
-                    <td>03/11/2025 09:30</td>
-                    <td>---</td>
-                </tr>
-                <tr>
-                    <td><span class="badge bg-warning text-dark">Linh kiện</span></td>
-                    <td>LK002</td>
-                    <td class="text-start">Động cơ 1200W</td>
-                    <td>2,800,000 ₫</td>
-                    <td>2,300,000 ₫</td>
-                    <td>18</td>
-                    <td>1</td>
-                    <td>02/11/2025 14:22</td>
-                    <td>---</td>
-                </tr>
-                <tr>
-                    <td><span class="badge bg-warning text-dark">Linh kiện</span></td>
-                    <td>LK003</td>
-                    <td class="text-start">Phanh đĩa thủy lực</td>
-                    <td>950,000 ₫</td>
-                    <td>700,000 ₫</td>
-                    <td>30</td>
-                    <td>0</td>
-                    <td>01/11/2025 15:15</td>
-                    <td>---</td>
-                </tr>
+                <tr><td>Xe điện</td><td>XD001</td><td class="text-start">VinFast Klara S</td><td>34000000</td><td>30000000</td><td>15</td><td>2</td><td>03/11/2025 09:30</td><td>---</td></tr>
+                <tr><td>Xe điện</td><td>XD002</td><td class="text-start">Yadea G5</td><td>31500000</td><td>27000000</td><td>0</td><td>0</td><td>02/11/2025 14:22</td><td>---</td></tr>
+                <tr><td>Xe điện</td><td>XD003</td><td class="text-start">DatBike Gogo SS</td><td>39000000</td><td>35000000</td><td>10</td><td>1</td><td>01/11/2025 15:15</td><td>---</td></tr>
+                <tr><td>Linh kiện</td><td>LK001</td><td class="text-start">Ắc quy Lithium 60V</td><td>3200000</td><td>2700000</td><td>25</td><td>3</td><td>03/11/2025 09:30</td><td>---</td></tr>
+                <tr><td>Linh kiện</td><td>LK002</td><td class="text-start">Động cơ 1200W</td><td>2800000</td><td>2300000</td><td>18</td><td>1</td><td>02/11/2025 14:22</td><td>---</td></tr>
+                <tr><td>Linh kiện</td><td>LK003</td><td class="text-start">Phanh đĩa thủy lực</td><td>950000</td><td>700000</td><td>30</td><td>0</td><td>01/11/2025 15:15</td><td>---</td></tr>
             </tbody>
         </table>
     </div>
 
-    <div class="text-end text-secondary small mt-2">
-        <i>Hiển thị 1–6 / 6 hàng hóa</i>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="dataTables_info" id="productTable_info" role="status" aria-live="polite"></div>
+        <div class="dataTables_paginate paging_simple_numbers" id="productTable_paginate"></div>
     </div>
 </div>
+
+<div class="modal fade" id="newProductModal" tabindex="-1" aria-labelledby="newProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newProductModalLabel"><i class="fa fa-plus"></i> Thêm Hàng Hóa Mới</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addProductForm">
+          <div class="mb-3">
+            <label for="productName" class="form-label">Tên hàng hóa <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="productName" required>
+          </div>
+          <div class="mb-3">
+            <label for="productCode" class="form-label">Mã hàng hóa</label>
+            <input type="text" class="form-control" id="productCode">
+          </div>
+          <div class="mb-3">
+            <label for="productType" class="form-label">Loại hàng</label>
+            <select class="form-select" id="productType" required>
+                <option value="Xe điện">Xe điện</option>
+                <option value="Linh kiện">Linh kiện</option>
+            </select>
+          </div>
+          <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="sellPrice" class="form-label">Giá bán (₫)</label>
+                <input type="number" class="form-control" id="sellPrice" value="0">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="costPrice" class="form-label">Giá vốn (₫)</label>
+                <input type="number" class="form-control" id="costPrice" value="0">
+              </div>
+          </div>
+          <div class="mb-3">
+            <label for="initialStock" class="form-label">Tồn kho ban đầu</label>
+            <input type="number" class="form-control" id="initialStock" value="0">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary-green" onclick="handleNewProductSubmit()">Lưu Hàng Hóa</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    var table;
+    const TYPE_COL = 0;
+    const SELL_PRICE_COL = 3;
+    const COST_PRICE_COL = 4;
+    const STOCK_COL = 5;
+
+    function formatCurrency(number) {
+        if (typeof number !== 'number') return number;
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(number);
+    }
+
+    function handleNewProductSubmit() {
+        const name = $('#productName').val();
+        const code = $('#productCode').val() || 'Tự động';
+        const type = $('#productType').val();
+        const sell = parseInt($('#sellPrice').val()) || 0;
+        const cost = parseInt($('#costPrice').val()) || 0;
+        const stock = parseInt($('#initialStock').val()) || 0;
+
+        if (!name) {
+            alert("Vui lòng nhập Tên hàng hóa.");
+            return;
+        }
+
+        const now = new Date();
+        const dateString = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+        table.row.add([
+            type,       
+            code,       
+            name,       
+            sell,       
+            cost,       
+            stock,      
+            0,          
+            dateString, 
+            '---'       
+        ]).draw(false); 
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('newProductModal'));
+        modal.hide();
+        $('#addProductForm')[0].reset();
+        alert(`Đã thêm hàng hóa "${name}" thành công!`);
+    }
+
+    $(document).ready(function () {
+        
+        /* -------------------------------------------
+        // 1. KHỞI TẠO DATATABLES
+        ------------------------------------------- */
+        table = $('#productTable').DataTable({
+            dom: 'rtip', 
+            order: [[STOCK_COL, 'desc']], 
+            language: {
+                "sProcessing": "Đang xử lý...",
+                "sLengthMenu": "Xem _MENU_ mục",
+                "sZeroRecords": "Không tìm thấy hàng hóa nào phù hợp",
+                "sInfo": "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "sInfoEmpty": "Hiển thị 0 đến 0 trong tổng số 0 mục",
+                "sInfoFiltered": "(được lọc từ tổng số _MAX_ mục)",
+                "sSearch": "Tìm kiếm:",
+                "oPaginate": {
+                    "sFirst": "Đầu",
+                    "sLast": "Cuối",
+                    "sNext": "Tiếp",
+                    "sPrevious": "Trước"
+                }
+            },
+            columnDefs: [
+                {
+                    targets: TYPE_COL,
+                    render: function (data, type, row) {
+                        if (type === 'display') {
+                            // Giữ lại badge màu sắc cho loại hàng
+                            let className = (data === 'Xe điện') ? 'bg-success' : 'bg-warning text-dark';
+                            return `<span class="badge ${className}">${data}</span>`;
+                        }
+                        return data;
+                    }
+                },
+                {
+                    targets: [SELL_PRICE_COL, COST_PRICE_COL],
+                    render: function (data, type, row) {
+                        const num = parseInt(data.toString().replace(/,/g, ''));
+                        if (type === 'display' || type === 'filter') {
+                            return formatCurrency(num);
+                        }
+                        return num;
+                    },
+                    className: 'text-end'
+                },
+                {
+                    targets: [STOCK_COL, 6],
+                    render: function (data, type, row) {
+                        return parseInt(data);
+                    },
+                    className: 'text-center'
+                }
+            ]
+        });
+
+        /* -------------------------------------------
+        // 2. LOGIC LỌC VÀ TÌM KIẾM
+        ------------------------------------------- */
+
+        // a) Lọc theo Loại hàng (Cột 0)
+        $('#typeFilter').on('change', function () {
+            const typeValue = $(this).val();
+            table.column(TYPE_COL).search(typeValue ? '^' + typeValue + '$' : '', true, false).draw();
+        });
+
+        // b) Lọc theo Tồn kho (Cột 5)
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'productTable') {
+                    return true;
+                }
+
+                const stockFilter = $('#stockFilter').val();
+                const stock = parseInt(data[STOCK_COL]) || 0; 
+                
+                if (stockFilter === 'available') {
+                    return stock > 0;
+                } else if (stockFilter === 'outOfStock') {
+                    return stock <= 0;
+                }
+                
+                return true;
+            }
+        );
+        
+        $('#stockFilter').on('change', function () {
+            table.draw();
+        });
+
+        // c) Global Search (Tìm kiếm toàn cục)
+        $('#globalSearchBox').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+        
+    });
+</script>

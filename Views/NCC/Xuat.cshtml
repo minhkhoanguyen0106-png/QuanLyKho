@@ -1,92 +1,186 @@
 @{
     ViewBag.Title = "Lịch sử xuất của nhà cung cấp";
-    Layout = "/Views/Shared/_Layout.cshtml";
+    Layout = "/Views/Shared/_Layout.cshtml"; /* Giữ nguyên Layout của bạn */
 }
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
 <style>
+    /* ----------------------------------------------------- */
+    /* KIOTVIET-STYLE CSS & CUSTOM BOOTSTRAP (ĐỒNG BỘ) */
+    /* ----------------------------------------------------- */
+
     body {
-        background-color: #fff;
-        font-family: "Segoe UI", sans-serif;
+        background-color: #f5f7fa;
+    
     }
 
     /* ====== SIDEBAR LỌC ====== */
     .filter-sidebar {
-        background-color: #fafafa;
+        background-color: #fff;
         border-right: 1px solid #eee;
         padding: 16px;
-        min-width: 260px;
+        min-width: 280px;
+        max-width: 280px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
     .filter-sidebar h5 {
         font-weight: 600;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         color: #444;
+        font-size: 1.15rem;
     }
 
     .filter-sidebar h6 {
         font-weight: 600;
         font-size: 14px;
-        margin-top: 16px;
-        color: #666;
+        margin-top: 18px;
+        margin-bottom: 5px;
+        color: #333;
     }
 
     .filter-sidebar input,
-    .filter-sidebar select {
-        font-size: 14px;
+    .filter-sidebar select,
+    .form-control-sm,
+    .form-select-sm {
+        font-size: 14px !important;
+        border-radius: 4px;
+        border: 1px solid #ddd;
     }
 
-    .filter-sidebar .btn {
+    /* FIX MẠNH MẼ LỖI DATEPICKER: Đảm bảo input date không bị đè */
+    #customDateRange input {
+        position: relative;
+        z-index: 1051; 
+    }
+
+    /* Nút lọc Trạng thái */
+    .filter-btn-group button {
         font-size: 13px;
-        border-radius: 20px;
+        border-radius: 4px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        color: #555;
+        font-weight: 500;
+        transition: none;
+        margin-right: 5px;
+        margin-bottom: 5px;
     }
 
-    .btn-active {
-        background-color: #a8e6a3;
+    .filter-btn-group button.btn-active {
+        background-color: #28a745; 
         color: #fff;
+        border-color: #28a745;
     }
 
     /* ====== MAIN CONTENT ====== */
     .main-content {
         flex: 1;
         padding: 20px;
+        max-width: calc(100% - 280px);
     }
 
     .top-bar {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
-    }
-
-    .table thead th {
-        background-color: #eaf9e8;
-        font-weight: 600;
-        color: #2e7d32;
-    }
-
-    .table td, .table th {
-        vertical-align: middle;
-        font-size: 14px;
+        flex-wrap: wrap;
     }
 
     .search-bar input {
-        width: 300px;
-    }
-
-    .btn-outline {
+        width: 350px;
+        max-width: 100%;
+        border-radius: 4px;
         border: 1px solid #ddd;
+        padding: 8px 12px;
+    }
+    
+    /* Nút hành động phải */
+    .action-buttons button {
+        font-size: 14px;
+        border-radius: 4px;
+        padding: 8px 15px;
+        font-weight: 500;
         background-color: #fff;
         color: #555;
+        border: 1px solid #ddd;
     }
 
-    .btn-outline:hover {
+    /* Nút xuất file màu xanh lá */
+    #exportBtn {
+        background-color: #28a745;
+        color: #fff;
+        border-color: #28a745;
+    }
+
+    /* DATATABLES & TABLE STYLE */
+    .dataTables_wrapper { padding-top: 5px; }
+    .dataTables_info {
+        font-size: 13px;
+        padding-top: 10px !important;
+        display: inline-block;
+    }
+    .dataTables_paginate {
+        float: right;
+        padding-top: 10px !important;
+    }
+    .dataTables_paginate .paginate_button {
+        padding: 4px 8px !important; 
+        border-radius: 4px !important;
+        margin: 2px !important;
+        border: 1px solid #ddd !important;
+        color: #333 !important; 
+        background: #fff !important; 
+        font-size: 13px; 
+    }
+    .dataTables_paginate .paginate_button:hover {
+        background: #f1f1f1 !important;
+    }
+    .dataTables_paginate .paginate_button.current {
+        background: #28a745 !important; 
+        color: white !important;
+        border-color: #28a745 !important;
+    }
+
+
+    .table thead th {
         background-color: #f1f1f1;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #e6f8e5;
     }
 
     .badge-status {
-        border-radius: 10px;
-        padding: 4px 8px;
+        border-radius: 4px;
+        padding: 5px 10px;
         font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+        min-width: 80px;
     }
 
     .badge-completed {
@@ -96,75 +190,88 @@
 
     .badge-canceled {
         background-color: #fdecea;
-        color: #1cb73bff;
+        color: #b71c1c;
+    }
+
+    .badge-pending {
+        background-color: #fff8e1;
+        color: #9c6800;
+    }
+    
+    /* Responsive for Sidebar */
+    @@media (max-width: 992px) {
+        .filter-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1050;
+        }
+        .filter-sidebar.show {
+            transform: translateX(0);
+        }
+        .main-content {
+            max-width: 100%;
+        }
     }
 </style>
 
 <div class="d-flex" style="min-height: 90vh;">
-    <!-- SIDEBAR BỘ LỌC -->
-    <div class="filter-sidebar">
-        <h5>Lịch sử xuất hàng</h5>
+    <div class="filter-sidebar" id="filterSidebar">
+        <button id="closeSidebar" class="btn btn-sm btn-outline-secondary d-lg-none float-end" style="margin-top: -10px;"><i class="fa fa-times"></i></button>
 
-        <h6>Nhà cung cấp</h6>
-        <select class="form-select form-select-sm mb-2">
-            <option>Tất cả nhà cung cấp</option>
-            <option>VIPOMALL</option>
-            <option>EBIKE PHỤ TÙNG</option>
-            <option>HUỲNH THUẬN (PIN)</option>
+        <h5>Lịch sử xuất hàng</h5> <h6>Nhà cung cấp</h6>
+        <select id="supplierFilter" class="form-select form-select-sm mb-2">
+            <option value="">Tất cả nhà cung cấp</option>
+            <option value="VIPOMALL">VIPOMALL</option>
+            <option value="EBIKE PHỤ TÙNG">EBIKE PHỤ TÙNG</option>
+            <option value="HUỲNH THUẬN (PIN)">HUỲNH THUẬN (PIN)</option>
         </select>
 
         <h6>Thời gian</h6>
-        <select class="form-select form-select-sm mb-2">
-            <option>Toàn thời gian</option>
-            <option>Hôm nay</option>
-            <option>7 ngày qua</option>
-            <option>Tháng này</option>
-            <option>Tùy chỉnh</option>
+        <select id="timeRangeFilter" class="form-select form-select-sm mb-2">
+            <option value="all">Toàn thời gian</option>
+            <option value="today">Hôm nay</option>
+            <option value="last7days">7 ngày qua</option>
+            <option value="thisMonth">Tháng này</option>
+            <option value="custom">Tùy chỉnh</option>
         </select>
-        <div class="d-flex gap-2">
-            <input type="date" class="form-control form-control-sm">
-            <input type="date" class="form-control form-control-sm">
+        <div class="d-flex gap-2" id="customDateRange">
+            <input type="date" id="dateStart" class="form-control form-control-sm" disabled>
+            <input type="date" id="dateEnd" class="form-control form-control-sm" disabled>
         </div>
-
-        <h6 class="mt-3">Loại chứng từ</h6>
-        <select class="form-select form-select-sm mb-2">
-            <option>Tất cả</option>
-            <option>Phiếu xuất trả hàng</option>
-            <option>Phiếu chuyển kho</option>
-        </select>
 
         <h6 class="mt-3">Trạng thái</h6>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline btn-sm">Tất cả</button>
-            <button class="btn btn-active btn-sm">Hoàn tất</button>
+        <div class="filter-btn-group">
+            <button class="btn btn-sm btn-active statusFilter" data-val="">Tất cả</button>
+            <button class="btn btn-sm statusFilter" data-val="Hoàn tất">Hoàn tất</button>
+            <button class="btn btn-sm statusFilter" data-val="Đang xử lý">Đang xử lý</button> 
+            <button class="btn btn-sm statusFilter" data-val="Hủy">Hủy</button>
         </div>
-        <button class="btn btn-outline btn-sm mt-1">Hủy</button>
+        
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
         <div class="top-bar">
+            <button id="openSidebar" class="btn btn-success d-lg-none me-3" style="padding: 8px 12px;"><i class="fa fa-filter"></i> Bộ lọc</button>
+
             <div class="search-bar d-flex gap-2">
-                <input type="text" class="form-control shadow-sm" placeholder="🔍 Theo mã phiếu, nhà cung cấp...">
-                <button class="btn btn-outline shadow-sm"><i class="fa fa-filter"></i></button>
+                <input type="text" id="globalSearchBox" class="form-control shadow-sm" placeholder="🔍 Theo mã phiếu, nhà cung cấp...">
             </div>
 
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline btn-sm"><i class="fa fa-print"></i> In</button>
-                <button class="btn btn-outline btn-sm"><i class="fa fa-file-export"></i> Xuất file</button>
-                <button class="btn btn-outline btn-sm"><i class="fa fa-gear"></i></button>
+            <div class="d-flex gap-2 action-buttons">
+                <button class="btn" id="exportBtn"><i class="fa fa-file-export"></i> Xuất file</button>
             </div>
         </div>
 
-        <table class="table table-hover border rounded-3 shadow-sm bg-white">
+        <table id="exportHistoryTable" class="table table-hover border rounded-3 shadow-sm bg-white" style="width:100%">
             <thead>
                 <tr class="text-center">
                     <th>Mã phiếu</th>
-                    <th>Ngày xuất</th>
-                    <th>Nhà cung cấp</th>
+                    <th>Ngày xuất</th> <th>Nhà cung cấp</th>
                     <th>Nhân viên xử lý</th>
-                    <th>Tổng giá trị</th>
-                    <th>Trạng thái</th>
+                    <th>Tổng giá trị xuất</th> <th>Trạng thái</th>
                     <th>Ghi chú</th>
                 </tr>
             </thead>
@@ -174,7 +281,7 @@
                     <td>02/11/2025</td>
                     <td>EBIKE PHỤ TÙNG</td>
                     <td>Nguyễn Văn Cử</td>
-                    <td>12,350,000</td>
+                    <td>12350000</td>
                     <td><span class="badge-status badge-completed">Hoàn tất</span></td>
                     <td>Xuất pin và sạc</td>
                 </tr>
@@ -183,7 +290,7 @@
                     <td>31/10/2025</td>
                     <td>HUỲNH THUẬN (PIN)</td>
                     <td>Trần Mỹ</td>
-                    <td>7,500,000</td>
+                    <td>7500000</td>
                     <td><span class="badge-status badge-canceled">Hủy</span></td>
                     <td>Phiếu hủy do sai kho</td>
                 </tr>
@@ -192,15 +299,219 @@
                     <td>29/10/2025</td>
                     <td>VIPOMALL</td>
                     <td>Hồng Thanh</td>
-                    <td>25,000,000</td>
+                    <td>25000000</td>
                     <td><span class="badge-status badge-completed">Hoàn tất</span></td>
                     <td>Xuất xe mẫu kiểm tra</td>
+                </tr>
+                <tr>
+                    <td>PC0001</td>
+                    <td>01/11/2025</td>
+                    <td>VIPOMALL</td>
+                    <td>Trần Mỹ</td>
+                    <td>15000000</td>
+                    <td><span class="badge-status badge-pending">Đang xử lý</span></td>
+                    <td>Chuyển kho kiểm kê</td>
                 </tr>
             </tbody>
         </table>
 
-        <div class="text-end text-secondary small mt-2">
-            Hiển thị 1–3 / 3 phiếu xuất
+        <div class="d-flex justify-content-between align-items-center mt-3">
+             <div class="dataTables_info" id="exportHistoryTable_info" role="status" aria-live="polite"></div>
+             <div class="dataTables_paginate paging_simple_numbers" id="exportHistoryTable_paginate"></div>
         </div>
     </div>
 </div>
+
+<script>
+    /* ----------------------------------------------------- */
+    /* JAVASCRIPT LOGIC VÀ DATATABLES (ĐỒNG BỘ) */
+    /* ----------------------------------------------------- */
+
+    var table; // Biến global cho DataTable
+    
+    // Khai báo các Index Cột cho dễ quản lý
+    const SUPPLIER_COLUMN_INDEX = 2; // Nhà cung cấp
+    const DATE_COLUMN_INDEX = 1;     // Ngày xuất (dd/mm/yyyy)
+    const VALUE_COLUMN_INDEX = 4;    // Tổng giá trị xuất
+    const STATUS_COLUMN_INDEX = 5;   // Trạng thái
+
+    /**
+     * Chuyển đổi chuỗi ngày tháng (dd/mm/yyyy) trong bảng thành đối tượng Date (chỉ ngày, reset giờ).
+     */
+    function parseTableDate(dateString) {
+        if (!dateString) return null;
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+            // new Date(yyyy, mm-1, dd)
+            const date = new Date(parts[2], parts[1] - 1, parts[0]); 
+            date.setHours(0, 0, 0, 0); 
+            return date;
+        }
+        return null;
+    }
+
+    /**
+     * Chuyển đổi chuỗi ngày tháng từ input type="date" (yyyy-mm-dd) thành đối tượng Date (chỉ ngày, reset giờ).
+     */
+    function parseInputDate(dateString) {
+        if (!dateString) return null;
+        const date = new Date(dateString);
+        date.setHours(0, 0, 0, 0); 
+        return date;
+    }
+
+    $(document).ready(function () {
+        
+        /* --- DATATABLES INITIALIZATION --- */
+        table = $('#exportHistoryTable').DataTable({ // Đổi ID bảng
+            dom: 'rtip', 
+            pagingType: 'simple_numbers',
+            order: [[DATE_COLUMN_INDEX, 'desc']], 
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: 'LichSuXuatHang', // Đổi tên file export
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] } 
+                }
+            ],
+            "aoColumns": [null, null, null, null, null, null, null], 
+            columnDefs: [
+                { 
+                    targets: VALUE_COLUMN_INDEX, // Cột Tổng giá trị (Index 4)
+                    render: function (data, type, row) {
+                        const num = parseInt(data.toString().replace(/\D/g, '')) || 0;
+                        if (type === 'display' || type === 'filter') {
+                            const formatted = new Intl.NumberFormat('vi-VN').format(num) + 'đ';
+                            return num < 0 ? `<span style="color:#dc3545;">${formatted}</span>` : formatted;
+                        }
+                        return num;
+                    }
+                },
+                { 
+                    targets: STATUS_COLUMN_INDEX, // Cột Trạng thái (Index 5)
+                    render: function (data, type, row) {
+                         if (type === 'display') {
+                            let statusText = data.replace(/<.*?>/g, ''); 
+                            let className = '';
+                            if (statusText === 'Hoàn tất') className = 'badge-completed';
+                            else if (statusText === 'Hủy') className = 'badge-canceled';
+                            else if (statusText === 'Đang xử lý') className = 'badge-pending';
+
+                            return `<span class="badge-status ${className}">${statusText}</span>`;
+                        }
+                        return data.toString().replace(/<.*?>/g, '');
+                    }
+                }
+            ]
+        });
+
+        /* --- CUSTOM DATATABLES FILTER LOGIC (ĐỒNG BỘ HOÀN TOÀN) --- */
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                // Đảm bảo chỉ áp dụng cho bảng này
+                if (settings.nTable.id !== 'exportHistoryTable') { 
+                    return true;
+                }
+                
+                // --- LỌC 1: NHÀ CUNG CẤP (Cột 2) ---
+                const selectedSupplier = $('#supplierFilter').val();
+                if (selectedSupplier && selectedSupplier !== data[SUPPLIER_COLUMN_INDEX]) {
+                    return false;
+                }
+
+                // --- LỌC 2: THỜI GIAN (Cột 1) ---
+                const dateString = data[DATE_COLUMN_INDEX];
+                const rowDate = parseTableDate(dateString); // Sử dụng hàm parseTableDate
+
+                const timeRange = $('#timeRangeFilter').val();
+                let filterPass = true;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); 
+                
+                if (timeRange === 'today') {
+                    if (!rowDate || rowDate.getTime() !== today.getTime()) filterPass = false;
+                } else if (timeRange === 'last7days') {
+                    const sevenDaysAgo = new Date(today);
+                    sevenDaysAgo.setDate(today.getDate() - 7); 
+                    if (!rowDate || rowDate < sevenDaysAgo) filterPass = false;
+                } else if (timeRange === 'thisMonth') {
+                    if (!rowDate || rowDate.getMonth() !== today.getMonth() || rowDate.getFullYear() !== today.getFullYear()) filterPass = false;
+                } else if (timeRange === 'custom') {
+                    const dateStartStr = $('#dateStart').val(); // yyyy-mm-dd
+                    const dateEndStr = $('#dateEnd').val();     // yyyy-mm-dd
+                    
+                    const startDate = parseInputDate(dateStartStr);
+                    const endDate = parseInputDate(dateEndStr);
+
+                    if (startDate && rowDate) {
+                        if (rowDate < startDate) filterPass = false;
+                    }
+                    if (endDate && rowDate) {
+                        // Thêm 1 ngày để bao gồm cả ngày kết thúc (Đồng bộ logic)
+                        const endOfDay = new Date(endDate);
+                        endOfDay.setDate(endDate.getDate() + 1); 
+                        if (rowDate >= endOfDay) filterPass = false;
+                    }
+                }
+                
+                if (!filterPass) return false;
+                
+                return true;
+            }
+        );
+
+        /* --- EVENT HANDLERS --- */
+
+        // 1. Global Search Box
+        $('#globalSearchBox').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+
+        // 2. Supplier Filter
+        $('#supplierFilter').on('change', function () {
+            table.draw();
+        });
+
+        // 3. Time Range Filter Logic
+        $('#timeRangeFilter').on('change', function () {
+            const range = $(this).val();
+            if (range === 'custom') {
+                // Kích hoạt input
+                $('#dateStart, #dateEnd').prop('disabled', false).val('');
+            } else {
+                // Vô hiệu hóa input
+                $('#dateStart, #dateEnd').prop('disabled', true).val('');
+            }
+            table.draw();
+        });
+        // Lắng nghe sự kiện thay đổi của input type="date"
+        $('#dateStart, #dateEnd').on('change', function() {
+            table.draw();
+        });
+        
+        // 4. Status Filter Logic (Cột 5)
+        $('.statusFilter').on('click', function () {
+            const status = $(this).data('val');
+            $('.statusFilter').removeClass('btn-active');
+            $(this).addClass('btn-active');
+            
+            // Lọc cột Trạng thái (Cột 5)
+            table.column(STATUS_COLUMN_INDEX).search(status ? status : '', true, false).draw();
+        });
+
+        // 5. Export Button
+        $('#exportBtn').on('click', function () {
+            table.button(0).trigger();
+        });
+        
+        // 6. Sidebar Responsive Toggle (Đồng bộ)
+        $('#openSidebar').on('click', function() {
+            $('#filterSidebar').addClass('show');
+        });
+        $('#closeSidebar').on('click', function() {
+            $('#filterSidebar').removeClass('show');
+        });
+
+    });
+</script>

@@ -9,15 +9,12 @@ namespace QuanLyKho.Controllers
             return View();
         }
 
-         public IActionResult MoTaiKhoan()
+         public IActionResult QlTaiKhoan()
         {
             return View();
         }
 
-        public IActionResult KhoaTaiKhoan()
-        {
-            return View();
-        }
+
     
     }
 }

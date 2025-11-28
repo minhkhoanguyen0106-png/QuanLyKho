@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Http
 @{
     ViewBag.Title = "Đăng nhập hệ thống";
-    Layout = null; // Không dùng Layout cho trang Login
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -13,16 +13,15 @@
     <title>@ViewBag.Title</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
         :root {
             --primary-color: #428446;
             --primary-hover: #3b743e;
             --bg-color: #f0fdf4; 
         }
-        
-        body { 
-            background: var(--bg-color);
+
+        body {
             background: linear-gradient(135deg, var(--bg-color) 0%, #e8f9e8 100%);
             height: 100vh;
             display: flex;
@@ -30,14 +29,13 @@
             justify-content: center;
             font-family: "Segoe UI", sans-serif;
         }
-        
-        .login-container { 
-            max-width: 420px; 
-            padding: 40px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); 
+
+        .login-container {
+            max-width: 420px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             background-color: #fff;
-            animation: fadeIn 0.5s ease-out;
         }
 
         .login-header {
@@ -47,179 +45,100 @@
             margin-bottom: 30px;
         }
 
-        /* Input Group Styling */
-        .input-group-text { 
-            background-color: var(--primary-color); 
+        .input-group-text {
+            background-color: var(--primary-color);
             color: white;
             border: 1px solid var(--primary-color);
-            border-radius: 8px 0 0 8px !important; 
-        }
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(66, 132, 70, 0.25);
-        }
-        
-        /* Button Styling */
-        .btn-login { 
-            background-color: var(--primary-color); 
-            color: white; 
-            font-weight: bold; 
-            border-radius: 8px; 
-            transition: 0.3s; 
-            padding: 10px 0;
-        }
-        .btn-login:hover { 
-            background-color: var(--primary-hover); 
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* Toggle Password Icon */
-        .password-wrapper i { 
-            position: absolute; 
-            right: 15px; 
-            top: 50%; 
-            transform: translateY(-50%);
-            cursor: pointer; 
-            color: #6c757d; 
-            z-index: 100;
-            transition: color 0.2s;
-        }
-        .password-wrapper i:hover {
-            color: var(--primary-color);
+            border-radius: 8px 0 0 8px !important;
         }
 
-        /* Secondary Button (Nhân viên) */
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(66,132,70,0.25);
+        }
+
+        .btn-login {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: 0.3s;
+            padding: 10px 0;
+        }
+
+        .btn-login:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
         .btn-staff-login {
             color: var(--primary-color);
             border-color: var(--primary-color);
             border-radius: 8px;
             font-weight: 500;
         }
+
         .btn-staff-login:hover {
             background-color: var(--primary-color);
             color: white;
         }
-        
-        /* Validation Styling */
-        .text-danger { 
-            color: #dc3545 !important; 
+
+        .text-danger {
             font-size: 0.875em;
         }
     </style>
 </head>
 
 <body>
+
     <div class="login-container">
+
         <div class="text-center login-header">
-            <i class="fa-solid fa-box-open fa-3x mb-2" aria-hidden="true"></i> 
+            <i class="fa-solid fa-box-open fa-3x mb-2"></i>
             <h4 class="fw-bold m-0">ĐĂNG NHẬP HỆ THỐNG</h4>
             <small class="text-muted">Quản lý kho vận và bán hàng</small>
         </div>
-        
+
         <form id="loginForm" method="post" action="/Account/Login">
-            
+
+            <input type="hidden" id="LoginRole" name="LoginRole" value="Manager" />
+
             <div class="mb-3">
-                <label for="username" class="form-label fw-semibold">Tên đăng nhập</label>
+                <label class="form-label fw-semibold">Tên đăng nhập</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
                     <input type="text" class="form-control" id="username" name="Username" placeholder="Nhập tên đăng nhập">
                 </div>
             </div>
-            
+
             <div class="mb-4">
-                <label for="password" class="form-label fw-semibold">Mật khẩu</label>
+                <label class="form-label fw-semibold">Mật khẩu</label>
                 <div class="input-group password-wrapper">
                     <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                     <input type="password" class="form-control" id="password" name="Password" placeholder="Nhập mật khẩu">
                     <i class="fa-solid fa-eye" id="togglePassword"></i>
                 </div>
             </div>
-            
+
             <div class="d-grid gap-2 mt-4">
                 <button type="submit" class="btn btn-login">Đăng nhập cho Quản lý</button>
             </div>
         </form>
 
         <div class="text-center mt-3">
-            <a href="/Staff/Login" class="btn btn-staff-login btn-sm border">
+            <button class="btn btn-staff-login btn-sm border" onclick="loginAsStaff()">
                 <i class="fa-solid fa-user-tie me-1"></i> Đăng nhập cho Nhân viên
-            </a>
+            </button>
         </div>
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const loginForm = document.getElementById('loginForm');
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const togglePassword = document.getElementById('togglePassword');
-
-            // --- Hàm hỗ trợ ---
-            function displayError(inputElement, message) {
-                inputElement.classList.add('is-invalid');
-                const parentDiv = inputElement.closest('.mb-3, .mb-4');
-                
-                let errorSpan = parentDiv.querySelector('.validation-message');
-                if (!errorSpan) {
-                    errorSpan = document.createElement('span');
-                    errorSpan.classList.add('text-danger', 'validation-message', 'd-block', 'mt-1');
-                    parentDiv.appendChild(errorSpan);
-                }
-                errorSpan.textContent = message;
-            }
-
-            function clearErrors() {
-                document.querySelectorAll('.is-invalid').forEach(el => {
-                    el.classList.remove('is-invalid');
-                });
-                document.querySelectorAll('.validation-message').forEach(el => {
-                    el.textContent = '';
-                });
-            }
-            
-            // --- 1. Chức năng Hiển thị/Ẩn Mật khẩu ---
-            if (togglePassword && passwordInput) {
-                togglePassword.addEventListener('click', function () {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    
-                    this.classList.toggle('fa-eye');
-                    this.classList.toggle('fa-eye-slash');
-                });
-            }
-
-            // --- 2. Client-side Validation ---
-            if (loginForm) {
-                loginForm.addEventListener('submit', function (e) {
-                    clearErrors();
-                    let isValid = true;
-
-                    // Kiểm tra Tên đăng nhập
-                    if (usernameInput.value.trim() === '') {
-                        displayError(usernameInput, 'Tên đăng nhập không được để trống.');
-                        isValid = false;
-                    }
-
-                    // Kiểm tra Mật khẩu
-                    if (passwordInput.value === '') {
-                        displayError(passwordInput, 'Mật khẩu không được để trống.');
-                        isValid = false;
-                    }
-
-                    if (!isValid) {
-                        e.preventDefault(); 
-                    }
-                });
-            }
-
-            // Xóa lỗi khi người dùng bắt đầu nhập
-            usernameInput.addEventListener('input', clearErrors);
-            passwordInput.addEventListener('input', clearErrors);
-        });
+        function loginAsStaff() {
+            document.getElementById("LoginRole").value = "Employee";
+            document.getElementById("loginForm").submit();
+        }
     </script>
+
 </body>
 </html>

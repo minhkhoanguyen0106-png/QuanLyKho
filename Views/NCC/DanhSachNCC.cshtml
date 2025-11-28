@@ -1,218 +1,459 @@
 @{
-    ViewBag.Title = "Danh sách Nhà Cung Cấp";
-    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Danh sách Nhà Cung Cấp";
 }
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
 <style>
-    body {
-        background-color: #fff;
-        font-family: "Segoe UI", sans-serif;
-    }
+/* ----------------------------------------------------- */
+/* KIOTVIET-STYLE CSS & RESPONSIVE FIX */
+/* ----------------------------------------------------- */
 
-    .sidebar-filter {
-        background-color: #fafafa;
-        border-right: 1px solid #eee;
-        padding: 16px;
-        min-width: 260px;
-    }
+/* LAYOUT CƠ BẢN */
+body { background: #f5f7fa; margin:0; }
+.page-content { display: flex; gap: 20px; padding: 20px; max-width: 1400px; margin: auto; }
+.filter-sidebar-wrapper { 
+    width: 280px; 
+    flex-shrink: 0; 
+    transition: all .35s; 
+}
+.filter-sidebar { 
+    background: white; 
+    padding: 15px; 
+    border-radius: 4px; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+    position: sticky;
+    top: 20px;
+}
+.main-content { flex: 1; background: white; padding: 15px; border-radius: 4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+.main-actions { display: flex; justify-content: space-between; margin-bottom: 15px; align-items:center; flex-wrap:wrap; }
 
-    .sidebar-filter h6 {
-        font-weight: 600;
-        color: #555;
-        margin-top: 15px;
-    }
+/* INPUT & SELECT KIOTVIET-STYLE */
+.filter-sidebar label { font-weight: 600; font-size: 0.9em; margin-top: 15px; display: block; }
+.filter-sidebar h4 { font-size: 1.1em; margin-bottom: 5px; }
+.filter-sidebar select, 
+.filter-sidebar input[type="number"], 
+.filter-sidebar input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    font-size: 0.95em;
+    min-height: 38px;
+}
+.input-range-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
 
-    .sidebar-filter input,
-    .sidebar-filter select {
-        font-size: 14px;
-    }
+/* SEARCH BAR */
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px 10px;
+    width: 350px;
+    max-width: 100%;
+    background: #fff;
+}
+.search-container i { color: #888; margin-right: 8px; }
+#searchBox {
+    border: none;
+    outline: none;
+    padding: 0;
+    width: 100%;
+    font-size: 0.95em;
+}
 
-    .sidebar-filter .btn {
-        font-size: 13px;
-        border-radius: 20px;
-    }
+/* BUTTONS */
+.action-buttons button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    border: none;
+    cursor:pointer;
+    font-weight: 500;
+    transition:.2s;
+    font-size: 0.95em;
+}
+#addSupplierBtn { background:#28a745; color:#fff; }
+#exportBtn { background:#007bff; color:#fff; }
 
-    .btn-active {
-        background-color: #62df5bff;
-        color: white;
-    }
+/* CHỈNH MÀU NÚT LƯU NHÀ CUNG CẤP (YÊU CẦU MỚI) */
+#saveSupplierBtn { 
+    background:#28a745; 
+    color:#fff; 
+    font-weight: 600; /* Tăng độ đậm để nổi bật */
+}
 
-    .main-content {
-        flex: 1;
-        padding: 20px;
-    }
+/* STATUS FILTER GROUP */
+.statusFilter {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-size: 0.9em;
+}
+.statusFilter.active {
+    background: #28a745;
+    color: #fff;
+    border-color: #28a745;
+}
 
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
+/* DATATABLES */
+.dataTables_filter, .dataTables_info, .dt-buttons, .dataTables_length { display: none !important; }
+td.details-control i { color: #007bff; }
+#supplierTable th { font-weight: 600; }
 
-    .table thead th {
-        background-color: #f8f9fa;
-        font-weight: 600;
+/* RESPONSIVE CSS */
+@@media(max-width: 992px){
+    .filter-sidebar-wrapper{ 
+        position: fixed; 
+        top:0; left:0; 
+        width: 80%; max-width: 300px; 
+        height:100vh; 
+        padding:20px 0;
+        box-shadow:3px 0 12px rgba(0,0,0,0.15); 
+        transform: translateX(-100%); 
+        opacity:0; 
+        z-index:1000;
+        background:white;
+        overflow-y: auto;
     }
-
-    .table td, .table th {
-        vertical-align: middle;
-        font-size: 14px;
+    .filter-sidebar-wrapper.show{ 
+        transform: translateX(0); 
+        opacity:1; 
     }
-
-    .search-bar input {
-        width: 280px;
+    .filter-sidebar {
+        position: static;
+        box-shadow: none;
+        padding: 0 15px;
     }
-
-    .btn-outline {
-        border: 1px solid #ddd;
-        background-color: #fff;
-        color: #555;
+    #showSidebar{ 
+        display:inline-block !important; 
+        background:#28a745; 
+        color:white; 
+        padding:8px 14px; 
+        border-radius:4px; 
+        font-weight:600; 
+        margin-bottom:12px; 
+        border: none;
     }
-
-    .btn-outline:hover {
-        background-color: #f6f6f6;
+    #collapseSidebar{
+        display: block !important;
+        padding: 15px;
+        text-align: right;
     }
-
-    .badge-status {
-        border-radius: 10px;
-        padding: 4px 8px;
-        font-size: 12px;
-    }
-
-    .badge-active {
-        background-color: #e6f4ea;
-        color: #2e7d32;
-    }
+    .page-content { padding: 10px; flex-direction: column; }
+    .search-container { width: 100%; margin-bottom: 10px; }
+    .action-buttons { margin-top: 10px; }
+}
 </style>
 
-<div class="d-flex" style="min-height: 90vh;">
-    <!-- SIDEBAR -->
-    <div class="sidebar-filter">
-        <h5 class="fw-bold mb-3">Nhà cung cấp</h5>
+<div class="page-content">
 
-        <h6>Nhóm nhà cung cấp</h6>
-        <select class="form-select form-select-sm mb-2">
-            <option>Tất cả các nhóm</option>
-            <option>Nhóm linh kiện</option>
-            <option>Nhóm xe điện</option>
-        </select>
-        <a href="#" class="text-primary small text-decoration-none">Tạo mới</a>
+    <div class="filter-sidebar-wrapper" id="filterSidebarWrapper">
+        <div class="filter-sidebar">
+            <span id="collapseSidebar" style="cursor:pointer;color:#888;font-weight:600; display:none;">
+                <i class="fa fa-times"></i> Đóng
+            </span>
+            
+            <h4>Nhóm nhà cung cấp</h4>
+            <select id="groupFilter">
+                <option value="">Tất cả các nhóm</option>
+                <option value="Linh kiện">Linh kiện</option>
+                <option value="Xe điện">Xe điện</option>
+            </select>
 
-        <h6 class="mt-3">Tổng mua</h6>
-        <div class="d-flex gap-2">
-            <input type="number" class="form-control form-control-sm" placeholder="Từ">
-            <input type="number" class="form-control form-control-sm" placeholder="Tới">
+            <label>Tổng mua (VNĐ)</label>
+            <div class="input-range-group">
+                <input id="totalMin" type="number" placeholder="Từ">
+                <input id="totalMax" type="number" placeholder="Đến">
+            </div>
+            <div id="totalError" style="color:red;font-size:0.9em;margin-bottom:10px"></div>
+
+            <label>Nợ hiện tại (VNĐ)</label>
+            <div class="input-range-group">
+                <input id="debtMin" type="number" placeholder="Từ">
+                <input id="debtMax" type="number" placeholder="Đến">
+            </div>
+            <div id="debtError" style="color:red;font-size:0.9em;margin-bottom:10px"></div>
+
+            <label>Trạng thái</label>
+            <div style="margin-bottom:10px">
+                <button type="button" class="statusFilter active" data-val="">Tất cả</button>
+                <button type="button" class="statusFilter" data-val="Active">Đang hoạt động</button>
+                <button type="button" class="statusFilter" data-val="Inactive">Ngừng hoạt động</button>
+            </div>
+
+            <div id="addSupplierForm" style="display:none; padding-top: 15px; border-top: 1px solid #eee;">
+                <h4>Thêm Nhà cung cấp mới</h4>
+                <input type="text" id="newCode" placeholder="Mã NCC (Bắt buộc)">
+                <input type="text" id="newName" placeholder="Tên NCC (Bắt buộc)">
+                <input type="text" id="newGroup" placeholder="Nhóm">
+                <input type="text" id="newContact" placeholder="Điện thoại">
+                <input type="number" id="newDebt" placeholder="Nợ hiện tại (0)">
+                <input type="number" id="newTotal" placeholder="Tổng mua (0)">
+                <select id="newStatus">
+                    <option value="Active">Đang hoạt động</option>
+                    <option value="Inactive">Ngừng hoạt động</option>
+                </select>
+                <button id="saveSupplierBtn" style="margin-top: 10px; width: 100%;"><i class="fa fa-save"></i> Lưu Nhà cung cấp</button>
+            </div>
         </div>
-
-        <h6 class="mt-3">Thời gian</h6>
-        <select class="form-select form-select-sm mb-1">
-            <option>Toàn thời gian</option>
-            <option>Tháng này</option>
-            <option>Năm nay</option>
-            <option>Tùy chỉnh</option>
-        </select>
-
-        <h6 class="mt-3">Nợ hiện tại</h6>
-        <div class="d-flex gap-2">
-            <input type="number" class="form-control form-control-sm" placeholder="Từ">
-            <input type="number" class="form-control form-control-sm" placeholder="Tới">
-        </div>
-
-        <h6 class="mt-3">Trạng thái</h6>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline btn-sm">Tất cả</button>
-            <button class="btn btn-active btn-sm">Đang hoạt động</button>
-        </div>
-        <button class="btn btn-outline btn-sm mt-1">Ngừng hoạt động</button>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
-        <div class="top-bar">
-            <div class="search-bar d-flex gap-2">
-                <input type="text" class="form-control" placeholder="🔍 Theo mã, tên, số điện thoại...">
-                <button class="btn btn-outline"><i class="fa fa-filter"></i></button>
-            </div>
+        <button id="showSidebar" style="display:none;"><i class="fa fa-filter"></i> Bộ lọc</button> 
 
-            <div class="d-flex gap-2">
-                <button class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Nhà cung cấp</button>
-                <button class="btn btn-outline btn-sm"><i class="fa fa-file-import"></i> Import file</button>
-                <button class="btn btn-outline btn-sm"><i class="fa fa-file-export"></i> Xuất file</button>
-                <button class="btn btn-outline btn-sm"><i class="fa fa-gear"></i></button>
+        <div class="main-actions">
+            <div class="search-container">
+                <i class="fa fa-search"></i>
+                <input type="text" id="searchBox" placeholder="Theo mã, tên, số điện thoại...">
+            </div>
+            <div class="action-buttons">
+                <button id="addSupplierBtn"><i class="fa fa-plus-circle"></i> Nhà cung cấp</button>
+                <button id="exportBtn"><i class="fa fa-file-export"></i> Xuất file</button>
             </div>
         </div>
 
-        <table class="table table-hover border rounded-3 shadow-sm bg-white">
+        <table id="supplierTable" class="display" style="width:100%">
             <thead>
-                <tr class="text-center">
-                    <th><input type="checkbox"></th>
+                <tr>
+                    <th></th>
                     <th>Mã nhà cung cấp</th>
                     <th>Tên nhà cung cấp</th>
+                    <th>Nhóm</th>
                     <th>Điện thoại</th>
-                    <th>Email</th>
-                    <th>Nợ cần trả hiện tại</th>
-                    <th>Tổng mua</th>
+                    <th>Nợ hiện tại</th>
+                    <th>Tổng mua</th> 
+                    <th>Trạng thái</th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="text-center">
-                    <td><input type="checkbox"></td>
-                    <td>NCC000057</td>
-                    <td>VIPOMALL</td>
-                    <td>11134</td>
-                    <td></td>
-                    <td>15,034,252,588</td>
-                    <td>56,702,548,564</td>
-                </tr>
-                <tr class="text-center">
-                    <td><input type="checkbox"></td>
-                    <td>NCC000056</td>
-                    <td>SAKI</td>
-                    <td>123</td>
-                    <td></td>
-                    <td>92,155,000</td>
-                    <td>388,766,000</td>
-                </tr>
-                <tr class="text-center">
-                    <td><input type="checkbox"></td>
-                    <td>NCC000055</td>
-                    <td>HTC</td>
-                    <td>0123453338</td>
-                    <td></td>
-                    <td>320,000</td>
-                    <td>182,000,000</td>
-                </tr>
-                <tr class="text-center">
-                    <td><input type="checkbox"></td>
-                    <td>NCC000054</td>
-                    <td>EBIKE PHỤ TÙNG</td>
-                    <td>09090</td>
-                    <td></td>
-                    <td>-2,339,000</td>
-                    <td>3,640,000</td>
-                </tr>
-                <tr class="text-center">
-                    <td><input type="checkbox"></td>
-                    <td>NCC000053</td>
-                    <td>HỒNG THANH</td>
-                    <td>0986058326</td>
-                    <td></td>
-                    <td>14,822,000</td>
-                    <td>35,857,000</td>
-                </tr>
-                <tr class="text-center">
-                    <td><input type="checkbox"></td>
-                    <td>NCC000052</td>
-                    <td>NAM TIẾN PHÁT</td>
-                    <td>9657</td>
-                    <td></td>
-                    <td>490,000</td>
-                    <td>188,288,000</td>
-                </tr>
+                <tr><td></td><td>NCC000058</td><td>HÙMI</td><td>Linh kiện</td><td>0901234567</td><td>1840000</td><td>5290000</td><td>Active</td></tr>
+                <tr><td></td><td>NCC000056</td><td>SAKI</td><td>Xe điện</td><td>0905667788</td><td>97155000</td><td>388766000</td><td>Inactive</td></tr>
+                <tr><td></td><td>NCC000055</td><td>HTC</td><td>Linh kiện</td><td>0123453338</td><td>457000</td><td>19006522</td><td>Active</td></tr>
+                <tr><td></td><td>NCC000001</td><td>Ngọc Phát</td><td>Linh kiện</td><td>0901223344</td><td>5000000</td><td>12000000</td><td>Active</td></tr>
+                <tr><td></td><td>NCC000002</td><td>Ánh Dương</td><td>Xe điện</td><td>0905667788</td><td>12000000</td><td>80000000</td><td>Active</td></tr>
             </tbody>
         </table>
-        <div class="text-end text-secondary small mt-2">
-            Hiển thị 1–6 / 6 nhà cung cấp
-        </div>
     </div>
 </div>
+
+<script>
+/* ----------------------------------------------------- */
+/* JAVASCRIPT LOGIC */
+/* ----------------------------------------------------- */
+
+function checkMobile() {
+    if ($(window).width() <= 992) {
+        $('#showSidebar').show();
+        $('#collapseSidebar').show();
+        $('.filter-sidebar-wrapper').removeClass('show');
+    } else {
+        $('#showSidebar').hide();
+        $('#collapseSidebar').hide();
+        $('.filter-sidebar-wrapper').removeClass('show');
+    }
+}
+
+$(document).ready(function(){
+    checkMobile();
+    $(window).on('resize', checkMobile);
+
+    /* SIDEBAR ANIMATION (Responsive) */
+    $('#showSidebar').click(function(){ 
+        $('#filterSidebarWrapper').addClass('show');
+    });
+    $('#collapseSidebar').click(function(){ 
+        $('#filterSidebarWrapper').removeClass('show');
+    });
+
+    /* RENDER DEBT/TOTAL AMOUNT (Format tiền tệ) */
+    function renderAmount(data, type) {
+        if (type === 'display' || type === 'filter') {
+            const num = parseInt(data.toString().replace(/\D/g, '')) || 0;
+            return new Intl.NumberFormat('vi-VN').format(num) + 'đ';
+        }
+        return data;
+    }
+
+    /* RENDER STATUS */
+    function renderStatus(data, type) {
+        if (type === 'display') {
+            const text = data === 'Active' ? 'Đang hoạt động' : 'Ngừng hoạt động';
+            const color = data === 'Active' ? '#28a745' : '#dc3545';
+            return `<span style="color: ${color}; font-weight: 500;">${text}</span>`;
+        }
+        return data;
+    }
+    
+    /* DATATABLE CUSTOM SEARCH LOGIC (Cho Group, Total, Debt) */
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            
+            // 1. Group Filter (Cột 3)
+            var selectedGroup = $('#groupFilter').val();
+            var groupCol = data[3]; 
+            if (selectedGroup !== "" && groupCol !== selectedGroup) {
+                return false; 
+            }
+
+            // 2. Debt Filter (Nợ hiện tại - Cột 5)
+            let debtMin = parseInt($('#debtMin').val()) || 0;
+            let debtMax = parseInt($('#debtMax').val()) || Infinity;
+            let debtCol = parseInt(data[5].toString().replace(/\D/g,'')) || 0; 
+            if (debtMin > debtMax || !(debtCol >= debtMin && debtCol <= debtMax)) {
+                return false;
+            }
+            
+            // 3. Total Filter (Tổng mua - Cột 6)
+            let totalMin = parseInt($('#totalMin').val()) || 0;
+            let totalMax = parseInt($('#totalMax').val()) || Infinity;
+            let totalCol = parseInt(data[6].toString().replace(/\D/g,'')) || 0;
+            if (totalMin > totalMax || !(totalCol >= totalMin && totalCol <= totalMax)) {
+                return false;
+            }
+
+            return true;
+        }
+    );
+
+    /* DATATABLE INITIALIZATION */
+    var table = $('#supplierTable').DataTable({
+        dom: 'rtip', 
+        pagingType: 'simple_numbers',
+        order: [[1, 'asc']], 
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                title: 'DanhSachNhaCungCap',
+                exportOptions: { columns: [1, 2, 3, 4, 5, 6, 7] } 
+            }
+        ],
+        columnDefs: [
+            { targets: 0, orderable: false, className: 'details-control', defaultContent: '<i class="fa fa-plus-circle"></i>' },
+            { targets: 5, render: renderAmount }, 
+            { targets: 6, render: renderAmount }, 
+            { targets: 7, render: renderStatus } 
+        ],
+        "aoColumns": [null, null, null, null, null, null, null, null]
+    });
+
+    /* EXPAND ROW */
+    $('#supplierTable tbody').on('click','td.details-control',function(){
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+        var icon = $(this).find('i');
+
+        if(row.child.isShown()){
+            row.child.hide();
+            icon.removeClass('fa-minus-circle').addClass('fa-plus-circle');
+        } else {
+            var d = row.data();
+            row.child(`
+                <div class="detail-info">
+                    <div class="detail-row">
+                        <div class="detail-col"><b>Thông tin</b></div>
+                        <div class="detail-col"><b>Lịch sử nhập/trả hàng</b></div>
+                        <div class="detail-col"><b>Nợ cần trả nhà cung cấp</b></div>
+                    </div>
+                    <hr style="margin: 5px 0; border-top: 1px solid #eee;">
+                    <div class="detail-row">
+                        <div class="detail-col"><b>Người tạo:</b> ADM KHO -Thương</div>
+                        <div class="detail-col"><b>Ngày tạo:</b> 05/11/2025</div>
+                        <div class="detail-col"><b>Nhóm nhà cung cấp:</b> ${d[3] || 'Chưa có'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-col"><b>Điện thoại:</b> ${d[4] || 'Chưa có'}</div>
+                        <div class="detail-col"><b>Email:</b> Chưa có</div>
+                        <div class="detail-col"><b>Địa chỉ:</b> Chưa có</div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-sm btn-outline-primary" style="padding: 5px 10px; border: 1px solid #007bff; background: white; color: #007bff; border-radius: 4px;"><i class="fa fa-edit"></i> Chỉnh sửa</button>
+                        <button class="btn btn-sm btn-outline-danger ml-2" style="padding: 5px 10px; border: 1px solid #dc3545; background: white; color: #dc3545; border-radius: 4px;"><i class="fa fa-trash"></i> Xóa</button>
+                    </div>
+                </div>
+            `).show();
+            icon.removeClass('fa-plus-circle').addClass('fa-minus-circle');
+        }
+    });
+
+    /* SEARCH */
+    $('#searchBox').keyup(function(){ table.search(this.value).draw(); });
+
+    /* STATUS FILTER */
+    $('.statusFilter').click(function(){
+        $('.statusFilter').removeClass('active');
+        $(this).addClass('active');
+        let searchVal = $(this).data('val');
+        table.column(7).search(searchVal ? '^'+searchVal+'$' : '', true, false).draw();
+    });
+
+    /* GROUP/DEBT/TOTAL FILTER EVENTS */
+    $('#groupFilter, #debtMin, #debtMax, #totalMin, #totalMax').on('input change', function () {
+        let debtMin = parseInt($('#debtMin').val()) || 0;
+        let debtMax = parseInt($('#debtMax').val()) || Infinity;
+        $('#debtError').text(
+            ($('#debtMin').val() !== "" && $('#debtMax').val() !== "" && debtMin > debtMax) ? "Tối đa phải lớn hơn tối thiểu" : ""
+        );
+
+        let totalMin = parseInt($('#totalMin').val()) || 0;
+        let totalMax = parseInt($('#totalMax').val()) || Infinity;
+        $('#totalError').text(
+            ($('#totalMin').val() !== "" && $('#totalMax').val() !== "" && totalMin > totalMax) ? "Tối đa phải lớn hơn tối thiểu" : ""
+        );
+
+        table.draw();
+    });
+
+    /* EXPORT */
+    $('#exportBtn').click(function(){
+        table.button(0).trigger();
+        $('#filterSidebarWrapper').removeClass('show');
+    });
+
+    /* SHOW ADD FORM */
+    $('#addSupplierBtn').click(function(){
+        $('#addSupplierForm').slideToggle();
+    });
+
+    /* SAVE NEW SUPPLIER */
+    $('#saveSupplierBtn').click(function(){
+        let code = $('#newCode').val();
+        let name = $('#newName').val();
+        let group = $('#newGroup').val() || '';
+        let contact = $('#newContact').val() || '';
+        let debt = parseInt($('#newDebt').val()) || 0;
+        let total = parseInt($('#newTotal').val()) || 0;
+        let status = $('#newStatus').val();
+        
+        if(!code || !name){ 
+            alert("Mã và tên NCC là bắt buộc."); 
+            return; 
+        }
+        
+        table.row.add(['', code, name, group, contact, debt, total, status]).draw();
+        
+        $('#addSupplierForm input').val(''); 
+        $('#newStatus').val('Active'); 
+        $('#addSupplierForm').slideUp();
+
+        $('#filterSidebarWrapper').removeClass('show');
+    });
+});
+</script>
