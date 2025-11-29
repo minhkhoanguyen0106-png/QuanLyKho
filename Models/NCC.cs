@@ -1,17 +1,36 @@
+// File: NCC.cs
+
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace QuanLyKho.Models
+namespace QuanLyKho.Models;
+
+[Table("NhaCungCap")] 
+public class NCC
 {
-    public class NCC
-    {
-        [Key]
-        public int NCCId { get; set; }
+    [Key]
+    [Column(TypeName = "varchar(20)")]
+    public string MaNCC { get; set; }
 
-        [Required]
-        public string TenNCC { get; set; }
+    [Required]
+    [MaxLength(100)]
+    public string TenNCC { get; set; }
+    
+    [Column(TypeName = "varchar(20)")]
+    public string DienThoai { get; set; }
 
-        public string DiaChi { get; set; }
+    [Column(TypeName = "decimal(18, 0)")]
+    public decimal NoHienTai { get; set; }
 
-        public string SDT { get; set; }
-    }
+    [Column(TypeName = "decimal(18, 0)")]
+    public decimal TongMua { get; set; }
+    
+    [Required]
+    [Column(TypeName = "varchar(50)")]
+    public string TrangThai { get; set; }
+
+    // --- Khóa ngoại và Navigation Property đã bị XÓA ---
+    // public int? MaNhom { get; set; }
+    // [ForeignKey("MaNhom")]
+    // public NhomNhaCungCap Nhom { get; set; } 
 }

@@ -242,13 +242,7 @@
             <input type="date" id="dateEnd" class="form-control form-control-sm" disabled>
         </div>
 
-        <h6 class="mt-3">Trạng thái</h6>
-        <div class="filter-btn-group">
-            <button class="btn btn-sm btn-active statusFilter" data-val="">Tất cả</button>
-            <button class="btn btn-sm statusFilter" data-val="Hoàn tất">Hoàn tất</button>
-            <button class="btn btn-sm statusFilter" data-val="Đang xử lý">Đang xử lý</button> 
-            <button class="btn btn-sm statusFilter" data-val="Hủy">Hủy</button>
-        </div>
+    
         
     </div>
 
@@ -271,7 +265,7 @@
                     <th>Mã phiếu</th>
                     <th>Ngày xuất</th> <th>Nhà cung cấp</th>
                     <th>Nhân viên xử lý</th>
-                    <th>Tổng giá trị xuất</th> <th>Trạng thái</th>
+                    <th>Tổng giá trị xuất</th> 
                     <th>Ghi chú</th>
                 </tr>
             </thead>
@@ -282,7 +276,6 @@
                     <td>EBIKE PHỤ TÙNG</td>
                     <td>Nguyễn Văn Cử</td>
                     <td>12350000</td>
-                    <td><span class="badge-status badge-completed">Hoàn tất</span></td>
                     <td>Xuất pin và sạc</td>
                 </tr>
                 <tr>
@@ -291,7 +284,6 @@
                     <td>HUỲNH THUẬN (PIN)</td>
                     <td>Trần Mỹ</td>
                     <td>7500000</td>
-                    <td><span class="badge-status badge-canceled">Hủy</span></td>
                     <td>Phiếu hủy do sai kho</td>
                 </tr>
                 <tr>
@@ -300,7 +292,6 @@
                     <td>VIPOMALL</td>
                     <td>Hồng Thanh</td>
                     <td>25000000</td>
-                    <td><span class="badge-status badge-completed">Hoàn tất</span></td>
                     <td>Xuất xe mẫu kiểm tra</td>
                 </tr>
                 <tr>
@@ -309,7 +300,6 @@
                     <td>VIPOMALL</td>
                     <td>Trần Mỹ</td>
                     <td>15000000</td>
-                    <td><span class="badge-status badge-pending">Đang xử lý</span></td>
                     <td>Chuyển kho kiểm kê</td>
                 </tr>
             </tbody>
@@ -388,18 +378,6 @@
                     }
                 },
                 { 
-                    targets: STATUS_COLUMN_INDEX, // Cột Trạng thái (Index 5)
-                    render: function (data, type, row) {
-                         if (type === 'display') {
-                            let statusText = data.replace(/<.*?>/g, ''); 
-                            let className = '';
-                            if (statusText === 'Hoàn tất') className = 'badge-completed';
-                            else if (statusText === 'Hủy') className = 'badge-canceled';
-                            else if (statusText === 'Đang xử lý') className = 'badge-pending';
-
-                            return `<span class="badge-status ${className}">${statusText}</span>`;
-                        }
-                        return data.toString().replace(/<.*?>/g, '');
                     }
                 }
             ]

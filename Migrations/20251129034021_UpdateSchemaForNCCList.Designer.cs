@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyKho.Models;
 
@@ -11,9 +12,11 @@ using QuanLyKho.Models;
 namespace QuanLyKho.Migrations
 {
     [DbContext(typeof(QuanLyKhoContext))]
-    partial class QuanLyKhoContextModelSnapshot : ModelSnapshot
+    [Migration("20251129034021_UpdateSchemaForNCCList")]
+    partial class UpdateSchemaForNCCList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,58 @@ namespace QuanLyKho.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("NCC", b =>
+                {
+                    b.Property<string>("MaNCC")
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("DienThoai")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("MaNhom")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("NoHienTai")
+                        .HasColumnType("decimal(18, 0)");
+
+                    b.Property<string>("TenNCC")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("TongMua")
+                        .HasColumnType("decimal(18, 0)");
+
+                    b.Property<string>("TrangThai")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("MaNCC");
+
+                    b.HasIndex("MaNhom");
+
+                    b.ToTable("NhaCungCap");
+                });
+
+            modelBuilder.Entity("NhomNhaCungCap", b =>
+                {
+                    b.Property<int>("MaNhom")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaNhom"));
+
+                    b.Property<string>("TenNhom")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("MaNhom");
+
+                    b.ToTable("NhomNhaCungCap");
+                });
 
             modelBuilder.Entity("QuanLyKho.Models.Account", b =>
                 {
@@ -179,35 +234,6 @@ namespace QuanLyKho.Migrations
                     b.ToTable("KiemKhos");
                 });
 
-            modelBuilder.Entity("QuanLyKho.Models.NCC", b =>
-                {
-                    b.Property<string>("MaNCC")
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("DienThoai")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<decimal>("NoHienTai")
-                        .HasColumnType("decimal(18, 0)");
-
-                    b.Property<string>("TenNCC")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("TongMua")
-                        .HasColumnType("decimal(18, 0)");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("MaNCC");
-
-                    b.ToTable("NhaCungCap");
-                });
-
             modelBuilder.Entity("QuanLyKho.Models.NhanVien", b =>
                 {
                     b.Property<int>("NhanVienId")
@@ -313,6 +339,17 @@ namespace QuanLyKho.Migrations
                     b.ToTable("XuatHangs");
                 });
 
+            modelBuilder.Entity("NCC", b =>
+                {
+                    b.HasOne("NhomNhaCungCap", "Nhom")
+                        .WithMany("NhaCungCaps")
+                        .HasForeignKey("MaNhom")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Nhom");
+                });
+
             modelBuilder.Entity("QuanLyKho.Models.KiemKho", b =>
                 {
                     b.HasOne("QuanLyKho.Models.HangHoa", "HangHoa")
@@ -344,6 +381,11 @@ namespace QuanLyKho.Migrations
                         .IsRequired();
 
                     b.Navigation("HangHoa");
+                });
+
+            modelBuilder.Entity("NhomNhaCungCap", b =>
+                {
+                    b.Navigation("NhaCungCaps");
                 });
 #pragma warning restore 612, 618
         }

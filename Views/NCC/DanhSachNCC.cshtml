@@ -1,3 +1,4 @@
+@model List<QuanLyKho.Models.NCC>
 @{
     ViewData["Title"] = "Danh sách Nhà Cung Cấp";
 }
@@ -161,6 +162,17 @@ td.details-control i { color: #007bff; }
     .search-container { width: 100%; margin-bottom: 10px; }
     .action-buttons { margin-top: 10px; }
 }
+/* CHỈNH MÀU NÚT LƯU NHÀ CUNG CẤP */
+#saveSupplierBtn { 
+    background:#28a745; 
+    color:#fff; 
+    font-weight: 600; 
+}
+
+/* CSS cho detail row */
+.detail-info { padding: 10px 20px; background-color: #f9f9f9; border-left: 5px solid #007bff; }
+.detail-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.detail-col { flex-basis: 32%; font-size: 0.9em; }
 </style>
 
 <div class="page-content">
@@ -170,13 +182,7 @@ td.details-control i { color: #007bff; }
             <span id="collapseSidebar" style="cursor:pointer;color:#888;font-weight:600; display:none;">
                 <i class="fa fa-times"></i> Đóng
             </span>
-            
-            <h4>Nhóm nhà cung cấp</h4>
-            <select id="groupFilter">
-                <option value="">Tất cả các nhóm</option>
-                <option value="Linh kiện">Linh kiện</option>
-                <option value="Xe điện">Xe điện</option>
-            </select>
+            <h4>Bộ lọc Nhà cung cấp</h4>
 
             <label>Tổng mua (VNĐ)</label>
             <div class="input-range-group">
@@ -203,7 +209,6 @@ td.details-control i { color: #007bff; }
                 <h4>Thêm Nhà cung cấp mới</h4>
                 <input type="text" id="newCode" placeholder="Mã NCC (Bắt buộc)">
                 <input type="text" id="newName" placeholder="Tên NCC (Bắt buộc)">
-                <input type="text" id="newGroup" placeholder="Nhóm">
                 <input type="text" id="newContact" placeholder="Điện thoại">
                 <input type="number" id="newDebt" placeholder="Nợ hiện tại (0)">
                 <input type="number" id="newTotal" placeholder="Tổng mua (0)">
@@ -236,7 +241,6 @@ td.details-control i { color: #007bff; }
                     <th></th>
                     <th>Mã nhà cung cấp</th>
                     <th>Tên nhà cung cấp</th>
-                    <th>Nhóm</th>
                     <th>Điện thoại</th>
                     <th>Nợ hiện tại</th>
                     <th>Tổng mua</th> 
@@ -244,11 +248,18 @@ td.details-control i { color: #007bff; }
                 </tr>
             </thead>
             <tbody>
-                <tr><td></td><td>NCC000058</td><td>HÙMI</td><td>Linh kiện</td><td>0901234567</td><td>1840000</td><td>5290000</td><td>Active</td></tr>
-                <tr><td></td><td>NCC000056</td><td>SAKI</td><td>Xe điện</td><td>0905667788</td><td>97155000</td><td>388766000</td><td>Inactive</td></tr>
-                <tr><td></td><td>NCC000055</td><td>HTC</td><td>Linh kiện</td><td>0123453338</td><td>457000</td><td>19006522</td><td>Active</td></tr>
-                <tr><td></td><td>NCC000001</td><td>Ngọc Phát</td><td>Linh kiện</td><td>0901223344</td><td>5000000</td><td>12000000</td><td>Active</td></tr>
-                <tr><td></td><td>NCC000002</td><td>Ánh Dương</td><td>Xe điện</td><td>0905667788</td><td>12000000</td><td>80000000</td><td>Active</td></tr>
+                @foreach (var ncc in Model)
+                {
+                    <tr>
+                        <td></td> @* Cột 0: Details Control *@
+                        <td>@ncc.MaNCC</td> @* Cột 1: Mã NCC *@
+                        <td>@ncc.TenNCC</td> @* Cột 2: Tên NCC *@
+                        <td>@ncc.DienThoai</td> @* Cột 3: Điện thoại *@
+                        <td data-order="@ncc.NoHienTai">@ncc.NoHienTai</td> @* Cột 4: Nợ hiện tại *@
+                        <td data-order="@ncc.TongMua">@ncc.TongMua</td> @* Cột 5: Tổng mua *@
+                        <td>@ncc.TrangThai</td> @* Cột 6: Trạng thái *@
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
@@ -258,6 +269,10 @@ td.details-control i { color: #007bff; }
 /* ----------------------------------------------------- */
 /* JAVASCRIPT LOGIC */
 /* ----------------------------------------------------- */
+function formatCurrency(number) {
+    if (number == null || isNaN(number)) return '0 ₫';
+    return number.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+}
 
 function checkMobile() {
     if ($(window).width() <= 992) {
@@ -286,8 +301,9 @@ $(document).ready(function(){
     /* RENDER DEBT/TOTAL AMOUNT (Format tiền tệ) */
     function renderAmount(data, type) {
         if (type === 'display' || type === 'filter') {
-            const num = parseInt(data.toString().replace(/\D/g, '')) || 0;
-            return new Intl.NumberFormat('vi-VN').format(num) + 'đ';
+            const num = parseFloat(data.toString().replace(/[^0-9.]/g, '')) || 0; 
+            // Thêm định dạng tiền tệ cho dữ liệu hiển thị trên DataTables
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num).replace('₫', '').trim() + 'đ';
         }
         return data;
     }
@@ -295,36 +311,33 @@ $(document).ready(function(){
     /* RENDER STATUS */
     function renderStatus(data, type) {
         if (type === 'display') {
-            const text = data === 'Active' ? 'Đang hoạt động' : 'Ngừng hoạt động';
-            const color = data === 'Active' ? '#28a745' : '#dc3545';
-            return `<span style="color: ${color}; font-weight: 500;">${text}</span>`;
+            const statusText = (data === 'Active' || data === 'Đang hoạt động') ? 'Đang hoạt động' : 'Ngừng hoạt động';
+            const statusValue = (data === 'Active' || data === 'Đang hoạt động') ? 'Active' : 'Inactive';
+            const color = statusValue === 'Active' ? '#28a745' : '#dc3545';
+            return `<span style="color: ${color}; font-weight: 500;">${statusText}</span>`;
         }
         return data;
     }
     
-    /* DATATABLE CUSTOM SEARCH LOGIC (Cho Group, Total, Debt) */
+    /* DATATABLE CUSTOM SEARCH LOGIC */
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
-            
-            // 1. Group Filter (Cột 3)
-            var selectedGroup = $('#groupFilter').val();
-            var groupCol = data[3]; 
-            if (selectedGroup !== "" && groupCol !== selectedGroup) {
-                return false; 
-            }
+            // -------------------------------------------------------------
+            // ĐÃ XÓA LOGIC LỌC NHÓM (Vì cột nhóm đã bị xóa)
+            // -------------------------------------------------------------
 
-            // 2. Debt Filter (Nợ hiện tại - Cột 5)
+            // Lọc Nợ hiện tại (Cột 4)
             let debtMin = parseInt($('#debtMin').val()) || 0;
             let debtMax = parseInt($('#debtMax').val()) || Infinity;
-            let debtCol = parseInt(data[5].toString().replace(/\D/g,'')) || 0; 
+            let debtCol = parseFloat(data[4].toString().replace(/[^0-9.]/g,'')) || 0; // ĐÃ SỬA: data[4]
             if (debtMin > debtMax || !(debtCol >= debtMin && debtCol <= debtMax)) {
                 return false;
             }
             
-            // 3. Total Filter (Tổng mua - Cột 6)
+            // Lọc Tổng mua (Cột 5)
             let totalMin = parseInt($('#totalMin').val()) || 0;
             let totalMax = parseInt($('#totalMax').val()) || Infinity;
-            let totalCol = parseInt(data[6].toString().replace(/\D/g,'')) || 0;
+            let totalCol = parseFloat(data[5].toString().replace(/[^0-9.]/g,'')) || 0; // ĐÃ SỬA: data[5]
             if (totalMin > totalMax || !(totalCol >= totalMin && totalCol <= totalMax)) {
                 return false;
             }
@@ -342,19 +355,19 @@ $(document).ready(function(){
             {
                 extend: 'excelHtml5',
                 title: 'DanhSachNhaCungCap',
-                exportOptions: { columns: [1, 2, 3, 4, 5, 6, 7] } 
+                exportOptions: { columns: [1, 2, 3, 4, 5, 6] } 
             }
         ],
         columnDefs: [
             { targets: 0, orderable: false, className: 'details-control', defaultContent: '<i class="fa fa-plus-circle"></i>' },
-            { targets: 5, render: renderAmount }, 
-            { targets: 6, render: renderAmount }, 
-            { targets: 7, render: renderStatus } 
+            { targets: 4, render: renderAmount, type: 'num-fmt' }, // Nợ hiện tại (Index 4)
+            { targets: 5, render: renderAmount, type: 'num-fmt' }, // Tổng mua (Index 5)
+            { targets: 6, render: renderStatus }                     // Trạng thái (Index 6)
         ],
-        "aoColumns": [null, null, null, null, null, null, null, null]
+        "aoColumns": [null, null, null, null, null, null, null] // Tổng cộng 7 cột
     });
 
-    /* EXPAND ROW */
+    // Xử lý mở rộng chi tiết dòng (Detail row)
     $('#supplierTable tbody').on('click','td.details-control',function(){
         var tr = $(this).closest('tr');
         var row = table.row(tr);
@@ -376,10 +389,10 @@ $(document).ready(function(){
                     <div class="detail-row">
                         <div class="detail-col"><b>Người tạo:</b> ADM KHO -Thương</div>
                         <div class="detail-col"><b>Ngày tạo:</b> 05/11/2025</div>
-                        <div class="detail-col"><b>Nhóm nhà cung cấp:</b> ${d[3] || 'Chưa có'}</div>
+                        <div class="detail-col"><b>Nhóm nhà cung cấp:</b> Chưa có</div> 
                     </div>
                     <div class="detail-row">
-                        <div class="detail-col"><b>Điện thoại:</b> ${d[4] || 'Chưa có'}</div>
+                        <div class="detail-col"><b>Điện thoại:</b> ${d[3] || 'Chưa có'}</div>
                         <div class="detail-col"><b>Email:</b> Chưa có</div>
                         <div class="detail-col"><b>Địa chỉ:</b> Chưa có</div>
                     </div>
@@ -393,18 +406,16 @@ $(document).ready(function(){
         }
     });
 
-    /* SEARCH */
     $('#searchBox').keyup(function(){ table.search(this.value).draw(); });
 
-    /* STATUS FILTER */
     $('.statusFilter').click(function(){
         $('.statusFilter').removeClass('active');
         $(this).addClass('active');
         let searchVal = $(this).data('val');
-        table.column(7).search(searchVal ? '^'+searchVal+'$' : '', true, false).draw();
+        // ĐÃ SỬA: Cột trạng thái là index 6
+        table.column(6).search(searchVal ? '^'+searchVal+'$' : '', true, false).draw();
     });
 
-    /* GROUP/DEBT/TOTAL FILTER EVENTS */
     $('#groupFilter, #debtMin, #debtMax, #totalMin, #totalMax').on('input change', function () {
         let debtMin = parseInt($('#debtMin').val()) || 0;
         let debtMax = parseInt($('#debtMax').val()) || Infinity;
@@ -421,39 +432,96 @@ $(document).ready(function(){
         table.draw();
     });
 
-    /* EXPORT */
     $('#exportBtn').click(function(){
         table.button(0).trigger();
         $('#filterSidebarWrapper').removeClass('show');
     });
 
-    /* SHOW ADD FORM */
     $('#addSupplierBtn').click(function(){
         $('#addSupplierForm').slideToggle();
     });
-
-    /* SAVE NEW SUPPLIER */
-    $('#saveSupplierBtn').click(function(){
+    
+    /* Gửi AJAX POST để LƯU VÀO DATABASE */
+    $('#saveSupplierBtn').click(function() {
         let code = $('#newCode').val();
         let name = $('#newName').val();
-        let group = $('#newGroup').val() || '';
         let contact = $('#newContact').val() || '';
         let debt = parseInt($('#newDebt').val()) || 0;
         let total = parseInt($('#newTotal').val()) || 0;
         let status = $('#newStatus').val();
         
-        if(!code || !name){ 
-            alert("Mã và tên NCC là bắt buộc."); 
+        if (!code || !name) { 
+            alert("Mã và Tên NCC là bắt buộc."); 
             return; 
         }
-        
-        table.row.add(['', code, name, group, contact, debt, total, status]).draw();
-        
-        $('#addSupplierForm input').val(''); 
-        $('#newStatus').val('Active'); 
-        $('#addSupplierForm').slideUp();
 
-        $('#filterSidebarWrapper').removeClass('show');
+        const supplierData = {
+            MaNCC: code,
+            TenNCC: name,
+            DienThoai: contact, 
+            NoHienTai: debt,
+            TongMua: total,
+            TrangThai: status
+        };
+
+        // 3. Gửi AJAX POST request đến Controller
+        $.ajax({
+            url: '@Url.Action("AddSupplier", "NCC")', 
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(supplierData),
+            success: function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    
+                    // 4. Thêm dòng vào DataTables (7 cột)
+                    const newData = response.data;
+                    table.row.add([
+                        '',                 // Cột 0: Details Control
+                        newData.ma,         // Cột 1: Mã NCC
+                        newData.ten,        // Cột 2: Tên NCC
+                        newData.dienthoai,  // Cột 3: Điện thoại
+                        newData.noHienTai,  // Cột 4: Nợ hiện tại
+                        newData.tongMua,    // Cột 5: Tổng mua
+                        newData.trangThai   // Cột 6: Trạng thái
+                    ]).draw(false); // Dùng draw(false) để thêm và giữ nguyên vị trí trang
+
+                    // 5. Reset form và ẩn
+                    $('#addSupplierForm input').val(''); 
+                    $('#newStatus').val('Active'); 
+                    $('#addSupplierForm').slideUp();
+                    $('#filterSidebarWrapper').removeClass('show');
+
+                } else {
+                    alert("Lỗi: " + response.message);
+                }
+            },
+            // KHỐI XỬ LÝ LỖI AJAX (Giữ nguyên)
+            error: function(xhr) {
+                let errorMsg = "Lỗi kết nối Server. ";
+                
+                if (xhr.status === 404) {
+                    errorMsg = "Lỗi 404: Không tìm thấy Action AddSupplier. Vui lòng kiểm tra Controller.";
+                } else if (xhr.status === 500) {
+                    errorMsg = "Lỗi 500: Lỗi Server nội bộ (thường do trùng Mã NCC hoặc lỗi DB).";
+                } else if (xhr.status === 400) {
+                    errorMsg = "Lỗi 400: Lỗi dữ liệu gửi lên (Model Binding).";
+                }
+
+                let responseJson = null;
+                try {
+                    responseJson = JSON.parse(xhr.responseText);
+                } catch (e) {}
+
+                if (responseJson && responseJson.message) {
+                    errorMsg = responseJson.message;
+                } else if (xhr.responseText && xhr.responseText.length < 200) {
+                    errorMsg += " Chi tiết phản hồi: " + xhr.responseText;
+                }
+                
+                alert("LỖI LƯU NCC: " + errorMsg);
+            }
+        });
     });
 });
 </script>

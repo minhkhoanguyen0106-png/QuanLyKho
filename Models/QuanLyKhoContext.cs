@@ -18,7 +18,6 @@ namespace QuanLyKho.Models
         public DbSet<NhapHang> NhapHangs { get; set; }
         public DbSet<XuatHang> XuatHangs { get; set; }
         public DbSet<TaoBaoCao> TaoBaoCaos { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Fix cảnh báo decimal DonGia trong các entity
