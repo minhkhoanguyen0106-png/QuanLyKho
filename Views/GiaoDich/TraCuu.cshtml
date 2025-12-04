@@ -1,146 +1,436 @@
 @{
-    ViewBag.Title = "Tra cứu lịch sử giao dịch";
-    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Thêm phiếu nhập hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid mt-3">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 mb-3" style="border-radius: 10px;">
-                <div class="card-body">
-                    <h5 style="color:#428446; font-weight:600;">🔍 Tra cứu lịch sử giao dịch</h5>
+<style>
+    /* --- 1. BASE STYLE (GIỐNG TRANG XUẤT) --- */
+    .bg-ebike { background: #28a745 !important; color: white; }
+    .text-ebike { color: #28a745 !important; }
+    
+    /* --- 2. BẢNG HÀNG HÓA --- */
+    .table-input { 
+        width: 100%; border: 1px solid #dee2e6; padding: 6px 8px; 
+        border-radius: 4px; text-align: right; font-weight: 600; color: #495057;
+    }
+    .table-input:focus { outline: none; border-color: #28a745; }
+    .table-input[readonly] { background-color: transparent; border: none; font-weight: 700; color: #212529; padding: 0; }
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="color:#428446;">Loại giao dịch</label>
-                        <select class="form-select" style="border:1px solid #428446; color:#428446;">
-                            <option>Tất cả</option>
-                            <option>Nhập hàng</option>
-                            <option>Xuất hàng</option>
-                            <option>Trả NCC</option>
-                            <option>Bán lẻ</option>
-                            <option>Chuyển kho</option>
-                        </select>
-                    </div>
+    /* --- 3. CỘT PHẢI (SUMMARY BOX) --- */
+    .summary-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        background-color: #fff;
+        overflow: hidden;
+    }
+    
+    .summary-header {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 20px;
+        font-weight: bold;
+        display: flex; align-items: center;
+    }
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="color:#428446;">Chi nhánh</label>
-                        <select class="form-select" style="border:1px solid #428446; color:#428446;">
-                            <option selected>CN NGUYỄN VĂN CỪ - CẦN THƠ</option>
-                            <option>CN NINH KIỀU - CẦN THƠ</option>
-                            <option>CN LONG XUYÊN - AN GIANG</option>
-                        </select>
-                    </div>
+    .summary-body { padding: 20px; }
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="color:#428446;">Thời gian</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="thoigian" checked id="thangnayFilter" style="border-color:#428446;">
-                            <label class="form-check-label" for="thangnayFilter" style="color:#428446;">Tháng này</label>
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        color: #6c757d;
+    }
+    
+    .summary-row strong { color: #343a40; font-size: 1rem; }
+
+    /* Ô NHẬP GIẢM GIÁ (ĐỒNG BỘ) */
+    .discount-input-wrapper {
+        position: relative;
+        width: 140px;
+    }
+    .discount-input-wrapper input {
+        width: 100%;
+        padding: 6px 30px 6px 10px;
+        text-align: right;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        color: #dc3545;
+        font-weight: 600;
+    }
+    .discount-input-wrapper input:focus {
+        border-color: #dc3545;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+    }
+    .discount-symbol {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-decoration: underline;
+        pointer-events: none;
+    }
+
+    /* TỔNG TIỀN CẦN TRẢ */
+    .final-total-box {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        text-align: right;
+        border: 1px solid #e9ecef;
+    }
+    .final-label { display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 5px; font-weight: 700; }
+    .final-value { font-size: 1.8rem; color: #dc3545; font-weight: 800; line-height: 1; }
+
+    /* NÚT BẤM (ĐỒNG BỘ) */
+    .btn-hoan-tat {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 10px;
+        border-radius: 6px;
+        width: 100%;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        text-transform: uppercase;
+    }
+    .btn-hoan-tat:hover { background-color: #218838; color: white; box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2); }
+
+    .btn-luu-nhap {
+        background-color: white;
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+        font-weight: 600;
+        padding: 8px;
+        border-radius: 6px;
+        width: 100%;
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-luu-nhap:hover { background-color: #f0f8ff; }
+
+    .btn-huy {
+        background-color: white;
+        color: #6c757d;
+        border: 1px solid #ced4da;
+        font-weight: 600;
+        padding: 8px;
+        border-radius: 6px;
+        width: 100%;
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        text-decoration: none;
+    }
+    .btn-huy:hover { background-color: #f8f9fa; color: #495057; }
+    
+    /* Search Input */
+    .search-box { border-radius: 50px; padding-left: 20px; border: 1px solid #e9ecef; background: #f8f9fa; }
+    .search-box:focus { background: #fff; border-color: #28a745; box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1); }
+</style>
+
+@{
+    // Helper function để lấy class badge tương ứng với trạng thái
+    string GetStatusBadgeClass(string status)
+    {
+        switch (status)
+        {
+            case "Hoàn tất":
+                return "badge-success";
+            case "Đang giao":
+                return "badge-warning";
+            case "Hủy":
+                return "badge-secondary";
+            case "Đang xử lý":
+                return "badge-info";
+            default:
+                return "badge-primary"; // Default color cho trạng thái không xác định
+        }
+    }
+
+    // Helper function để format số tiền
+    string FormatCurrency(decimal value)
+    {
+        // Thêm định dạng tiền tệ Việt Nam (Ví dụ: 32,500,000 ₫)
+        return $"{value.ToString("#,##0")} ₫";
+    }
+}
+
+
+<div class="app-header">
+    <h4 class="m-0 font-weight-bold"><i class="fas fa-history mr-2"></i> Tra cứu lịch sử giao dịch</h4>
+
+    <div class="btn-header-group d-flex d-md-none">
+        <button class="btn btn-white-green-text">
+            <i class="fas fa-download"></i>
+        </button>
+        <button class="btn btn-white-green-text">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid pt-3">
+        <div class="row">
+            <div class="col-12 col-md-3 mb-3 collapse d-md-block" id="filterCollapseContent">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="font-weight-bold mb-3 text-dark">Bộ lọc lịch sử giao dịch</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold text-dark">Loại giao dịch</label>
+                            <select class="form-control" id="loaiGiaoDichFilter">
+                                <option value="">Tất cả</option>
+                                <option value="Tạo Đặt Hàng Nhập">Tạo Đặt Hàng Nhập</option> @* Đã thêm loại giao dịch này *@
+                                <option value="Nhập hàng">Nhập hàng</option>
+                                <option value="Xuất hàng">Xuất hàng</option>
+                                <option value="Trả NCC">Trả NCC</option>
+                                <option value="Bán lẻ">Bán lẻ</option>
+                                <option value="Chuyển kho">Chuyển kho</option>
+                            </select>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="thoigian" id="tuychinhFilter" style="border-color:#428446;">
-                            <label class="form-check-label" for="tuychinhFilter" style="color:#428446;">Tùy chỉnh</label>
-                        </div>
-                        <div class="mt-2 d-flex gap-2">
-                            <input type="date" class="form-control" placeholder="Từ ngày" style="border:1px solid #428446;">
-                            <input type="date" class="form-control" placeholder="Đến ngày" style="border:1px solid #428446;">
-                        </div>
-                    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="color:#428446;">Người thực hiện</label>
-                        <select class="form-select" style="border:1px solid #428446; color:#428446;">
-                            <option>Tất cả</option>
-                            <option>Nguyễn Văn A</option>
-                            <option>Trần Thị B</option>
-                            <option>Lê Văn C</option>
-                        </select>
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold text-dark">Chi nhánh</label>
+                            <select class="form-control" id="chiNhanhFilter">
+                                <option value="CN NGUYỄN VĂN CỪ - CẦN THƠ" selected>CN NGUYỄN VĂN CỪ - CẦN THƠ</option>
+                                <option value="CN NINH KIỀU - CẦN THƠ">CN NINH KIỀU - CẦN THƠ</option>
+                                <option value="CN LONG XUYÊN - AN GIANG">CN LONG XUYÊN - AN GIANG</option>
+                            </select>
+                        </div>
 
-                    <div class="d-grid">
-                        <button class="btn fw-semibold" style="background-color:#428446; color:white; border:none;">
-                            <i class="bi bi-search"></i> Tìm kiếm
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold text-dark">Thời gian</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="thoigian" id="thangnay" value="month" checked>
+                                <label class="form-check-label text-dark" for="thangnay">Tháng này</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="thoigian" id="tuychinh" value="custom">
+                                <label class="form-check-label text-dark" for="tuychinh">Tùy chỉnh</label>
+                            </div>
+                            <input type="date" class="form-control" id="dateFilter" style="display:none;" /> 
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold text-dark">Người thực hiện</label>
+                            <select class="form-control" id="nguoiTaoFilter">
+                                <option value="">Tất cả</option>
+                                <option value="Nguyễn Văn A">Nguyễn Văn A</option>
+                                <option value="Trần Thị B">Trần Thị B</option>
+                                <option value="Lê Văn C">Lê Văn C</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-success btn-block font-weight-bold mt-3" id="applyFilter">
+                            <i class="fas fa-filter"></i> Áp dụng bộ lọc
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="input-group" style="max-width:400px;">
-                    <input type="text" class="form-control" placeholder="Tìm theo mã hoặc tên NCC..." style="border:1px solid #428446;">
-                    <button class="btn" style="background-color:#428446; color:white;"><i class="bi bi-funnel"></i></button>
+            <div class="col-12 col-md-9">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="input-group flex-grow-1 mr-2">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo mã hoặc tên NCC..." />
+                        <div class="input-group-append">
+                            <button class="btn btn-success" id="searchBtn"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-secondary d-md-none" 
+                            type="button" 
+                            data-toggle="collapse" 
+                            data-target="#filterCollapseContent"
+                            aria-expanded="false" 
+                            aria-controls="filterCollapseContent">
+                        <i class="fas fa-filter"></i> 
+                    </button>
+
+                    <div class="ml-auto d-none d-md-flex">
+                        <button class="btn btn-success font-weight-bold mr-2">
+                            <i class="fas fa-download"></i> Xuất file
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </button>
+                    </div>
                 </div>
 
-                <button class="btn" style="color:#428446; border:1px solid #428446;">
-                    <i class="bi bi-file-earmark-arrow-down"></i> Xuất file
-                </button>
-            </div>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header font-weight-bold bg-success text-white">
+                        Lịch sử giao dịch
+                    </div>
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-center" id="lichSuGiaoDichTable">
+                            <thead class="bg-success text-white">
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll" /></th>
+                                    <th>Mã giao dịch</th>
+                                    <th>Loại giao dịch</th>
+                                    <th>Thời gian</th>
+                                    <th>Đối tác</th>
+                                    <th>Chi nhánh</th>
+                                    <th>Giá trị</th>
+                                    <th>Người thực hiện</th>
+                                    <th>Mã tham chiếu</th> @* <-- ĐÃ THÊM: Mã PO, IN, OUT *@
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null)
+                                {
+                                   @foreach (var item in ((IEnumerable<LichSuGiaoDich>)Model).OrderByDescending(x => x.ThoiGian)) @* Sắp xếp theo thời gian mới nhất *@
+                                    {
+                                        <tr data-status="@item.TrangThai" >
+                                            <td><input type="checkbox" /></td>
+                                            <td>@item.MaGiaoDich</td>
+                                            <td>@item.LoaiGiaoDich</td>
+                                            <td>@item.ThoiGian.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@item.DoiTac</td>
+                                    
+                                            <td>@FormatCurrency(item.GiaTri)</td>
+                                            <td>@item.MaThamChieu</td>
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(item.TrangThai)">@item.TrangThai</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    @* Cập nhật colspan = 10 *@
+                                    <tr><td colspan="10" class="text-center p-4 text-muted">Không có dữ liệu lịch sử giao dịch.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
-            <div class="card border-0 shadow-sm" style="border-radius:10px;">
-                <div class="card-header fw-semibold" style="background-color:#428446; color:white;">
-                    Lịch sử giao dịch
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0 text-center">
-                        <thead style="background-color:#428446; color:white;">
-                            <tr>
-                                <th></th>
-                                <th>Mã giao dịch</th>
-                                <th>Loại giao dịch</th>
-                                <th>Thời gian</th>
-                                <th>Đối tác</th>
-                                <th>Chi nhánh</th>
-                                <th>Giá trị</th>
-                                <th>Người thực hiện</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="checkbox" style="border-color:#428446;"></td>
-                                <td>GD-00045</td>
-                                <td>Nhập hàng</td>
-                                <td>04/11/2025 09:20</td>
-                                <td>CTY VINFAST</td>
-                                <td>Cần Thơ</td>
-                                <td>32,500,000 ₫</td>
-                                <td>Nguyễn Văn A</td>
-                                <td><span class="badge" style="background-color:#cde9cd; color:#428446;">Hoàn tất</span></td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox" style="border-color:#428446;"></td>
-                                <td>GD-00046</td>
-                                <td>Xuất hàng</td>
-                                <td>04/11/2025 10:05</td>
-                                <td>Showroom Trà Nóc</td>
-                                <td>Cần Thơ</td>
-                                <td>18,700,000 ₫</td>
-                                <td>Trần Thị B</td>
-                                <td><span class="badge" style="background-color:#e6f3e6; color:#428446;">Đang giao</span></td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox" style="border-color:#428446;"></td>
-                                <td>GD-00047</td>
-                                <td>Trả NCC</td>
-                                <td>04/11/2025 13:10</td>
-                                <td>Cty E-Bike</td>
-                                <td>Long Xuyên</td>
-                                <td>5,200,000 ₫</td>
-                                <td>Lê Văn C</td>
-                                <td><span class="badge bg-secondary text-white">Hủy</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="text-center py-5 text-muted" id="noResults" style="display:none;">
-                    <i class="bi bi-inbox fs-1 text-secondary"></i>
-                    <p class="mt-2">Không tìm thấy giao dịch nào phù hợp.<br>
-                    Nhấn <a href="#" style="color:#428446; font-weight:600;">vào đây</a> để thử lại.</p>
+                    <div class="text-center py-5 text-muted" id="noResults" style="display:none;">
+                        <i class="fas fa-inbox fa-3x text-secondary"></i>
+                        <p class="mt-2">Không tìm thấy kết quả<br />
+                            <a href="#" class="text-dark font-weight-bold">Nhấn vào đây</a> để tiếp tục tìm kiếm.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+@section Scripts { 
+<script>
+$(document).ready(function () {
+    $('#dateFilter').hide();
+
+    // Logic hiển thị/ẩn input ngày tùy chỉnh
+    $('input[name="thoigian"]').change(function () {
+        if ($(this).val() === 'custom') {
+            $('#dateFilter').show();
+        } else {
+            $('#dateFilter').hide();
+            $('#dateFilter').val(''); 
+        }
+    });
+
+    $('.selectable-badge').click(function () {
+        $('.selectable-badge').removeClass('active-status');
+        $(this).addClass('active-status');
+    });
+    
+    // Áp dụng bộ lọc và ẩn thanh lọc trên mobile
+    $('#applyFilter').click(function () {
+        if ($(window).width() < 768) {
+            $('#filterCollapseContent').collapse('hide');
+        }
+        performFilter();
+    });
+
+    // Thực hiện tìm kiếm
+    $('#searchBtn').click(performSearch);
+    $('#searchInput').on('keyup', function(e) { if (e.key === 'Enter') performSearch(); });
+
+    function performSearch() {
+        var keyword = $('#searchInput').val().toLowerCase().trim();
+        var resultsFound = 0;
+
+        $('#lichSuGiaoDichTable tbody tr').each(function () {
+            // Tìm theo Mã giao dịch (cột thứ 2, index 1)
+            var code = $(this).find('td:eq(1)').text().toLowerCase(); 
+            // Nếu muốn tìm theo Mã tham chiếu (cột thứ 9, index 8)
+            var referenceCode = $(this).find('td:eq(8)').text().toLowerCase(); 
+            // Hoặc tên Đối tác (cột thứ 5, index 4)
+            var doiTac = $(this).find('td:eq(4)').text().toLowerCase();
+            
+            // Hiện hàng nếu Mã giao dịch HOẶC Mã tham chiếu HOẶC Đối tác khớp
+            if (code.includes(keyword) || referenceCode.includes(keyword) || doiTac.includes(keyword)) { 
+                $(this).show(); 
+                resultsFound++; 
+            }
+            else { $(this).hide(); }
+        });
+
+        // Cập nhật giao diện: ẩn/hiện bảng và thông báo không tìm thấy
+        $('#noResults').toggle(resultsFound === 0);
+        $('#lichSuGiaoDichTable').toggle(resultsFound > 0);
+    }
+
+    function performFilter() {
+        // Lấy giá trị lọc từ các bộ lọc
+        var selectedStatus = $('.selectable-badge.active-status').data('status') || '';
+        // Lấy giá trị lọc loại giao dịch (cột thứ 3, index 2)
+        var selectedLoaiGiaoDich = $('#loaiGiaoDichFilter').val(); 
+        var selectedChiNhanh = $('#chiNhanhFilter').val();
+        var selectedNguoiTao = $('#nguoiTaoFilter').val();
+        var selectedDate = $('input[name="thoigian"]:checked').val() === 'custom' ? $('#dateFilter').val() : '';
+        
+        var visibleRows = 0;
+
+        $('#lichSuGiaoDichTable tbody tr').each(function () {
+            var row = $(this);
+            // Lấy giá trị từ thuộc tính data- và cột trong bảng
+            var rowStatus = row.data('status');
+            var rowLoaiGiaoDich = row.find('td:eq(2)').text().trim(); 
+            var rowChiNhanh = row.data('chinhanh'); 
+            var rowNguoiTao = row.data('nguoitao');
+            var rowNgayDuKien = row.find('td:eq(3)').text().trim().substring(0, 10); // Lấy phần ngày (dd/MM/yyyy)
+
+            var showRow = true;
+
+            // Áp dụng các bộ lọc
+            // Lọc theo trạng thái 
+            if (selectedStatus && rowStatus !== selectedStatus) showRow = false; 
+            // Lọc theo Loại giao dịch (cột 3)
+            if (selectedLoaiGiaoDich && rowLoaiGiaoDich !== selectedLoaiGiaoDich) showRow = false; 
+            // Lọc theo Chi nhánh
+            if (selectedChiNhanh && rowChiNhanh !== selectedChiNhanh) showRow = false;
+            // Lọc theo Người thực hiện
+            if (selectedNguoiTao && rowNguoiTao !== selectedNguoiTao) showRow = false;
+            
+            // Lọc theo ngày tùy chỉnh
+            if (selectedDate) {
+                // Định dạng ngày của bộ lọc: YYYY-MM-DD -> DD/MM/YYYY
+                var formattedDateFilter = selectedDate.split('-').reverse().join('/');
+                if (rowNgayDuKien !== formattedDateFilter) showRow = false;
+            }
+
+            // Hiển thị hoặc ẩn hàng
+            if (showRow) { row.show(); visibleRows++; }
+            else { row.hide(); }
+        });
+
+        // Cập nhật giao diện: ẩn/hiện bảng và thông báo không tìm thấy
+        $('#noResults').toggle(visibleRows === 0);
+        $('#lichSuGiaoDichTable').toggle(visibleRows > 0);
+    }
+
+    // Chọn tất cả
+    $('#selectAll').click(function () {
+        $('#lichSuGiaoDichTable tbody input[type="checkbox"]').prop('checked', this.checked);
+    });
+});
+</script>
+}

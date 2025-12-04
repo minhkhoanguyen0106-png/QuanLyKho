@@ -25,12 +25,6 @@ public class NCC
     [Column(TypeName = "decimal(18, 0)")]
     public decimal TongMua { get; set; }
     
-    [Required]
-    [Column(TypeName = "varchar(50)")]
-    public string TrangThai { get; set; }
 
-    // --- Khóa ngoại và Navigation Property đã bị XÓA ---
-    // public int? MaNhom { get; set; }
-    // [ForeignKey("MaNhom")]
-    // public NhomNhaCungCap Nhom { get; set; } 
+
 }

@@ -1,63 +1,80 @@
 ﻿﻿@using Microsoft.AspNetCore.Http
 @{
-    ViewData["Title"] = "Tổng quan";
-    var primaryGreen = "#428446";
+    ViewData["Title"] = "Tổng quan Kho hàng";
+    
+    // MÀU SẮC CHỦ ĐẠO ADMINLTE CHUYÊN NGHIỆP:
+    var primaryColorAdminLTE = "#28a745"; 
+    var successColor = "#28a745";
+    var infoColor = "#17a2b8";
+    var warningColor = "#ffc107";
+    var dangerColor = "#dc3545";
+    
+    // Giả lập dữ liệu Tỉ lệ (Sẽ được thay thế bằng Model/ViewData)
+    var tiLeLechKho = "0.5%";
+    var tiLeNhapVsXuat = "120%"; 
+    var hangDuoiDinhMuc = "8.2%"; 
+    var tiLeChiếmDụngKho = "75%"; 
 }
 
 <div class="content-header">
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center p-3 rounded shadow-sm"
-             style="background-color: @primaryGreen; color: white;">
-            <h4 class="m-0 font-weight-bold"><i class="fas fa-chart-line mr-2"></i> Tổng quan hoạt động</h4>
-            <span>Chi nhánh: <strong>Admin</strong></span>
+             style="background-color: @primaryColorAdminLTE; color: white;">
+            <h4 class="m-0 font-weight-bold"><i class="fas fa-warehouse mr-2"></i> Tổng quan Kho hàng & Tồn kho</h4>
+            <span>Chi nhánh: <strong>Kho Tổng</strong></span>
         </div>
     </div>
 </div>
 
 <section class="content">
     <div class="container-fluid">
+        
         <div class="row mt-3">
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-white border-left border-success shadow-sm" style="border-left-width: 5px !important;">
+                <div class="small-box bg-white border-left border-info shadow-sm" style="border-left-width: 5px !important;">
                     <div class="inner">
-                        <h3 style="color: @primaryGreen">186,7 Tr</h3>
-                        <p>Doanh thu thuần</p>
+                        <h3 class="text-info">@tiLeLechKho</h3>
+                        <p>Tỷ lệ Lệch kho (Kiểm kê)</p>
                     </div>
                     <div class="icon">
-                        <i class="fas fa-dollar-sign text-success" style="opacity: 0.3"></i>
+                        <i class="fas fa-balance-scale text-info" style="opacity: 0.3"></i>
                     </div>
                 </div>
             </div>
+            
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-white border-left border-success shadow-sm" style="border-left-width: 5px !important;">
                     <div class="inner">
-                        <h3 class="text-success">42,2 Tr</h3>
-                        <p>Doanh thu (8 đơn)</p>
+                        <h3 class="text-success">@tiLeNhapVsXuat</h3>
+                        <p>Tỷ lệ Nhập / Xuất (Theo Giá trị)</p>
                     </div>
                     <div class="icon">
-                        <i class="fas fa-shopping-cart text-success" style="opacity: 0.3"></i>
+                        <i class="fas fa-exchange-alt text-success" style="opacity: 0.3"></i>
                     </div>
                 </div>
             </div>
-             <div class="col-lg-3 col-6">
-                <div class="small-box bg-white border-left border-danger shadow-sm" style="border-left-width: 5px !important;">
-                    <div class="inner">
-                        <h3 class="text-danger">0 ₫</h3>
-                        <p>Trả hàng</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-undo text-danger" style="opacity: 0.3"></i>
-                    </div>
-                </div>
-            </div>
+            
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-white border-left border-warning shadow-sm" style="border-left-width: 5px !important;">
                     <div class="inner">
-                        <h3 class="text-warning">403</h3>
-                        <p>Hàng hết hạn</p>
+                        <h3 class="text-warning">@hangDuoiDinhMuc</h3>
+                        <p>Tỷ lệ SKU dưới Định mức tối thiểu</p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-exclamation-triangle text-warning" style="opacity: 0.3"></i>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-white border-left border-primary shadow-sm" style="border-left-width: 5px !important;">
+                    <div class="inner">
+                        <h3 class="text-primary">@tiLeChiếmDụngKho</h3>
+                        <p>Tỷ lệ Vị trí/Kệ đang chứa hàng</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-truck-box text-primary" style="opacity: 0.3"></i>
                     </div>
                 </div>
             </div>
@@ -65,31 +82,39 @@
 
         <div class="row">
             <div class="col-md-9">
-                <div class="card card-success card-outline">
+                <div class="card card-primary card-outline"> 
                     <div class="card-header">
-                        <h3 class="card-title">Doanh thu thuần theo ngày</h3>
+                        <h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i> Cơ cấu Tồn kho theo Nhóm hàng (%)</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart">
-                            <canvas id="chartDoanhThu" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            <canvas id="chartCoCauTonKho" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="text-center mt-3 text-muted">
+                            <p>Sẽ hiển thị biểu đồ tròn phân bổ Tồn kho theo Nhóm hàng khi Scripts được kích hoạt.</p>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <div class="col-md-3">
-                <div class="card">
+                <div class="card card-primary card-outline"> 
                     <div class="card-header bg-light">
-                        <h3 class="card-title text-success font-weight-bold">Hoạt động gần đây</h3>
+                        <h3 class="card-title text-primary"><i class="fas fa-clock mr-1"></i> Giao dịch gần nhất</h3>
                     </div>
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">
-                                <span class="text-success font-weight-bold">HUỲNH GIANG</span> vừa bán<br>
+                                <span class="text-success font-weight-bold">PHIẾU XUẤT #PX008</span> vừa được tạo<br>
                                 <b>12,060,000 ₫</b> <small class="text-muted float-right">4h trước</small>
                             </li>
                             <li class="list-group-item">
-                                <span class="text-success font-weight-bold">DI PHÚC</span> vừa bán<br>
+                                <span class="text-primary font-weight-bold">PHIẾU NHẬP #PN001</span> vừa được nhập<br>
                                 <b>15,090,000 ₫</b> <small class="text-muted float-right">6h trước</small>
+                            </li>
+                             <li class="list-group-item">
+                                <span class="text-success font-weight-bold">PHIẾU XUẤT #PX007</span> vừa được tạo<br>
+                                <b>5,000,000 ₫</b> <small class="text-muted float-right">7h trước</small>
                             </li>
                         </ul>
                     </div>
@@ -99,9 +124,9 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="card card-outline card-primary">
+                <div class="card card-outline card-primary"> 
                     <div class="card-header">
-                        <h3 class="card-title">Top 10 Hàng hóa bán chạy</h3>
+                        <h3 class="card-title"><i class="fas fa-hourglass-start mr-1"></i> Báo cáo: Hàng hóa tồn kho lâu nhất</h3>
                     </div>
                     <div class="card-body">
                         <table id="topProductsTable" class="table table-bordered table-striped">
@@ -109,16 +134,17 @@
                                 <tr>
                                     <th>Mã hàng</th>
                                     <th>Tên hàng hóa</th>
-                                    <th>ĐVT</th>
-                                    <th>Số lượng</th>
-                                    <th>Doanh thu</th>
+                                    <th>Vị trí/Lô</th>
+                                    <th>Ngày nhập kho</th> 
+                                    <th>Số lượng tồn</th>
+                                    <th>Thời gian tồn (Ngày)</th> 
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>SP001</td><td>Bình Super Chillwee</td><td>Cái</td><td class="text-success font-weight-bold">464</td><td>250,000,000 ₫</td></tr>
-                                <tr><td>DV002</td><td>Tiền công sửa chữa</td><td>Lần</td><td class="text-success font-weight-bold">98</td><td>9,800,000 ₫</td></tr>
-                                <tr><td>VC003</td><td>VOUCHER - 500K</td><td>Phiếu</td><td class="text-success font-weight-bold">84</td><td>0 ₫</td></tr>
-                                <tr><td>MBH01</td><td>NÓN BẢO HIỂM EBIKE</td><td>Cái</td><td class="text-success font-weight-bold">23</td><td>2,300,000 ₫</td></tr>
+                                <tr><td>SP001</td><td>Bình Super Chillwee</td><td>Khu A-01</td><td>20/10/2023</td><td class="text-success font-weight-bold">464</td><td>40</td></tr>
+                                <tr><td>DV002</td><td>Tiền công sửa chữa</td><td>N/A</td><td>N/A</td><td class="text-success font-weight-bold">0</td><td>N/A</td></tr>
+                                <tr><td>VC003</td><td>VOUCHER - 500K</td><td>Khu C-05</td><td>01/11/2023</td><td class="text-success font-weight-bold">84</td><td>29</td></tr>
+                                <tr><td>MBH01</td><td>NÓN BẢO HIỂM EBIKE</td><td>Khu A-02</td><td>10/11/2023</td><td class="text-success font-weight-bold">23</td><td>20</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -129,68 +155,4 @@
 </section>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            // 1. Khởi tạo DataTable với nút Export
-           $("#topProductsTable").DataTable({
-    "responsive": true,
-    "lengthChange": false,
-    "autoWidth": false,
-    "dom": 'Bfrtip',
-    "buttons": [
-        { 
-            extend: 'copy', 
-            text: '<i class="fas fa-copy"></i> Sao chép', 
-            className: 'btn btn-success' 
-        },
-        { 
-            extend: 'excel', 
-            text: '<i class="fas fa-file-excel"></i> Excel', 
-            className: 'btn btn-success' 
-        },
-        { 
-            extend: 'pdf', 
-            text: '<i class="fas fa-file-pdf"></i> PDF', 
-            className: 'btn btn-success' 
-        },
-        { 
-            extend: 'print', 
-            text: '<i class="fas fa-print"></i> In ấn', 
-            className: 'btn btn-success' 
-        },
-        {
-            extend: 'colvis',
-            text: 'Hiển thị cột',
-            className: 'btn btn-success' 
-        }
-    ],
-    "language": { 
-        "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" 
-    }
-}).buttons().container().appendTo('#topProductsTable_wrapper .col-md-6:eq(0)');
-
-            // 2. Vẽ biểu đồ Chart.js
-            var ctx = document.getElementById('chartDoanhThu').getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Array.from({length: 31}, (_, i) => i + 1),
-                    datasets: [
-                        { label: 'Ebike Nguyễn Văn Cừ', data: [12, 19, 3, 5, 2, 3, 10, 15, 8, 12, 19, 3, 5, 2, 3, 10, 15, 8, 12, 19, 3, 5, 2, 3, 10, 15, 8, 12, 19, 3, 5, 2], backgroundColor: '#428446' },
-                        { label: 'Ebike 3 Tháng 2', data: [2, 3, 20, 5, 1, 4, 8, 5, 2, 3, 20, 5, 1, 4, 8, 5, 2, 3, 20, 5, 1, 4, 8, 5, 2, 3, 20, 5, 1, 4, 8, 5], backgroundColor: '#ffc107' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
-                    }
-                }
-            });
-        });
-    </script>
 }

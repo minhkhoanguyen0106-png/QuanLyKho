@@ -10,25 +10,23 @@ namespace QuanLyKho.Models
 
         public DbSet<Account> Accounts { get; set; }
         public DbSet<NhanVien> NhanViens { get; set; }
+        public DbSet<Employee> Employees { get; set; }
         public DbSet<NCC> NCCs { get; set; }
-        public DbSet<GiaoDich> GiaoDiches { get; set; }
-        public DbSet<BaoCao> BaoCaos { get; set; }
-        public DbSet<KhoHang> KhoHangs { get; set; }
-        public DbSet<KiemKho> KiemKhos { get; set; }
+        public DbSet<KiemKeKho> KiemKeKhos { get; set; }
         public DbSet<NhapHang> NhapHangs { get; set; }
-        public DbSet<XuatHang> XuatHangs { get; set; }
-        public DbSet<TaoBaoCao> TaoBaoCaos { get; set; }
+         public DbSet<LichSuGiaoDich> LichSuGiaoDichs { get; set; }
+
+         public DbSet<ChiTietPhieuNhap> ChiTietPhieuNhaps { get; set; }
+        
+        public DbSet<DatHangNhap> DatHangNhaps { get; set; }
+        public DbSet<HangHoa> HangHoas { get; set; }
+        public DbSet<PhieuXuat> PhieuXuats { get; set; }
+        public DbSet<PhieuNhap> PhieuNhaps { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Fix cảnh báo decimal DonGia trong các entity
-            modelBuilder.Entity<HangHoa>()
-                .Property(p => p.DonGia)
-                .HasPrecision(18, 2);
 
-
-            modelBuilder.Entity<KhoHang>()
-                .Property(p => p.DonGia)
-                .HasPrecision(18, 2);
 
             modelBuilder.Entity<NhapHang>()
                 .Property(p => p.DonGia)

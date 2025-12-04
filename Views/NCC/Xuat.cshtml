@@ -1,6 +1,20 @@
+@model IEnumerable<QuanLyKho.Models.PhieuXuat>?
 @{
+    // FIX: Sử dụng 'as List<...>' và '?? new List<...>()' để xử lý an toàn
+    var suppliers = ViewData["Suppliers"] as List<QuanLyKho.Models.NCC> ?? new List<QuanLyKho.Models.NCC>();
     ViewBag.Title = "Lịch sử xuất của nhà cung cấp";
-    Layout = "/Views/Shared/_Layout.cshtml"; /* Giữ nguyên Layout của bạn */
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+@functions {
+    // FIX LỖI CS1503: Đã cập nhật để chấp nhận decimal? và xử lý null an toàn.
+    string FormatCurrency(decimal? value)
+    {
+        // Sử dụng 0m (decimal zero) nếu value là null
+        var safeValue = value ?? 0m; 
+        // Sử dụng định dạng số (N0) cho format tiền tệ Việt Nam (VND)
+        return $"{safeValue.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))} ₫";
+    }
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
@@ -16,11 +30,11 @@
 <style>
     /* ----------------------------------------------------- */
     /* KIOTVIET-STYLE CSS & CUSTOM BOOTSTRAP (ĐỒNG BỘ) */
+    /* (GIỮ NGUYÊN CSS) */
     /* ----------------------------------------------------- */
 
     body {
         background-color: #f5f7fa;
-    
     }
 
     /* ====== SIDEBAR LỌC ====== */
@@ -61,7 +75,6 @@
         border: 1px solid #ddd;
     }
 
-    /* FIX MẠNH MẼ LỖI DATEPICKER: Đảm bảo input date không bị đè */
     #customDateRange input {
         position: relative;
         z-index: 1051; 
@@ -114,7 +127,6 @@
         padding: 8px 12px;
     }
     
-    /* Nút hành động phải */
     .action-buttons button {
         font-size: 14px;
         border-radius: 4px;
@@ -125,7 +137,6 @@
         border: 1px solid #ddd;
     }
 
-    /* Nút xuất file màu xanh lá */
     #exportBtn {
         background-color: #28a745;
         color: #fff;
@@ -174,6 +185,7 @@
         background-color: #e6f8e5;
     }
 
+    /* Thêm cột trạng thái vào bảng */
     .badge-status {
         border-radius: 4px;
         padding: 5px 10px;
@@ -198,7 +210,6 @@
         color: #9c6800;
     }
     
-    /* Responsive for Sidebar */
     @@media (max-width: 992px) {
         .filter-sidebar {
             position: fixed;
@@ -221,12 +232,18 @@
     <div class="filter-sidebar" id="filterSidebar">
         <button id="closeSidebar" class="btn btn-sm btn-outline-secondary d-lg-none float-end" style="margin-top: -10px;"><i class="fa fa-times"></i></button>
 
-        <h5>Lịch sử xuất hàng</h5> <h6>Nhà cung cấp</h6>
+        <h5>Lịch sử xuất hàng</h5> 
+        <h6>Nhà cung cấp</h6>
         <select id="supplierFilter" class="form-select form-select-sm mb-2">
             <option value="">Tất cả nhà cung cấp</option>
-            <option value="VIPOMALL">VIPOMALL</option>
-            <option value="EBIKE PHỤ TÙNG">EBIKE PHỤ TÙNG</option>
-            <option value="HUỲNH THUẬN (PIN)">HUỲNH THUẬN (PIN)</option>
+            @if (suppliers.Any())
+            {
+                // Đổ dữ liệu từ Database vào bộ lọc
+                foreach (var supplier in suppliers.DistinctBy(s => s.TenNCC))
+                {
+                    <option value="@supplier.TenNCC">@supplier.TenNCC</option>
+                }
+            }
         </select>
 
         <h6>Thời gian</h6>
@@ -242,8 +259,13 @@
             <input type="date" id="dateEnd" class="form-control form-control-sm" disabled>
         </div>
 
-    
-        
+        <h6>Trạng thái</h6>
+        <div class="filter-btn-group d-flex flex-wrap">
+            <button type="button" class="btn btn-sm statusFilter btn-active" data-val="">Tất cả</button>
+            <button type="button" class="btn btn-sm statusFilter" data-val="Hoàn thành">Hoàn thành</button>
+            <button type="button" class="btn btn-sm statusFilter" data-val="Đã hủy">Đã hủy</button>
+            <button type="button" class="btn btn-sm statusFilter" data-val="Đang xử lý">Đang xử lý</button>
+        </div>
     </div>
 
     <div class="main-content">
@@ -263,45 +285,49 @@
             <thead>
                 <tr class="text-center">
                     <th>Mã phiếu</th>
-                    <th>Ngày xuất</th> <th>Nhà cung cấp</th>
+                    <th>Ngày xuất</th>
+                    <th>Nhà cung cấp</th>
                     <th>Nhân viên xử lý</th>
-                    <th>Tổng giá trị xuất</th> 
+                    <th>Tổng giá trị xuất</th>
+                    <th>Trạng thái</th>
                     <th>Ghi chú</th>
                 </tr>
             </thead>
             <tbody class="text-center">
-                <tr>
-                    <td>PX0001</td>
-                    <td>02/11/2025</td>
-                    <td>EBIKE PHỤ TÙNG</td>
-                    <td>Nguyễn Văn Cử</td>
-                    <td>12350000</td>
-                    <td>Xuất pin và sạc</td>
-                </tr>
-                <tr>
-                    <td>PX0002</td>
-                    <td>31/10/2025</td>
-                    <td>HUỲNH THUẬN (PIN)</td>
-                    <td>Trần Mỹ</td>
-                    <td>7500000</td>
-                    <td>Phiếu hủy do sai kho</td>
-                </tr>
-                <tr>
-                    <td>PX0003</td>
-                    <td>29/10/2025</td>
-                    <td>VIPOMALL</td>
-                    <td>Hồng Thanh</td>
-                    <td>25000000</td>
-                    <td>Xuất xe mẫu kiểm tra</td>
-                </tr>
-                <tr>
-                    <td>PC0001</td>
-                    <td>01/11/2025</td>
-                    <td>VIPOMALL</td>
-                    <td>Trần Mỹ</td>
-                    <td>15000000</td>
-                    <td>Chuyển kho kiểm kê</td>
-                </tr>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.MaPX</td>
+                            <td>@(item.NgayXuat?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                            <td>@(item.NhaCungCap?.TenNCC ?? "N/A")</td> 
+                            <td>@(item.NhanVien?.TenNV ?? "N/A")</td> 
+                            @* **ĐÃ SỬA LỖI:** Gọi FormatCurrency với decimal? *@
+                            <td>@FormatCurrency(item.TongGiaTri)</td> 
+                            <td>
+                                @{
+                                    // Logic giả định trạng thái dựa trên Ghi chú (Bạn nên thay bằng thuộc tính Trạng Thái thực tế của PhieuXuat)
+                                    var statusText = "Hoàn thành";
+                                    var statusClass = "badge-completed";
+
+                                    if (item.GhiChu?.Contains("Hủy", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        statusText = "Đã hủy";
+                                        statusClass = "badge-canceled";
+                                    }
+                                    else if (item.GhiChu?.Contains("Đang", StringComparison.OrdinalIgnoreCase) == true || item.GhiChu?.Contains("Chờ", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        statusText = "Đang xử lý";
+                                        statusClass = "badge-pending";
+                                    }
+                                }
+                                <span class="badge-status @statusClass">@statusText</span>
+                            </td>
+                            <td>@item.GhiChu</td>
+                        </tr>
+                    }
+                }
             </tbody>
         </table>
 
@@ -314,16 +340,17 @@
 
 <script>
     /* ----------------------------------------------------- */
-    /* JAVASCRIPT LOGIC VÀ DATATABLES (ĐỒNG BỘ) */
+    /* JAVASCRIPT LOGIC VÀ DATATABLES (GIỮ NGUYÊN) */
     /* ----------------------------------------------------- */
 
-    var table; // Biến global cho DataTable
+    var table;
     
-    // Khai báo các Index Cột cho dễ quản lý
-    const SUPPLIER_COLUMN_INDEX = 2; // Nhà cung cấp
-    const DATE_COLUMN_INDEX = 1;     // Ngày xuất (dd/mm/yyyy)
-    const VALUE_COLUMN_INDEX = 4;    // Tổng giá trị xuất
-    const STATUS_COLUMN_INDEX = 5;   // Trạng thái
+    // CÁC CHỈ SỐ CỘT (7 cột: 0 đến 6)
+    const SUPPLIER_COLUMN_INDEX = 2; 
+    const DATE_COLUMN_INDEX = 1;    
+    const VALUE_COLUMN_INDEX = 4;    
+    const STATUS_COLUMN_INDEX = 5; 
+    const GHI_CHU_COLUMN_INDEX = 6; 
 
     /**
      * Chuyển đổi chuỗi ngày tháng (dd/mm/yyyy) trong bảng thành đối tượng Date (chỉ ngày, reset giờ).
@@ -353,37 +380,49 @@
     $(document).ready(function () {
         
         /* --- DATATABLES INITIALIZATION --- */
-        table = $('#exportHistoryTable').DataTable({ // Đổi ID bảng
+        table = $('#exportHistoryTable').DataTable({ 
             dom: 'rtip', 
             pagingType: 'simple_numbers',
             order: [[DATE_COLUMN_INDEX, 'desc']], 
             buttons: [
                 {
                     extend: 'excelHtml5',
-                    title: 'LichSuXuatHang', // Đổi tên file export
+                    title: 'LichSuXuatHang', 
+                    // CẬP NHẬT SỐ LƯỢNG CỘT CHO EXPORT (7 cột: 0 đến 6)
                     exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] } 
                 }
             ],
+            // CẬP NHẬT 7 NULL cho 7 cột 
             "aoColumns": [null, null, null, null, null, null, null], 
             columnDefs: [
                 { 
                     targets: VALUE_COLUMN_INDEX, // Cột Tổng giá trị (Index 4)
                     render: function (data, type, row) {
-                        const num = parseInt(data.toString().replace(/\D/g, '')) || 0;
+                        // Loại bỏ ký tự tiền tệ và dấu chấm/phẩy format để chuyển thành số
+                        const num = parseFloat(data.toString().replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(/,/g, '.')) || 0;
+                        
                         if (type === 'display' || type === 'filter') {
-                            const formatted = new Intl.NumberFormat('vi-VN').format(num) + 'đ';
+                            // Format lại cho hiển thị
+                            const formatted = new Intl.NumberFormat('vi-VN').format(num) + ' ₫';
                             return num < 0 ? `<span style="color:#dc3545;">${formatted}</span>` : formatted;
                         }
-                        return num;
+                        return num; // Trả về số cho sắp xếp
                     }
                 },
-                { 
+                {
+                    targets: STATUS_COLUMN_INDEX, // Cột Trạng thái (Index 5)
+                    render: function (data, type, row) {
+                        if (type === 'filter' || type === 'sort') {
+                            // Lọc/Sắp xếp theo nội dung text bên trong badge 
+                            return $(data).text(); 
+                        }
+                        return data; // Giữ nguyên HTML cho hiển thị
                     }
                 }
             ]
         });
 
-        /* --- CUSTOM DATATABLES FILTER LOGIC (ĐỒNG BỘ HOÀN TOÀN) --- */
+        /* --- CUSTOM DATATABLES FILTER LOGIC (GIỮ NGUYÊN) --- */
         $.fn.dataTable.ext.search.push(
             function (settings, data, dataIndex) {
                 // Đảm bảo chỉ áp dụng cho bảng này
@@ -399,7 +438,7 @@
 
                 // --- LỌC 2: THỜI GIAN (Cột 1) ---
                 const dateString = data[DATE_COLUMN_INDEX];
-                const rowDate = parseTableDate(dateString); // Sử dụng hàm parseTableDate
+                const rowDate = parseTableDate(dateString); 
 
                 const timeRange = $('#timeRangeFilter').val();
                 let filterPass = true;
@@ -416,8 +455,8 @@
                 } else if (timeRange === 'thisMonth') {
                     if (!rowDate || rowDate.getMonth() !== today.getMonth() || rowDate.getFullYear() !== today.getFullYear()) filterPass = false;
                 } else if (timeRange === 'custom') {
-                    const dateStartStr = $('#dateStart').val(); // yyyy-mm-dd
-                    const dateEndStr = $('#dateEnd').val();     // yyyy-mm-dd
+                    const dateStartStr = $('#dateStart').val(); 
+                    const dateEndStr = $('#dateEnd').val(); 
                     
                     const startDate = parseInputDate(dateStartStr);
                     const endDate = parseInputDate(dateEndStr);
@@ -426,7 +465,6 @@
                         if (rowDate < startDate) filterPass = false;
                     }
                     if (endDate && rowDate) {
-                        // Thêm 1 ngày để bao gồm cả ngày kết thúc (Đồng bộ logic)
                         const endOfDay = new Date(endDate);
                         endOfDay.setDate(endDate.getDate() + 1); 
                         if (rowDate >= endOfDay) filterPass = false;
@@ -440,56 +478,48 @@
         );
 
         /* --- EVENT HANDLERS --- */
-
-        // 1. Global Search Box
         $('#globalSearchBox').on('keyup', function () {
             table.search(this.value).draw();
         });
 
-        // 2. Supplier Filter
         $('#supplierFilter').on('change', function () {
             table.draw();
         });
 
-        // 3. Time Range Filter Logic
         $('#timeRangeFilter').on('change', function () {
             const range = $(this).val();
             if (range === 'custom') {
-                // Kích hoạt input
                 $('#dateStart, #dateEnd').prop('disabled', false).val('');
             } else {
-                // Vô hiệu hóa input
                 $('#dateStart, #dateEnd').prop('disabled', true).val('');
             }
             table.draw();
         });
-        // Lắng nghe sự kiện thay đổi của input type="date"
+        
         $('#dateStart, #dateEnd').on('change', function() {
             table.draw();
         });
         
-        // 4. Status Filter Logic (Cột 5)
+        // Logic lọc cột Trạng thái (Cột 5)
         $('.statusFilter').on('click', function () {
             const status = $(this).data('val');
             $('.statusFilter').removeClass('btn-active');
             $(this).addClass('btn-active');
             
-            // Lọc cột Trạng thái (Cột 5)
+            // Lọc cột Trạng thái (Index 5) theo nội dung text.
             table.column(STATUS_COLUMN_INDEX).search(status ? status : '', true, false).draw();
         });
 
-        // 5. Export Button
         $('#exportBtn').on('click', function () {
             table.button(0).trigger();
         });
         
-        // 6. Sidebar Responsive Toggle (Đồng bộ)
+        // Mobile sidebar control
         $('#openSidebar').on('click', function() {
             $('#filterSidebar').addClass('show');
         });
         $('#closeSidebar').on('click', function() {
             $('#filterSidebar').removeClass('show');
         });
-
     });
 </script>

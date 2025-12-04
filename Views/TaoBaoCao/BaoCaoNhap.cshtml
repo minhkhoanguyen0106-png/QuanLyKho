@@ -1,120 +1,266 @@
 @{
     ViewData["Title"] = "Tạo báo cáo nhập hàng";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_LayoutNV.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4 text-success fw-bold text-center text-md-start">📦 Tạo báo cáo nhập hàng</h2>
+<style>
+    /* Định nghĩa Màu Xanh Lá TƯƠI mới */
+    :root {
+        /* Màu Xanh Lá Tươi, tương đương AdminLTE Success/Info */
+        --custom-green-dark: #4CAF50; /* Base Color */
+        --custom-green-light: #66BB6A; /* Light Color for Gradient */
+    }
 
-    <!-- Bộ lọc báo cáo -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form class="row g-3">
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Chi nhánh</label>
-                    <select class="form-select">
-                        <option>Tất cả</option>
-                        <option>CN Nguyễn Văn Cừ</option>
-                        <option>CN Lý Thường Kiệt</option>
-                    </select>
-                </div>
+    /* Đảm bảo nền nội dung là nền sáng của AdminLTE */
+    .content-wrapper { 
+        background-color: #f4f6f9 !important; /* AdminLTE default light background */
+    }
 
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Nhà cung cấp</label>
-                    <select class="form-select">
-                        <option>Tất cả</option>
-                        <option>VIPOMALL</option>
-                        <option>SAKI</option>
-                        <option>EBIKE Phụ Tùng</option>
-                    </select>
-                </div>
+    /* Thay thế class màu mặc định (success/primary) bằng màu xanh tươi mới */
+    .text-success, .btn-success, .table-success,
+    .bg-success, .btn-primary {
+        color: white !important; 
+        background-color: var(--custom-green-dark) !important;
+        border-color: var(--custom-green-dark) !important;
+    }
+    
+    /* Điều chỉnh các thành phần outline */
+    .btn-outline-success {
+        color: var(--custom-green-dark) !important;
+        border-color: var(--custom-green-dark) !important;
+    }
+    .btn-outline-success:hover {
+        background-color: var(--custom-green-dark) !important;
+        color: white !important;
+    }
+    
+    /* Custom Gradient cho tiêu đề/header AdminLTE style */
+    .card-outline.card-success .card-header,
+    .bg-gradient-success {
+        background-image: linear-gradient(180deg, var(--custom-green-light) 10%, var(--custom-green-dark) 100%) !important;
+        border-top: 3px solid var(--custom-green-dark);
+        color: white !important;
+    }
 
-                <div class="col-6 col-md-2">
-                    <label class="form-label">Từ ngày</label>
-                    <input type="date" class="form-control" />
-                </div>
+    /* Shadow chuẩn AdminLTE */
+    .card.shadow-sm {
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2) !important;
+    }
+</style>
 
-                <div class="col-6 col-md-2">
-                    <label class="form-label">Đến ngày</label>
-                    <input type="date" class="form-control" />
-                </div>
-
-                <div class="col-12 col-md-2 d-flex align-items-end">
-                    <button class="btn btn-success w-100">🔍 Xem trước</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Khu vực xem trước báo cáo -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-light fw-bold text-center text-md-start">
-            Kết quả xem trước
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-success text-center">
-                        <tr>
-                            <th>#</th>
-                            <th>Mã phiếu nhập</th>
-                            <th>Ngày nhập</th>
-                            <th>Nhà cung cấp</th>
-                            <th>Chi nhánh</th>
-                            <th>Tổng giá trị</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        <tr>
-                            <td>1</td>
-                            <td>PN00452</td>
-                            <td>03/11/2025</td>
-                            <td>VIPOMALL</td>
-                            <td>CN Nguyễn Văn Cừ</td>
-                            <td>12,600,000 ₫</td>
-                            <td><span class="badge bg-success">Hoàn tất</span></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>PN00451</td>
-                            <td>02/11/2025</td>
-                            <td>SAKI</td>
-                            <td>CN Nguyễn Văn Cừ</td>
-                            <td>24,000,000 ₫</td>
-                            <td><span class="badge bg-info text-dark">Đã xác nhận</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Tổng kết nhanh -->
-            <div class="row mt-3 gy-3 text-center">
-                <div class="col-12 col-md-4">
-                    <div class="p-3 bg-light border rounded">
-                        <div class="fw-bold text-secondary">Tổng số phiếu</div>
-                        <div class="fs-4 text-success fw-bold">12</div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="p-3 bg-light border rounded">
-                        <div class="fw-bold text-secondary">Tổng giá trị nhập</div>
-                        <div class="fs-4 text-success fw-bold">156,800,000 ₫</div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="p-3 bg-light border rounded">
-                        <div class="fw-bold text-secondary">Số nhà cung cấp</div>
-                        <div class="fs-4 text-success fw-bold">3</div>
-                    </div>
-                </div>
+<section class="content pt-3">
+    <div class="container-fluid">
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="fw-bold mb-0 text-success">
+                    <i class="fas fa-boxes me-2"></i> TẠO BÁO CÁO NHẬP HÀNG
+                </h2>
             </div>
         </div>
-    </div>
 
-    <!-- Nút hành động -->
-    <div class="text-center text-md-end mt-4">
-        <button class="btn btn-primary px-4 me-0 me-md-2 mb-2 mb-md-0">💾 Lưu báo cáo</button>
-        <button class="btn btn-outline-success px-4">📤 Gửi cho quản lý</button>
+        <div class="card card-outline card-success">
+            <div class="card-header bg-gradient-success text-white fw-semibold">
+                <h3 class="card-title text-white"><i class="fas fa-filter me-1"></i> Bộ lọc báo cáo</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <form class="row g-3">
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Chi nhánh</label>
+                        <select class="form-select select2" style="width: 100%;">
+                            <option>Tất cả</option>
+                            <option>CN Nguyễn Văn Cừ</option>
+                            <option>CN Lý Thường Kiệt</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Nhà cung cấp</label>
+                        <select class="form-select select2" style="width: 100%;">
+                            <option>Tất cả</option>
+                            <option>VIPOMALL</option>
+                            <option>SAKI</option>
+                            <option>EBIKE Phụ Tùng</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control form-control-sm" />
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control form-control-sm" />
+                    </div>
+
+                    <div class="col-12 col-md-2 d-flex align-items-end">
+                        <button class="btn btn-success w-100 btn-sm shadow-sm">
+                            <i class="fas fa-search me-1"></i> Xem trước
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header border-bottom-0">
+                <h3 class="card-title"><i class="fas fa-clipboard-list me-1 text-secondary"></i> Kết quả xem trước</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table id="reportTable" class="table table-bordered table-hover align-middle text-center mb-0">
+                        <thead class="table-success">
+                            <tr>
+                                <th>#</th>
+                                <th>Mã phiếu nhập</th>
+                                <th>Ngày nhập</th>
+                                <th>Nhà cung cấp</th>
+                                <th>Chi nhánh</th>
+                                <th>Tổng giá trị</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>PN00452</td>
+                                <td>03/11/2025</td>
+                                <td>VIPOMALL</td>
+                                <td>CN Nguyễn Văn Cừ</td>
+                                <td><span class="fw-bold text-success">12.600.000 ₫</span></td>
+                                <td><span class="badge bg-success">Hoàn tất</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>PN00451</td>
+                                <td>02/11/2025</td>
+                                <td>SAKI</td>
+                                <td>CN Nguyễn Văn Cừ</td>
+                                <td><span class="fw-bold text-success">24.000.000 ₫</span></td>
+                                <td><span class="badge bg-info text-dark">Đã xác nhận</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card-footer">
+                <div class="row gy-3 text-center">
+                    <div class="col-12 col-md-4">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3 class="text-white">12</h3>
+                                <p class="text-white">Tổng số phiếu</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <a href="#" class="small-box-footer">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="small-box" style="background-color: var(--custom-green-light) !important;">
+                            <div class="inner">
+                                <h3 class="text-white">156,8 Tr ₫</h3>
+                                <p class="text-white">Tổng giá trị nhập</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <a href="#" class="small-box-footer">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3 class="text-dark">3</h3>
+                                <p class="text-dark">Số nhà cung cấp</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-truck-moving"></i>
+                            </div>
+                            <a href="#" class="small-box-footer">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-md-end mb-4">
+            <button class="btn btn-primary px-4 me-0 me-md-2 mb-2 mb-md-0 shadow">
+                <i class="fas fa-save"></i> Lưu báo cáo
+            </button>
+            <button class="btn btn-outline-success px-4 shadow">
+                <i class="fas fa-paper-plane"></i> Gửi cho quản lý
+            </button>
+        </div>
     </div>
-</div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khởi tạo Select2 (nếu có)
+            $('.select2').select2({
+                theme: 'bootstrap4' 
+            });
+
+            // Khởi tạo Card Widget (nút collapse)
+            $('[data-card-widget="collapse"]').on('click', function () {
+                var $card = $(this).closest('.card');
+                $card.find('.card-body, .card-footer').slideToggle();
+                $(this).find('i').toggleClass('fa-minus').toggleClass('fa-plus');
+            });
+
+            // =======================================================
+            // KHỞI TẠO DATATABLES
+            // =======================================================
+            if ($('#reportTable').length) {
+                $('#reportTable').DataTable({
+                    "paging": true,
+                    "lengthChange": true, 
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true, 
+                    "language": {
+                        
+                        "sProcessing": "Đang xử lý...",
+                        "sLengthMenu": "Xem MENU mục",
+                        "sZeroRecords": "Không tìm thấy dữ liệu phù hợp",
+                        "sInfo": "Đang xem START đến END trong tổng số TOTAL mục",
+                        "sInfoEmpty": "Đang xem 0 đến 0 trong tổng số 0 mục",
+                        "sInfoFiltered": "(được lọc từ tổng số MAX mục)",
+                        "sInfoPostFix": "",
+                        "sSearch": "Tìm kiếm:",
+                        "sUrl": "",
+                        "oPaginate": {
+                            "sFirst": "Đầu",
+                            "sPrevious": "Trước",
+                            "sNext": "Tiếp",
+                            "sLast": "Cuối"
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

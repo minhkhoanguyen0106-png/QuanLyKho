@@ -16,6 +16,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
+
 var app = builder.Build();
 
 // Cấu hình pipeline

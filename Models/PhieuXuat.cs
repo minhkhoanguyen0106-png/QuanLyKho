@@ -1,47 +1,62 @@
-// File: PhieuXuat.cs
-
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace QuanLyKho.Models;
-
-[Table("PhieuXuat")] 
-public class PhieuXuat
+namespace QuanLyKho.Models
 {
-    [Key]
-    [Column(TypeName = "varchar(20)")]
-    public string MaPX { get; set; } // Tương đương 'Mã phiếu' (PX0001, PC0001)
+    [Table("PhieuXuat")]
+    public class PhieuXuat
+    {
+        // ============================
+        // 1. Mã phiếu xuất
+        // ============================
+        [Key]
+        [Column(TypeName = "varchar(20)")]
+        public string MaPX { get; set; }   // PX001
 
-    [Required]
-    [Column(TypeName = "date")]
-    public DateTime NgayXuat { get; set; } // Tương đương 'Ngày xuất' (02/11/2025)
+        // ============================
+        // 2. Nhà cung cấp
+        // ============================
+        [Required]
+        [Column(TypeName = "varchar(20)")]
+        public string MaNCC { get; set; }
 
-    [Required]
-    [Column(TypeName = "decimal(18, 0)")]
-    public decimal TongGiaTri { get; set; } // Tương đương 'Tổng giá trị xuất' (12350000)
+        [ForeignKey("MaNCC")]
+        public NCC NhaCungCap { get; set; }
 
-    [MaxLength(500)]
-    public string GhiChu { get; set; } // Tương đương 'Ghi chú' (Xuất pin và sạc)
+        // ============================
+        // 3. Ngày xuất
+        // ============================
+        [Column(TypeName = "date")]
+        public DateTime? NgayXuat { get; set; } = DateTime.Now;
 
-    [Required]
-    [Column(TypeName = "varchar(50)")]
-    public string TrangThai { get; set; } // Cần thiết cho logic lọc Trạng thái
+        // ============================
+        // 4. Người tạo (Nhân viên)
+        // ============================
+        [Required]
+        [Column(TypeName = "varchar(20)")]
+        public string MaNV { get; set; }
 
-    // --- FOREIGN KEY ---
+        [ForeignKey("MaNV")]
+        public Employee NhanVien { get; set; }
 
-    // 1. Khóa ngoại đến Nhà Cung Cấp (NCC)
-    [Required]
-    [Column(TypeName = "varchar(20)")]
-    public string MaNCC { get; set; } // Liên kết với bảng NCC
+        // ============================
+        // 5. Tổng giá trị
+        // ============================
+        [Column(TypeName = "decimal(18,0)")]
+        public decimal? TongGiaTri { get; set; } = 0;
 
-    [ForeignKey("MaNCC")]
-    public NCC NhaCungCap { get; set; }
+        // ============================
+        // 6. Ghi chú (tùy chọn)
+        // ============================
+        [Column(TypeName = "nvarchar(255)")]
+        public string? GhiChu { get; set; }
 
-    // 2. Khóa ngoại đến Nhân Viên (Employee)
-    [Required]
-    [Column(TypeName = "varchar(20)")]
-    public string MaNV { get; set; } // Liên kết với bảng Employee
-
-    [ForeignKey("MaNV")]
-    public Employee NhanVien { get; set; }
+        // ============================
+        // 7. Optional: Liên kết phiếu đặt hàng
+        // ============================
+        // public string? MaDatHang { get; set; }
+        // [ForeignKey("MaDatHang")]
+        // public DatHang DatHang { get; set; }
+    }
 }
