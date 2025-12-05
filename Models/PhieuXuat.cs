@@ -55,6 +55,7 @@ namespace QuanLyKho.Models
         // ============================
         // 7. Optional: Liên kết phiếu đặt hàng
         // ============================
+        public ICollection<ChiTietPhieuXuat> ChiTietPhieuXuat { get; set; }
         // public string? MaDatHang { get; set; }
         // [ForeignKey("MaDatHang")]
         // public DatHang DatHang { get; set; }

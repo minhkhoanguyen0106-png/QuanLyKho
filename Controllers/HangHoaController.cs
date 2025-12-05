@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using QuanLyKho.Models;
 using System;
 using System.Linq;
-using System.ComponentModel.DataAnnotations; // Cần thiết nếu dùng các Attributes trong Model, dù không trực tiếp dùng trong Controller
+using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace QuanLyKho.Controllers
 {
-    // Model tạm thời để nhận MaHang từ AJAX request cho chức năng xóa
+    // Model để nhận JSON khi xóa
     public class DeleteRequestModel
     {
         [Required]
@@ -23,7 +24,7 @@ namespace QuanLyKho.Controllers
         }
 
         // ============================
-        // 0. LẤY TẤT CẢ DỮ LIỆU (AJAX) - Dùng cho trang Tổng hợp (ĐÃ SỬA ĐỊNH DẠNG NGÀY)
+        // 0. LẤY TẤT CẢ DỮ LIỆU (AJAX)
         // ============================
         [HttpGet]
         public IActionResult GetAll()
@@ -41,78 +42,6 @@ namespace QuanLyKho.Controllers
                         x.GiaVon,
                         x.TonKho,
                         x.KhachDat,
-                        // SỬA: Dùng định dạng ISO 8601 để JavaScript hiểu
-                        ThoiGianTao = x.ThoiGianTao.ToString("yyyy-MM-ddTHH:mm:ss"), 
-                        x.DatNCC
-                    })
-                    .ToList();
-
-                // Trả về Json(data) (Mảng JSON)
-                return Json(data); 
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Lỗi khi lấy tất cả dữ liệu: {ex.Message}");
-                return StatusCode(500, new { success = false, message = "Lỗi server khi tải dữ liệu tổng hợp." });
-            }
-        }
-
-        // ============================
-        // 1. LẤY DỮ LIỆU XE (AJAX) - Đã sửa định dạng ngày tháng
-        // ============================
-        [HttpGet]
-        public IActionResult GetAllXe()
-        {
-            try
-            {
-                var data = _context.HangHoas
-                    .Where(x => x.LoaiHang.Contains("Xe"))
-                    .OrderByDescending(x => x.ThoiGianTao)
-                    .Select(x => new
-                    {
-                        x.MaHang,
-                        x.TenHang,
-                        x.LoaiHang,
-                        x.GiaBan,
-                        x.GiaVon,
-                        x.TonKho,
-                        x.KhachDat,
-                        // SỬA: Dùng định dạng ISO 8601
-                        ThoiGianTao = x.ThoiGianTao.ToString("yyyy-MM-ddTHH:mm:ss"), 
-                        x.DatNCC
-                    })
-                    .ToList();
-
-                return Json(data);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Lỗi khi lấy dữ liệu xe: {ex.Message}");
-                return StatusCode(500, new { success = false, message = "Lỗi server khi tải dữ liệu xe." });
-            }
-        }
-
-        // ============================
-        // 2. LẤY DỮ LIỆU LINH KIỆN (AJAX) - Đã sửa định dạng ngày tháng
-        // ============================
-        [HttpGet]
-        public IActionResult GetAllLinhKien()
-        {
-            try
-            {
-                var data = _context.HangHoas
-                    .Where(x => !x.LoaiHang.Contains("Xe"))
-                    .OrderByDescending(x => x.ThoiGianTao)
-                    .Select(x => new
-                    {
-                        x.MaHang,
-                        x.TenHang,
-                        x.LoaiHang,
-                        x.GiaBan,
-                        x.GiaVon,
-                        x.TonKho,
-                        x.KhachDat,
-                        // SỬA: Dùng định dạng ISO 8601
                         ThoiGianTao = x.ThoiGianTao.ToString("yyyy-MM-ddTHH:mm:ss"),
                         x.DatNCC
                     })
@@ -122,126 +51,221 @@ namespace QuanLyKho.Controllers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Lỗi khi lấy dữ liệu linh kiện: {ex.Message}");
-                return StatusCode(500, new { success = false, message = "Lỗi server khi tải dữ liệu linh kiện." });
+                return StatusCode(500, new { success = false, message = "Lỗi server." });
             }
         }
 
         // ============================
-        // 3. THÊM MỚI HÀNG HÓA/LINH KIỆN (AJAX) - Giữ nguyên
+        // 1. LẤY DỮ LIỆU XE
+        // ============================
+        [HttpGet]
+        public IActionResult GetAllXe()
+        {
+            try
+            {
+                var data = _context.HangHoas
+                    .Where(x => x.LoaiHang != null && x.LoaiHang.Contains("Xe"))
+                    .OrderByDescending(x => x.ThoiGianTao)
+                    .Select(x => new
+                    {
+                        x.MaHang,
+                        x.TenHang,
+                        x.LoaiHang,
+                        x.GiaBan,
+                        x.GiaVon,
+                        x.TonKho,
+                        x.KhachDat,
+                        ThoiGianTao = x.ThoiGianTao.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        x.DatNCC
+                    })
+                    .ToList();
+
+                return Json(data);
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi server." });
+            }
+        }
+
+        // ============================
+        // 2. LẤY LINH KIỆN
+        // ============================
+        [HttpGet]
+        public IActionResult GetAllLinhKien()
+        {
+            try
+            {
+                var data = _context.HangHoas
+                    .Where(x => x.LoaiHang == null || !x.LoaiHang.Contains("Xe"))
+                    .OrderByDescending(x => x.ThoiGianTao)
+                    .Select(x => new
+                    {
+                        x.MaHang,
+                        x.TenHang,
+                        x.LoaiHang,
+                        x.GiaBan,
+                        x.GiaVon,
+                        x.TonKho,
+                        x.KhachDat,
+                        ThoiGianTao = x.ThoiGianTao.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        x.DatNCC
+                    })
+                    .ToList();
+
+                return Json(data);
+            }
+            catch
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi server." });
+            }
+        }
+
+        // ============================
+        // 3. TẠO MỚI HÀNG HÓA
         // ============================
         [HttpPost]
         public IActionResult Create([FromBody] HangHoa model)
         {
-            if (!ModelState.IsValid || string.IsNullOrEmpty(model.TenHang))
+            if (model == null)
                 return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
 
-            if (string.IsNullOrEmpty(model.MaHang))
+            if (string.IsNullOrWhiteSpace(model.TenHang))
+                return Json(new { success = false, message = "Tên hàng không được để trống." });
+
+            try
             {
-                bool isXe = model.LoaiHang.Contains("Xe");
-                string prefix = isXe ? "XD" : "LK";
-                
-                var lastItem = _context.HangHoas
-                    .Where(x => x.MaHang.StartsWith(prefix))
-                    .OrderByDescending(x => x.MaHang)
-                    .FirstOrDefault();
-
-                int lastNum = 0;
-                if (lastItem != null && lastItem.MaHang.Length > prefix.Length && int.TryParse(lastItem.MaHang.Substring(prefix.Length), out int num))
+                // Tự sinh mã
+                if (string.IsNullOrWhiteSpace(model.MaHang))
                 {
-                    lastNum = num;
-                }
-                
-                model.MaHang = prefix + (lastNum + 1).ToString("D3");
-            }
-            
-            model.ThoiGianTao = DateTime.Now;
-            _context.HangHoas.Add(model);
-            _context.SaveChanges();
+                    string prefix = (model.LoaiHang != null && model.LoaiHang.Contains("Xe")) ? "XD" : "LK";
 
-            return Json(new { success = true, maHang = model.MaHang });
+                    var last = _context.HangHoas
+                        .Where(x => x.MaHang.StartsWith(prefix))
+                        .OrderByDescending(x => x.MaHang)
+                        .FirstOrDefault();
+
+                    int lastNum = 0;
+                    if (last != null)
+                    {
+                        int.TryParse(last.MaHang.Substring(prefix.Length), out lastNum);
+                    }
+
+                    model.MaHang = prefix + (lastNum + 1).ToString("D3");
+                }
+
+                model.ThoiGianTao = DateTime.Now;
+
+                model.GiaBan = Math.Max(0, model.GiaBan);
+                model.GiaVon = Math.Max(0, model.GiaVon);
+                model.TonKho = Math.Max(0, model.TonKho);
+                model.KhachDat = Math.Max(0, model.KhachDat);
+
+                _context.HangHoas.Add(model);
+                _context.SaveChanges();
+
+                return Json(new { success = true, maHang = model.MaHang });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
+            }
         }
 
         // ============================
-        // 4. LẤY HÀNG HÓA THEO MÃ (AJAX) - Giữ nguyên
+        // 4. LẤY HÀNG THEO MÃ
         // ============================
         [HttpGet]
         public IActionResult GetById(string ma)
         {
-            var hh = _context.HangHoas.FirstOrDefault(x => x.MaHang == ma);
-            if (hh == null) return NotFound();
+            if (string.IsNullOrWhiteSpace(ma))
+                return BadRequest(new { success = false, message = "Mã không hợp lệ." });
+
+            var hh = _context.HangHoas
+                .Where(x => x.MaHang == ma)
+                .Select(x => new
+                {
+                    x.MaHang,
+                    x.TenHang,
+                    x.LoaiHang,
+                    x.GiaBan,
+                    x.GiaVon,
+                    x.TonKho,
+                    x.KhachDat,
+                    ThoiGianTao = x.ThoiGianTao.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    x.DatNCC
+                })
+                .FirstOrDefault();
+
+            if (hh == null)
+                return NotFound(new { success = false, message = "Không tìm thấy." });
+
             return Json(hh);
         }
 
         // ============================
-        // 5. CHỈNH SỬA HÀNG HÓA/LINH KIỆN (AJAX) - Giữ nguyên
+        // 5. EDIT AJAX
         // ============================
         [HttpPost]
         public IActionResult EditAjax([FromBody] HangHoa model)
         {
+            if (model == null || string.IsNullOrWhiteSpace(model.MaHang))
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+
             var hh = _context.HangHoas.FirstOrDefault(x => x.MaHang == model.MaHang);
-            if (hh == null) return NotFound();
-
-            hh.TenHang = model.TenHang;
-            hh.LoaiHang = model.LoaiHang;
-            hh.GiaBan = model.GiaBan;
-            hh.GiaVon = model.GiaVon;
-            hh.TonKho = model.TonKho;
-
-            _context.SaveChanges();
-            return Json(new { success = true });
-        }
-        
-        // ============================
-        // 6. XÓA HÀNG HÓA THEO MÃ (AJAX) - **CHỨC NĂNG MỚI** 🗑️
-        // ============================
-        [HttpPost] 
-        // Nhận MaHang từ JSON body thông qua DeleteRequestModel
-        public IActionResult DeleteAjax([FromBody] DeleteRequestModel model)
-        {
-            if (model == null || string.IsNullOrEmpty(model.MaHang))
-            {
-                return Json(new { success = false, message = "Mã hàng không hợp lệ." });
-            }
+            if (hh == null)
+                return NotFound(new { success = false, message = "Không tìm thấy hàng." });
 
             try
             {
-                string ma = model.MaHang;
-                // 1. Tìm hàng hóa trong DB
-                var hh = _context.HangHoas.FirstOrDefault(x => x.MaHang == ma);
-                
-                // 2. Kiểm tra nếu không tìm thấy
-                if (hh == null) 
-                    return NotFound(new { success = false, message = $"Không tìm thấy hàng hóa có mã {ma}." });
+                hh.TenHang = model.TenHang;
+                hh.LoaiHang = model.LoaiHang;
+                hh.GiaBan = model.GiaBan;
+                hh.GiaVon = model.GiaVon;
+                hh.TonKho = model.TonKho;
+                hh.KhachDat = model.KhachDat;
+                hh.DatNCC = model.DatNCC;
 
-                // 3. Xóa khỏi DBContext và lưu thay đổi
-                _context.HangHoas.Remove(hh);
                 _context.SaveChanges();
-                
-                // 4. Trả về kết quả thành công
-                return Json(new { success = true, message = $"Đã xóa hàng hóa có mã {ma} thành công." });
+                return Json(new { success = true });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Lỗi khi xóa hàng hóa {model.MaHang}: {ex.Message}");
-                return StatusCode(500, new { success = false, message = "Lỗi server khi xóa dữ liệu: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
             }
         }
 
         // ============================
-        // Các Action View - Giữ nguyên
+        // 6. DELETE AJAX
         // ============================
-        public ActionResult DanhSach()
+        [HttpPost]
+        public IActionResult DeleteAjax([FromBody] DeleteRequestModel model)
         {
-            return View();
+            if (model == null || string.IsNullOrWhiteSpace(model.MaHang))
+                return Json(new { success = false, message = "Mã không hợp lệ." });
+
+            try
+            {
+                var hh = _context.HangHoas.FirstOrDefault(x => x.MaHang == model.MaHang);
+                if (hh == null)
+                    return NotFound(new { success = false, message = "Không tìm thấy hàng." });
+
+                _context.HangHoas.Remove(hh);
+                _context.SaveChanges();
+
+                return Json(new { success = true, message = "Đã xóa." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
+            }
         }
-        public IActionResult QuanLyXe()
-        {
-            return View();
-        }
-        public ActionResult QuanLyLinhKien()
-        {
-            return View();
-        }
+
+        // ============================
+        // VIEW
+        // ============================
+        public IActionResult DanhSach() => View();
+        public IActionResult QuanLyXe() => View();
+        public IActionResult QuanLyLinhKien() => View();
     }
 }

@@ -1,448 +1,517 @@
 @model IEnumerable<QuanLyKho.Models.PhieuNhap>?
 @{
-    // FIX CS8600: Sử dụng 'as List<...>' và '?? new List<...>()' để xử lý an toàn
-    var suppliers = ViewData["Suppliers"] as List<QuanLyKho.Models.NCC> ?? new List<QuanLyKho.Models.NCC>();
-    ViewBag.Title = "Lịch sử nhập của nhà cung cấp"; 
-    Layout = "/Views/Shared/_Layout.cshtml";
+    // FIX: Sử dụng 'as List<...>' và '?? new List<...>()' để xử lý an toàn
+    var suppliers = ViewData["Suppliers"] as List<QuanLyKho.Models.NCC> ?? new List<QuanLyKho.Models.NCC>();
+    ViewBag.Title = "Lịch sử nhập của nhà cung cấp";
+    Layout = "/Views/Shared/_Layout.cshtml";
 }
 
 @functions {
-    // FIX LỖI CS1503: Đã cập nhật để chấp nhận decimal? và xử lý null an toàn.
-    string FormatCurrency(decimal? value) 
-    {
-        // Sử dụng 0m (decimal zero) nếu value là null để tránh lỗi chuyển đổi
-        var safeValue = value ?? 0m; 
-        // Sử dụng định dạng số (N0) cho format tiền tệ Việt Nam (VND)
-        return $"{safeValue.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))} ₫";
-    }
+    // FIX LỖI CS1503: Đã cập nhật để chấp nhận decimal? và xử lý null an toàn.
+    string FormatCurrency(decimal? value)
+    {
+        // Sử dụng 0m (decimal zero) nếu value là null
+        var safeValue = value ?? 0m; 
+        // Sử dụng định dạng số (N0) cho format tiền tệ Việt Nam (VND)
+        return $"{safeValue.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))} ₫";
+    }
 }
 
-{{/* THAY THẾ */}}
-{{/* ĐÃ GỠ BỎ TẤT CẢ CÁC THẺ <link> VÀ <script> PHỤ TRỢ (CHỈ GIỮ LẠI ĐỂ SỬA GIAO DIỆN) */}}
-{{/* ĐÃ GỠ BỎ TẤT CẢ PHẦN <style> TÙY CHỈNH DÀI DÒNG */}}
-{{/* CÁC THƯ VIỆN ĐÃ ĐƯỢC CHUYỂN VỀ LAYOUT CHUNG HOẶC CẦN PHẢI THÊM LẠI TẠI ĐÂY */}}
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-/* Thêm CSS cơ bản cho badge trạng thái để hoạt động với Bootstrap 4 */
-.badge-status {
-    border-radius: 4px;
-    padding: 5px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
-    min-width: 80px;
-}
-.badge-completed { background-color: #e6f4ea; color: #2e7d32; }
-.badge-canceled { background-color: #fdecea; color: #b71c1c; }
-.badge-pending { background-color: #fff8e1; color: #9c6800; }
 
-/* Thêm style cho nút lọc trạng thái */
-.filter-btn-group button {
-    font-size: 13px;
-    border-radius: 4px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    color: #555;
-    font-weight: 500;
-    transition: none;
-    margin-right: 5px;
-    margin-bottom: 5px;
-}
-.filter-btn-group button.btn-active {
-    background-color: #28a745; 
-    color: #fff;
-    border-color: #28a745;
-}
-</style>
-
-<div class="app-header">
-    <h4 class="m-0 font-weight-bold"><i class="fas fa-history mr-2"></i> Lịch sử nhập của nhà cung cấp</h4>
-    <div class="btn-header-group d-flex d-md-none">
-        <button class="btn btn-white-green-text" id="exportBtn_mobile">
-            <i class="fas fa-download"></i>
-        </button>
-        <button class="btn btn-white-green-text" type="button" data-toggle="collapse" data-target="#filterCollapseContent" aria-expanded="false" aria-controls="filterCollapseContent">
-            <i class="fas fa-filter"></i> 
-        </button>
-    </div>
-</div>
-
-<section class="content">
-    <div class="container-fluid pt-3">
-        <div class="row">
-            
-            {{/* Bộ lọc (Sidebar - Sử dụng cấu trúc từ TraCuu.cshtml) */}}
-            <div class="col-12 col-md-3 mb-3 collapse d-md-block" id="filterCollapseContent">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body">
-                        <h5 class="font-weight-bold mb-3 text-dark">Bộ lọc lịch sử nhập hàng</h5>
-                        
-                        {{/* Nhà cung cấp */}}
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold text-dark">Nhà cung cấp</label>
-                            <select id="supplierFilter" class="form-control form-control-sm">
-                                <option value="">Tất cả nhà cung cấp</option>
-                                @if (suppliers.Any())
-                                {
-                                    foreach (var supplier in suppliers.DistinctBy(s => s.TenNCC))
-                                    {
-                                        <option value="@supplier.TenNCC">@supplier.TenNCC</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-
-                        {{/* Thời gian */}}
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold text-dark">Thời gian</label>
-                            <select id="timeRangeFilter" class="form-control form-control-sm mb-2">
-                                <option value="all">Toàn thời gian</option>
-                                <option value="today">Hôm nay</option>
-                                <option value="last7days">7 ngày qua</option>
-                                <option value="thisMonth">Tháng này</option>
-                                <option value="custom">Tùy chỉnh</option>
-                            </select>
-                            <div class="d-flex gap-2" id="customDateRange">
-                                <input type="date" id="dateStart" class="form-control form-control-sm" disabled placeholder="dd/mm/yyyy">
-                                <input type="date" id="dateEnd" class="form-control form-control-sm" disabled placeholder="dd/mm/yyyy">
-                            </div>
-                        </div>
-                        
-                        {{/* Trạng thái */}}
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold text-dark">Trạng thái</label>
-                            <div class="filter-btn-group d-flex flex-wrap">
-                                <button type="button" class="btn btn-sm statusFilter btn-active" data-val="">Tất cả</button>
-                                <button type="button" class="btn btn-sm statusFilter" data-val="Hoàn thành">Hoàn thành</button>
-                                <button type="button" class="btn btn-sm statusFilter" data-val="Đã hủy">Đã hủy</button>
-                                <button type="button" class="btn btn-sm statusFilter" data-val="Đang xử lý">Đang xử lý</button>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-success btn-block font-weight-bold mt-3" id="applyFilter">
-                            <i class="fas fa-filter"></i> Áp dụng bộ lọc
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {{/* Bảng dữ liệu */}}
-            <div class="col-12 col-md-9">
-                <div class="d-flex align-items-center mb-3">
-                    {{/* Thanh tìm kiếm */}}
-                    <div class="input-group flex-grow-1 mr-2">
-                        <input type="text" id="globalSearchBox" class="form-control" placeholder="Tìm theo mã phiếu, nhà cung cấp..." />
-                        <div class="input-group-append">
-                            <button class="btn btn-success" id="searchBtn"><i class="fas fa-search"></i></button>
-                        </div>
-                    </div>
-
-                    {{/* Nút mở bộ lọc cho mobile */}}
-                    <button class="btn btn-outline-secondary d-md-none" type="button" data-toggle="collapse" data-target="#filterCollapseContent" aria-expanded="false" aria-controls="filterCollapseContent">
-                        <i class="fas fa-filter"></i> 
-                    </button>
-
-                    {{/* Nút chức năng cho desktop */}}
-                    <div class="ml-auto d-none d-md-flex">
-                        <button class="btn btn-success font-weight-bold mr-2" id="exportBtn">
-                            <i class="fas fa-download"></i> Xuất file
-                        </button>
-                        <button class="btn btn-outline-secondary">
-                            <i class="fas fa-cog"></i> Cài đặt
-                        </button>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm border-0">
-                    <div class="card-header font-weight-bold bg-success text-white">
-                        Lịch sử nhập hàng
-                    </div>
-                    <div class="card-body p-0 table-responsive">
-                        <table id="importHistoryTable" class="table table-hover align-middle mb-0 text-center" style="width:100%"> 
-                            <thead class="bg-success text-white">
-                                <tr>
-                                    <th>Mã phiếu</th>
-                                    <th>Ngày nhập</th> 
-                                    <th>Nhà cung cấp</th>
-                                    <th>Nhân viên xử lý</th>
-                                    <th>Tổng giá trị nhập</th> 
-                                    <th>Trạng thái</th> 
-                                    <th>Ghi chú</th> 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model != null)
-                                {
-                                    foreach (var item in Model)
-                                    {
-                                        <tr>
-                                            <td>@item.MaPN</td> 
-                                            <td>@(item.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A")</td> 
-                                            <td>@(item.NhaCungCap?.TenNCC ?? "N/A")</td> 
-                                            <td>@(item.NhanVien?.TenNV ?? "N/A")</td> 
-                                            <td>@FormatCurrency(item.TongGiaTri)</td> 
-                                            
-                                            <td>
-                                                @{
-                                                    var statusText = "Hoàn thành";
-                                                    var statusClass = "badge-completed";
-                                                    if (item.GhiChu?.Contains("Hủy", StringComparison.OrdinalIgnoreCase) == true)
-                                                    {
-                                                        statusText = "Đã hủy";
-                                                        statusClass = "badge-canceled";
-                                                    }
-                                                    else if (item.GhiChu?.Contains("Đang", StringComparison.OrdinalIgnoreCase) == true || item.GhiChu?.Contains("Chờ", StringComparison.OrdinalIgnoreCase) == true)
-                                                    {
-                                                        statusText = "Đang xử lý";
-                                                        statusClass = "badge-pending";
-                                                    }
-                                                }
-                                                <span class="badge-status @statusClass">@statusText</span>
-                                            </td>
-                                            <td>@item.GhiChu</td> 
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {{/* Thông tin Datatables */}}
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <div class="dataTables_info" id="importHistoryTable_info" role="status" aria-live="polite"></div> 
-                        <div class="dataTables_paginate paging_simple_numbers" id="importHistoryTable_paginate"></div> 
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-@section Scripts { 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-{{/* Cần thêm script của Bootstrap để Collapse hoạt động */}}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<style>
+    /* ----------------------------------------------------- */
+    /* KIOTVIET-STYLE CSS & CUSTOM BOOTSTRAP (ĐỒNG BỘ) */
+    /* (GIỮ NGUYÊN CSS) */
+    /* ----------------------------------------------------- */
+
+    body {
+        background-color: #f5f7fa;
+    }
+
+    /* ====== SIDEBAR LỌC ====== */
+    .filter-sidebar {
+        background-color: #fff;
+        border-right: 1px solid #eee;
+        padding: 16px;
+        min-width: 280px;
+        max-width: 280px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .filter-sidebar h5 {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #444;
+        font-size: 1.15rem;
+    }
+
+    .filter-sidebar h6 {
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 18px;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .filter-sidebar input,
+    .filter-sidebar select,
+    .form-control-sm,
+    .form-select-sm {
+        font-size: 14px !important;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    #customDateRange input {
+        position: relative;
+        z-index: 1051; 
+    }
+
+    /* Nút lọc Trạng thái */
+    .filter-btn-group button {
+        font-size: 13px;
+        border-radius: 4px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        color: #555;
+        font-weight: 500;
+        transition: none;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
+    .filter-btn-group button.btn-active {
+        background-color: #28a745; 
+        color: #fff;
+        border-color: #28a745;
+    }
+
+    /* ====== MAIN CONTENT ====== */
+    .main-content {
+        flex: 1;
+        padding: 20px;
+        max-width: calc(100% - 280px);
+    }
+
+    .top-bar {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-bar input {
+        width: 350px;
+        max-width: 100%;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+    }
+    
+    .action-buttons button {
+        font-size: 14px;
+        border-radius: 4px;
+        padding: 8px 15px;
+        font-weight: 500;
+        background-color: #fff;
+        color: #555;
+        border: 1px solid #ddd;
+    }
+
+    #exportBtn {
+        background-color: #28a745;
+        color: #fff;
+        border-color: #28a745;
+    }
+
+    /* DATATABLES & TABLE STYLE */
+    .dataTables_wrapper { padding-top: 5px; }
+    .dataTables_info {
+        font-size: 13px;
+        padding-top: 10px !important;
+        display: inline-block;
+    }
+    .dataTables_paginate {
+        float: right;
+        padding-top: 10px !important;
+    }
+    .dataTables_paginate .paginate_button {
+        padding: 4px 8px !important; 
+        border-radius: 4px !important;
+        margin: 2px !important;
+        border: 1px solid #ddd !important;
+        color: #333 !important; 
+        background: #fff !important; 
+        font-size: 13px; 
+    }
+    .dataTables_paginate .paginate_button:hover {
+        background: #f1f1f1 !important;
+    }
+    .dataTables_paginate .paginate_button.current {
+        background: #28a745 !important; 
+        color: white !important;
+        border-color: #28a745 !important;
+    }
+
+
+    .table thead th {
+        background-color: #f1f1f1;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #e6f8e5;
+    }
+
+    /* Thêm cột trạng thái vào bảng */
+    .badge-status {
+        border-radius: 4px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+        min-width: 80px;
+    }
+
+    .badge-completed {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+    }
+
+    .badge-canceled {
+        background-color: #fdecea;
+        color: #b71c1c;
+    }
+
+    .badge-pending {
+        background-color: #fff8e1;
+        color: #9c6800;
+    }
+    
+    @@media (max-width: 992px) {
+        .filter-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1050;
+        }
+        .filter-sidebar.show {
+            transform: translateX(0);
+        }
+        .main-content {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="d-flex" style="min-height: 90vh;">
+    <div class="filter-sidebar" id="filterSidebar">
+        <button id="closeSidebar" class="btn btn-sm btn-outline-secondary d-lg-none float-end" style="margin-top: -10px;"><i class="fa fa-times"></i></button>
+
+        <h5>Lịch sử nhập hàng</h5> 
+        <h6>Nhà cung cấp</h6>
+        <select id="supplierFilter" class="form-select form-select-sm mb-2">
+            <option value="">Tất cả nhà cung cấp</option>
+            @if (suppliers.Any())
+            {
+                // Đổ dữ liệu từ Database vào bộ lọc
+                foreach (var supplier in suppliers.DistinctBy(s => s.TenNCC))
+                {
+                    <option value="@supplier.TenNCC">@supplier.TenNCC</option>
+                }
+            }
+        </select>
+
+        <h6>Thời gian</h6>
+        <select id="timeRangeFilter" class="form-select form-select-sm mb-2">
+            <option value="all">Toàn thời gian</option>
+            <option value="today">Hôm nay</option>
+            <option value="last7days">7 ngày qua</option>
+            <option value="thisMonth">Tháng này</option>
+            <option value="custom">Tùy chỉnh</option>
+        </select>
+        <div class="d-flex gap-2" id="customDateRange">
+            <input type="date" id="dateStart" class="form-control form-control-sm" disabled>
+            <input type="date" id="dateEnd" class="form-control form-control-sm" disabled>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <button id="openSidebar" class="btn btn-success d-lg-none me-3" style="padding: 8px 12px;"><i class="fa fa-filter"></i> Bộ lọc</button>
+
+            <div class="search-bar d-flex gap-2">
+                <input type="text" id="globalSearchBox" class="form-control shadow-sm" placeholder="🔍 Theo mã phiếu, nhà cung cấp...">
+            </div>
+
+            <div class="d-flex gap-2 action-buttons">
+                <button class="btn" id="exportBtn"><i class="fa fa-file-export"></i> nhập file</button>
+            </div>
+        </div>
+
+        <table id="exportHistoryTable" class="table table-hover border rounded-3 shadow-sm bg-white" style="width:100%">
+            <thead>
+                <tr class="text-center">
+                    <th>Mã phiếu</th>
+                    <th>Ngày nhập</th>
+                    <th>Nhà cung cấp</th>
+                    <th>Nhân viên xử lý</th>
+                    <th>Tổng giá trị nhập</th>
+                    <th>Trạng thái</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.MaPN</td>
+                            <td>@(item.NgayNhap?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                            <td>@(item.NhaCungCap?.TenNCC ?? "N/A")</td> 
+                            <td>@(item.NhanVien?.TenNV ?? "N/A")</td> 
+                            @* **ĐÃ SỬA LỖI:** Gọi FormatCurrency với decimal? *@
+                            <td>@FormatCurrency(item.TongGiaTri)</td> 
+                            <td>
+                                @{
+                                    // Logic giả định trạng thái dựa trên Ghi chú (Bạn nên thay bằng thuộc tính Trạng Thái thực tế của PhieuNhap)
+                                    var statusText = "Hoàn thành";
+                                    var statusClass = "badge-completed";
+
+                                    if (item.GhiChu?.Contains("Hủy", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        statusText = "Đã hủy";
+                                        statusClass = "badge-canceled";
+                                    }
+                                    else if (item.GhiChu?.Contains("Đang", StringComparison.OrdinalIgnoreCase) == true || item.GhiChu?.Contains("Chờ", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        statusText = "Đang xử lý";
+                                        statusClass = "badge-pending";
+                                    }
+                                }
+                                <span class="badge-status @statusClass">@statusText</span>
+                            </td>
+                            <td>@item.GhiChu</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+             <div class="dataTables_info" id="exportHistoryTable_info" role="status" aria-live="polite"></div>
+             <div class="dataTables_paginate paging_simple_numbers" id="exportHistoryTable_paginate"></div>
+        </div>
+    </div>
+</div>
 
 <script>
-    var table;
-    
-    // CÁC CHỈ SỐ CỘT ĐÃ ĐƯỢC CẬP NHẬT ĐỂ PHẢN ÁNH 7 CỘT (0 đến 6)
-    const SUPPLIER_COLUMN_INDEX = 2; 
-    const DATE_COLUMN_INDEX = 1;    
-    const VALUE_COLUMN_INDEX = 4;    
-    const STATUS_COLUMN_INDEX = 5; 
-    const GHI_CHU_COLUMN_INDEX = 6; 
+    /* ----------------------------------------------------- */
+    /* JAVASCRIPT LOGIC VÀ DATATABLES (GIỮ NGUYÊN) */
+    /* ----------------------------------------------------- */
 
-    /**
-     * Chuyển đổi chuỗi ngày tháng (dd/mm/yyyy) trong bảng thành đối tượng Date (chỉ ngày, reset giờ).
-     */
-    function parseTableDate(dateString) {
-        if (!dateString || dateString === 'N/A') return null;
-        const parts = dateString.split('/');
-        if (parts.length === 3) {
-            // new Date(yyyy, mm-1, dd)
-            const date = new Date(parts[2], parts[1] - 1, parts[0]); 
-            date.setHours(0, 0, 0, 0); 
-            return date;
-        }
-        return null;
-    }
+    var table;
+    
+    // CÁC CHỈ SỐ CỘT (7 cột: 0 đến 6)
+    const SUPPLIER_COLUMN_INDEX = 2; 
+    const DATE_COLUMN_INDEX = 1;    
+    const VALUE_COLUMN_INDEX = 4;    
+    const STATUS_COLUMN_INDEX = 5; 
+    const GHI_CHU_COLUMN_INDEX = 6; 
 
-    /**
-     * Chuyển đổi chuỗi ngày tháng từ input type="date" (yyyy-mm-dd) thành đối tượng Date (chỉ ngày, reset giờ).
-     */
-    function parseInputDate(dateString) {
-        if (!dateString) return null;
-        const date = new Date(dateString);
-        date.setHours(0, 0, 0, 0); 
-        return date;
-    }
+    /**
+     * Chuyển đổi chuỗi ngày tháng (dd/mm/yyyy) trong bảng thành đối tượng Date (chỉ ngày, reset giờ).
+     */
+    function parseTableDate(dateString) {
+        if (!dateString) return null;
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+            // new Date(yyyy, mm-1, dd)
+            const date = new Date(parts[2], parts[1] - 1, parts[0]); 
+            date.setHours(0, 0, 0, 0); 
+            return date;
+        }
+        return null;
+    }
 
-    $(document).ready(function () {
-        
-        /* --- DATATABLES INITIALIZATION --- */
-        table = $('#importHistoryTable').DataTable({ 
-            dom: 'rtip', 
-            pagingType: 'simple_numbers',
-            order: [[DATE_COLUMN_INDEX, 'desc']], 
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    title: 'LichSuNhapHang', 
-                    // CẬP NHẬT EXPORT cho 7 cột (0 đến 6)
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] } 
-                }
-            ],
-            // CẬP NHẬT 7 NULL cho 7 cột [0, 1, 2, 3, 4, 5, 6]
-            "aoColumns": [null, null, null, null, null, null, null], 
-            language: {
-                "info": "Hiển thị _START_ đến _END_ trong _TOTAL_ mục",
-                "infoEmpty": "Hiển thị 0 đến 0 trong 0 mục",
-                "infoFiltered": "(Đã lọc từ _MAX_ mục)",
-                "lengthMenu": "Hiển thị _MENU_ mục",
-                "loadingRecords": "Đang tải...",
-                "processing": "Đang xử lý...",
-                "search": "Tìm kiếm:",
-                "zeroRecords": "Không tìm thấy kết quả phù hợp",
-                "paginate": {
-                    "first": "Đầu",
-                    "last": "Cuối",
-                    "next": "Sau",
-                    "previous": "Trước"
-                }
-            },
-            columnDefs: [
-                { 
-                    targets: VALUE_COLUMN_INDEX, // Cột Tổng giá trị (Index 4)
-                    render: function (data, type, row) {
-                        // Cập nhật Regex để loại bỏ ký tự tiền tệ và dấu phân cách hàng nghìn (.), giữ lại dấu phân cách thập phân (,) nếu có.
-                        const num = parseFloat(data.toString().replace(/[^0-9,-]+/g, '').replace(/\./g, '').replace(/,/g, '.')) || 0;
-                        if (type === 'display' || type === 'filter') {
-                            // Sử dụng `row` để lấy giá trị đã được FormatCurrency (có ₫)
-                            return num < 0 ? `<span style="color:#dc3545;">${row[VALUE_COLUMN_INDEX]}</span>` : row[VALUE_COLUMN_INDEX];
-                        }
-                        return num;
-                    }
-                },
-                // BỔ SUNG: Định nghĩa cho cột Trạng thái (Index 5)
-                {
-                    targets: STATUS_COLUMN_INDEX, 
-                    render: function (data, type, row) {
-                        if (type === 'filter' || type === 'sort') {
-                            // Lọc/Sắp xếp theo nội dung text bên trong badge (ví dụ: 'Hoàn thành')
-                            return $(data).text(); 
-                        }
-                        return data; // Giữ nguyên HTML cho hiển thị
-                    }
-                }
-            ]
-        });
+    /**
+     * Chuyển đổi chuỗi ngày tháng từ input type="date" (yyyy-mm-dd) thành đối tượng Date (chỉ ngày, reset giờ).
+     */
+    function parseInputDate(dateString) {
+        if (!dateString) return null;
+        const date = new Date(dateString);
+        date.setHours(0, 0, 0, 0); 
+        return date;
+    }
 
-        /* --- CUSTOM DATATABLES FILTER LOGIC (GIỮ NGUYÊN) --- */
-        $.fn.dataTable.ext.search.push(
-            function (settings, data, dataIndex) {
-                // Đảm bảo chỉ áp dụng cho bảng này
-                if (settings.nTable.id !== 'importHistoryTable') { 
-                    return true;
-                }
-                
-                // --- LỌC 1: NHÀ CUNG CẤP (Cột 2) ---
-                const selectedSupplier = $('#supplierFilter').val();
-                if (selectedSupplier && selectedSupplier !== data[SUPPLIER_COLUMN_INDEX]) {
-                    return false;
-                }
-
-                // --- LỌC 2: THỜI GIAN (Cột 1: Ngày nhập) ---
-                const dateString = data[DATE_COLUMN_INDEX];
-                const rowDate = parseTableDate(dateString); 
-
-                const timeRange = $('#timeRangeFilter').val();
-                let filterPass = true;
-                
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); 
-                
-                if (timeRange === 'today') {
-                    if (!rowDate || rowDate.getTime() !== today.getTime()) filterPass = false;
-                } else if (timeRange === 'last7days') {
-                    const sevenDaysAgo = new Date(today);
-                    sevenDaysAgo.setDate(today.getDate() - 7); 
-                    if (!rowDate || rowDate < sevenDaysAgo) filterPass = false;
-                } else if (timeRange === 'thisMonth') {
-                    if (!rowDate || rowDate.getMonth() !== today.getMonth() || rowDate.getFullYear() !== today.getFullYear()) filterPass = false;
-                } else if (timeRange === 'custom') {
-                    const dateStartStr = $('#dateStart').val(); 
-                    const dateEndStr = $('#dateEnd').val(); 
-                    
-                    const startDate = parseInputDate(dateStartStr);
-                    const endDate = parseInputDate(dateEndStr);
-
-                    if (startDate && rowDate) {
-                        if (rowDate < startDate) filterPass = false;
-                    }
-                    if (endDate && rowDate) {
-                        const endOfDay = new Date(endDate);
-                        endOfDay.setDate(endDate.getDate() + 1); 
-                        if (rowDate >= endOfDay) filterPass = false;
-                    }
-                }
-                
-                if (!filterPass) return false;
-                
-                return true;
-            }
-        );
-
-        /* --- EVENT HANDLERS --- */
-
-        // Sự kiện click nút Áp dụng bộ lọc (đặc biệt cho mobile)
-        $('#applyFilter').on('click', function() {
-            table.draw();
-            // Ẩn bộ lọc trên mobile sau khi áp dụng (tương tự TraCuu.cshtml)
-            if ($(window).width() < 768) {
-                $('#filterCollapseContent').collapse('hide');
-            }
-        });
+    $(document).ready(function () {
         
-        // Sự kiện click nút tìm kiếm (thay cho keyup trên input)
-        $('#searchBtn').on('click', function() {
-            table.search($('#globalSearchBox').val()).draw();
+        /* --- DATATABLES INITIALIZATION --- */
+        table = $('#exportHistoryTable').DataTable({ 
+            dom: 'rtip', 
+            pagingType: 'simple_numbers',
+            order: [[DATE_COLUMN_INDEX, 'desc']], 
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: 'LichSuNhapHang', 
+                    // CẬP NHẬT SỐ LƯỢNG CỘT CHO EXPORT (7 cột: 0 đến 6)
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] } 
+                }
+            ],
+            // CẬP NHẬT 7 NULL cho 7 cột 
+            "aoColumns": [null, null, null, null, null, null, null], 
+            columnDefs: [
+                { 
+                    targets: VALUE_COLUMN_INDEX, // Cột Tổng giá trị (Index 4)
+                    render: function (data, type, row) {
+                        // Loại bỏ ký tự tiền tệ và dấu chấm/phẩy format để chuyển thành số
+                        const num = parseFloat(data.toString().replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(/,/g, '.')) || 0;
+                        
+                        if (type === 'display' || type === 'filter') {
+                            // Format lại cho hiển thị
+                            const formatted = new Intl.NumberFormat('vi-VN').format(num) + ' ₫';
+                            return num < 0 ? `<span style="color:#dc3545;">${formatted}</span>` : formatted;
+                        }
+                        return num; // Trả về số cho sắp xếp
+                    }
+                },
+                {
+                    targets: STATUS_COLUMN_INDEX, // Cột Trạng thái (Index 5)
+                    render: function (data, type, row) {
+                        if (type === 'filter' || type === 'sort') {
+                            // Lọc/Sắp xếp theo nội dung text bên trong badge 
+                            return $(data).text(); 
+                        }
+                        return data; // Giữ nguyên HTML cho hiển thị
+                    }
+                }
+            ]
         });
 
-        $('#supplierFilter').on('change', function () {
-            table.draw();
-        });
+        /* --- CUSTOM DATATABLES FILTER LOGIC (GIỮ NGUYÊN) --- */
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                // Đảm bảo chỉ áp dụng cho bảng này
+                if (settings.nTable.id !== 'exportHistoryTable') { 
+                    return true;
+                }
+                
+                // --- LỌC 1: NHÀ CUNG CẤP (Cột 2) ---
+                const selectedSupplier = $('#supplierFilter').val();
+                if (selectedSupplier && selectedSupplier !== data[SUPPLIER_COLUMN_INDEX]) {
+                    return false;
+                }
 
-        $('#timeRangeFilter').on('change', function () {
-            const range = $(this).val();
-            if (range === 'custom') {
-                $('#dateStart, #dateEnd').prop('disabled', false).removeClass('d-none');
-                $('#customDateRange').removeClass('d-none').addClass('d-flex'); // Hiện input date
-            } else {
-                $('#dateStart, #dateEnd').prop('disabled', true).val('');
-                $('#customDateRange').removeClass('d-flex').addClass('d-none'); // Ẩn input date
-            }
-            table.draw();
-        });
-        
-        $('#dateStart, #dateEnd').on('change', function() {
-            table.draw();
-        });
+                // --- LỌC 2: THỜI GIAN (Cột 1) ---
+                const dateString = data[DATE_COLUMN_INDEX];
+                const rowDate = parseTableDate(dateString); 
 
-        // Khởi tạo ban đầu: Ẩn CustomDateRange nếu không phải 'custom'
-        if ($('#timeRangeFilter').val() !== 'custom') {
-            $('#customDateRange').removeClass('d-flex').addClass('d-none');
-        }
+                const timeRange = $('#timeRangeFilter').val();
+                let filterPass = true;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); 
+                
+                if (timeRange === 'today') {
+                    if (!rowDate || rowDate.getTime() !== today.getTime()) filterPass = false;
+                } else if (timeRange === 'last7days') {
+                    const sevenDaysAgo = new Date(today);
+                    sevenDaysAgo.setDate(today.getDate() - 7); 
+                    if (!rowDate || rowDate < sevenDaysAgo) filterPass = false;
+                } else if (timeRange === 'thisMonth') {
+                    if (!rowDate || rowDate.getMonth() !== today.getMonth() || rowDate.getFullYear() !== today.getFullYear()) filterPass = false;
+                } else if (timeRange === 'custom') {
+                    const dateStartStr = $('#dateStart').val(); 
+                    const dateEndStr = $('#dateEnd').val(); 
+                    
+                    const startDate = parseInputDate(dateStartStr);
+                    const endDate = parseInputDate(dateEndStr);
 
-        // Logic lọc cột Trạng thái (Cột 5)
-        $('.statusFilter').on('click', function () {
-            const status = $(this).data('val');
-            $('.statusFilter').removeClass('btn-active');
-            $(this).addClass('btn-active');
-            
-            // Lọc cột Trạng thái (Index 5)
-            table.column(STATUS_COLUMN_INDEX).search(status ? status : '', true, false).draw();
-        });
+                    if (startDate && rowDate) {
+                        if (rowDate < startDate) filterPass = false;
+                    }
+                    if (endDate && rowDate) {
+                        const endOfDay = new Date(endDate);
+                        endOfDay.setDate(endDate.getDate() + 1); 
+                        if (rowDate >= endOfDay) filterPass = false;
+                    }
+                }
+                
+                if (!filterPass) return false;
+                
+                return true;
+            }
+        );
 
-        // Trigger Export (Desktop)
-        $('#exportBtn').on('click', function () {
-            table.button(0).trigger();
-        });
-        // Trigger Export (Mobile)
-        $('#exportBtn_mobile').on('click', function () {
-            table.button(0).trigger();
-        });
+        /* --- EVENT HANDLERS --- */
+        $('#globalSearchBox').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+
+        $('#supplierFilter').on('change', function () {
+            table.draw();
+        });
+
+        $('#timeRangeFilter').on('change', function () {
+            const range = $(this).val();
+            if (range === 'custom') {
+                $('#dateStart, #dateEnd').prop('disabled', false).val('');
+            } else {
+                $('#dateStart, #dateEnd').prop('disabled', true).val('');
+            }
+            table.draw();
+        });
         
-        // Thay thế logic open/close sidebar bằng Bootstrap Collapse (tương tự TraCuu.cshtml)
-        // Dùng `data-toggle="collapse"` trên nút
-    });
+        $('#dateStart, #dateEnd').on('change', function() {
+            table.draw();
+        });
+        
+        // Logic lọc cột Trạng thái (Cột 5)
+        $('.statusFilter').on('click', function () {
+            const status = $(this).data('val');
+            $('.statusFilter').removeClass('btn-active');
+            $(this).addClass('btn-active');
+            
+            // Lọc cột Trạng thái (Index 5) theo nội dung text.
+            table.column(STATUS_COLUMN_INDEX).search(status ? status : '', true, false).draw();
+        });
+
+        $('#exportBtn').on('click', function () {
+            table.button(0).trigger();
+        });
+        
+        // Mobile sidebar control
+        $('#openSidebar').on('click', function() {
+            $('#filterSidebar').addClass('show');
+        });
+        $('#closeSidebar').on('click', function() {
+            $('#filterSidebar').removeClass('show');
+        });
+    });
 </script>
-}

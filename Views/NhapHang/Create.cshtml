@@ -3,7 +3,8 @@
 @model QuanLyKho.Models.PhieuNhapCreateModel
 @{
     ViewBag.Title = "Thêm phiếu nhập hàng";
-    Layout = "~/Views/Shared/_Layout.cshtml";}
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
 <style>
     .bg-ebike { background: #28a745 !important; color: white; }
@@ -28,6 +29,14 @@
     /* Style cho danh sách xem trước */
     .table-preview th { font-size: 0.9rem; }
     .table-preview td { font-size: 0.9rem; vertical-align: middle; }
+    
+    /* Select2 custom styles for better visibility */
+    .select2-container--bootstrap-5 .select2-selection {
+        height: 38px;
+        font-size: 0.95rem;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
 </style>
 
 <div class="content-header">
@@ -52,7 +61,7 @@
                 
                 <div class="card shadow-sm mb-3">
                     <div class="card-body">
-                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-info-circle me-2 text-ebike"></i> Thông tin phiếu nhập</h5>
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-info-circle me-2 text-ebike"></i> Thông tin Phiếu Nhập</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="form-label small text-muted fw-bold text-uppercase">Chọn Nhà Cung Cấp</label>
@@ -71,14 +80,14 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label small text-muted fw-bold text-uppercase">Ngày nhập</label>
+                                    <label class="form-label small text-muted fw-bold text-uppercase">Ngày Nhập</label>
                                     <input type="date" class="form-control fw-bold" id="txtNgayNhap" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
                                 </div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted fw-bold text-uppercase">Ghi chú</label>
-                            <input type="text" class="form-control" id="txtGhiChu" placeholder="Ghi chú phiếu nhập...">
+                            <input type="text" class="form-control" id="txtGhiChu" placeholder="Ghi chú Phiếu nhập...">
                         </div>
                     </div>
                 </div>
@@ -90,7 +99,7 @@
                     <div class="card-body input-card">
                         <div class="row g-2">
                             <div class="col-md-12 mb-2">
-                                <label class="form-label small text-muted fw-bold">1. Chọn hàng hóa / Nhập mã mới <span class="text-danger">*</span></label>
+                                <label class="form-label small text-muted fw-bold">1. Chọn hàng hóa / nhập mã mới <span class="text-danger">*</span></label>
                                 <select class="form-select" id="slHangHoaSelect2"></select>
                             </div>
 
@@ -137,7 +146,7 @@
                     </div>
                     <div class="card-footer bg-white">
                         <button class="btn btn-outline-danger btn-sm" id="btnRemoveAll">
-                             Xóa tất cả
+                            Xóa tất cả
                         </button>
                     </div>
                 </div>
@@ -187,114 +196,163 @@
 
     <script>
         let cartProducts = []; 
-        let currentHangHoas = []; 
+        let currentHangHoas = []; // Giữ nguyên để tránh thay đổi quá nhiều logic
         $(document).ready(function () {
+            
+            // Hàm tiện ích: chuyển đổi tiền tệ
             function parseCurrency(text) {
+                // Chỉ giữ lại số, bỏ các ký tự khác (bao gồm dấu chấm/phẩy phân cách hàng nghìn)
                 const cleaned = text.toString().replace(/[^\d]/g, '');
                 return cleaned ? parseFloat(cleaned) : 0;
             }
 
             function formatCurrency(number) {
+                if (typeof number !== 'number' || isNaN(number)) return '0';
+                // Sử dụng Intl.NumberFormat để đảm bảo định dạng Việt Nam (phân cách 3 số)
                 return number.toLocaleString('vi-VN');
             }
+            
+            // --- 1. KHỞI TẠO SELECT2 ---
             function initSelect2(selectedId = null) {
 
-    if ($('#slHangHoaSelect2').data('select2')) {
-        $('#slHangHoaSelect2').select2('destroy');
-    }
-    
-    $('#slHangHoaSelect2').select2({
-        placeholder: 'Tìm kiếm hoặc nhập Mã hàng mới...',
-        allowClear: true,
-        width: '100%',
-        theme: 'bootstrap-5',
-        minimumInputLength: 2, // Bắt đầu tìm kiếm sau khi gõ 2 ký tự
-        
-        // 1. Cấu hình AJAX để gọi đến Controller
-        ajax: {
-            url: '@Url.Action("SearchHangHoa", "NhapHang")',
-            dataType: 'json',
-            delay: 250, // Độ trễ giữa các lần gõ
-            data: function (params) {
-                return {
-                    term: params.term, // Select2 tự động truyền chuỗi gõ vào tham số 'term'
-                    page: params.page
-                };
-            },
-            processResults: function (data, params) {
-                // Server đã trả về { results: [...] }, ta chỉ cần return data
-                return {
-                    results: data.results,
-                    pagination: {
-                        more: false 
-                    }
-                };
-            },
-            cache: true
-        },
-        
-        // 2. Custom template để hiển thị thông tin thêm (Tồn kho)
-        templateResult: function(data) {
-            if (data.loading || data.tag) return data.text; // Hiển thị Loading/Tag mặc định
+                if ($('#slHangHoaSelect2').data('select2')) {
+                    $('#slHangHoaSelect2').select2('destroy');
+                }
+                
+                $('#slHangHoaSelect2').select2({
+                    placeholder: 'Tìm kiếm hoặc Xuất Mã hàng mới...',
+                    allowClear: true,
+                    width: '100%',
+                    theme: 'bootstrap-5',
+                    minimumInputLength: 2, 
+                    
+                    // Cấu hình AJAX để gọi đến Controller
+                    ajax: {
+                        // URL: Cần đảm bảo action SearchProduct (trong NhapHangController) trả về JSON
+                        url: '@Url.Action("SearchProduct", "NhapHang")',
+                        dataType: 'json',
+                        delay: 250, 
+                        data: function (params) {
+                            return {
+                                term: params.term, 
+                                page: params.page
+                            };
+                        },
+                        processResults: function (data, params) {
+                            // BƯỚC QUAN TRỌNG: DEBUG dữ liệu trả về từ Server tại đây.
+                            // Server PHẢI trả về Array (list) các đối tượng.
+                            // Console.log(data) để kiểm tra server có trả về dữ liệu không.
+                            console.log("Dữ liệu trả về từ SearchProduct:", data);
 
-            // data ở đây là đối tượng JSON trả về từ server, chứa các thuộc tính bổ sung
-            // (như maHang, tenHang, tonKho)
-            const text = `${data.maHang || data.id} - ${data.tenHang || data.text} <span class="badge bg-secondary">Tồn: ${data.tonKho || 0}</span>`;
-            
-            // Dùng jQuery để tạo và trả về element HTML
-            return $(`<span>${text}</span>`);
-        },
-        
-        // 3. Cho phép tạo Tag mới (Hàng hóa chưa có)
-        tags: true, 
-        createTag: function (params) {
-            const term = params.term.trim().toUpperCase();
-            if (term.length >= 3) {
-                // Trả về đối tượng tag mới, đảm bảo có đủ data để hàm AddToGrid sử dụng
-                return { 
-                    id: term, 
-                    text: 'Tạo mới: ' + term, 
-                    tag: true, 
-                    maHang: term, 
-                    tenHang: term, 
-                    loaiHang: 'Cái', 
-                    giaVon: 0,
-                    tonKho: 0
-                };
+                            const results = data.map(item => ({
+                                id: item.maHH, 
+                                text: item.tenHH, // Tên để hiển thị mặc định
+                                maHang: item.maHH,
+                                tenHang: item.tenHH,
+                                tonKho: item.tonKho,
+                                // ĐIỀU CHỈNH: Dùng GiaVon (giá vốn) hoặc GiaNhap cho phiếu Nhập, 
+                                // nếu server chỉ trả về GiaBan thì ta dùng GiaBan và người dùng phải sửa lại.
+                                giaBan: item.giaBan || item.giaVon || 0, 
+                                loaiHang: item.dvt || 'Cái' 
+                            }));
+
+                            return {
+                                results: results,
+                                pagination: {
+                                    more: false 
+                                }
+                            };
+                        },
+                        cache: true    
+                    },
+                    
+                    // Custom template để hiển thị thông tin thêm (Mã hàng)
+                    templateResult: function(data) {
+                        if (data.loading) return data.text;
+                        
+                        // Kiểm tra nếu là Tag mới được tạo
+                        if (data.tag) {
+                            return $(`<span class="text-success fw-bold">Tạo mới: ${data.text}</span>`);
+                        }
+                        
+                        // Hiển thị Mã hàng và Tên hàng
+                        const ma = data.maHang || data.id;
+                        const ten = data.tenHang || data.text;
+
+                        return $(`
+                            <div>
+                                <span class="fw-bold text-primary">${ma}</span> - 
+                                <span class="text-dark">${ten}</span>
+                                <span class="float-end text-muted small">Tồn: ${data.tonKho || 0}</span>
+                            </div>
+                        `);
+                    },
+                    
+                    templateSelection: function(data) {
+                        // Khi đã chọn, hiển thị Mã và Tên
+                        if (data.maHang || data.id) {
+                            return `${data.maHang || data.id} - ${data.tenHang || data.text}`;
+                        }
+                        return data.text;
+                    },
+
+                    // Cho phép tạo Tag mới (Hàng hóa chưa có)
+                    tags: true, 
+                    createTag: function (params) {
+                        const term = params.term.trim().toUpperCase();
+                        if (term.length >= 2) { // Giảm xuống 2 ký tự cho dễ test
+                            return { 
+                                id: term, 
+                                text: 'Tạo mã mới: ' + term, 
+                                tag: true, 
+                                maHang: term, 
+                                tenHang: term, 
+                                loaiHang: 'Cái', 
+                                giaBan: 0, 
+                                tonKho: 0
+                            };
+                        }
+                        return null;
+                    }
+                });
+
+                if (selectedId) {
+                    // Nếu là hàng mới được tạo (tag) thì không cần set value, vì nó đã được set trong createTag
+                    // Tuy nhiên, nếu server trả về dữ liệu sau khi tạo thành công, ta vẫn có thể set.
+                    // Ở đây ta dùng initSelect2 để giữ giá trị nếu có.
+                    const option = new Option(selectedId, selectedId, true, true);
+                    $('#slHangHoaSelect2').append(option).trigger('change');
+                }
             }
-            return null;
-        }
-    });
-if (selectedId) {
-        $('#slHangHoaSelect2').val(selectedId).trigger('change');
-    }
-}
 
             initSelect2();
 
-            // --- 4. SỰ KIỆN TRÊN FORM NHẬP LIỆU ---
+            // --- 2. SỰ KIỆN TRÊN FORM NHẬP LIỆU ---
             
-            // Khi chọn hàng hóa -> Tự động điền giá vốn vào ô Đơn giá
+            // Khi chọn hàng hóa -> Tự động điền giá vào ô Đơn giá
             $('#slHangHoaSelect2').on('select2:select', function (e) {
                 const data = e.params.data;
-                let price = data.giaVon || 0; // Ưu tiên lấy trực tiếp nếu có
+                let price = 0;
+                
+                console.log("Sản phẩm đã chọn:", data);
 
-if (data.tag) {
-    price = 0; // Hàng mới -> Giá = 0
-} else if (data.data && data.data.giaVon !== undefined) {
-    price = data.data.giaVon; // Lấy từ data.data nếu data.giaVon không có
-}
+                if (data.tag) {
+                    price = 0; // Hàng mới -> Giá = 0
+                } else {
+                    // Cố gắng lấy giá từ các thuộc tính đã map
+                    price = data.giaBan || data.giaVon || 0; 
+                }
                 
                 $('#inpDonGia').val(formatCurrency(price));
-                $('#inpSoLuong').val(1).focus(); // Reset SL về 1 và focus
+                $('#inpSoLuong').val(1).focus(); 
                 updatePreviewTotal();
             });
 
-            // Định dạng tiền tệ khi nhập ô Đơn giá
+            // Định dạng tiền tệ khi Nhập ô Đơn giá
             $('#inpDonGia').on('input', function() {
-                 let val = parseCurrency($(this).val());
-                 $(this).val(formatCurrency(val));
-                 updatePreviewTotal();
+                let val = parseCurrency($(this).val());
+                $(this).val(formatCurrency(val));
+                updatePreviewTotal();
             });
 
             // Tính thành tiền tạm tính khi đổi SL hoặc Đơn giá
@@ -303,19 +361,17 @@ if (data.tag) {
             function updatePreviewTotal() {
                 let sl = parseInt($('#inpSoLuong').val()) || 0;
                 let dg = parseCurrency($('#inpDonGia').val());
-                $('#inpThanhTienPreview').val(formatCurrency(sl * dg) + ' ₫');
+                $('#inpThanhTienPreview').val(formatCurrency(sl * dg));
             }
 
+            // --- 3. THÊM VÀO DANH SÁCH (CART) ---
             $('#btnAddToGrid').click(function() {
                 const selectedData = $('#slHangHoaSelect2').select2('data')[0];
                 const sl = parseInt($('#inpSoLuong').val());
                 const dg = parseCurrency($('#inpDonGia').val());
-                console.log("--- Dữ liệu khi bấm nút ---");
-                console.log("selectedData:", selectedData);
-                console.log("SoLuong:", sl);
-                console.log("DonGia (parsed):", dg);
-                console.log("----------------------------");
+                
                 if (!selectedData || !selectedData.id) {
+                    // Thay thế alert bằng một modal hoặc toast notification nếu có
                     alert("Vui lòng chọn hàng hóa!");
                     $('#slHangHoaSelect2').select2('open');
                     return;
@@ -326,62 +382,37 @@ if (data.tag) {
                     return;
                 }
 
-                // 3. Chuẩn bị đối tượng hàng hóa
-                // 3. Chuẩn bị đối tượng hàng hóa (ĐÃ SỬA LỖI TRUY CẬP DỮ LIỆU)
-let tenHang = selectedData.tenHang || selectedData.text || selectedData.id;
-let loaiHang = selectedData.loaiHang || 'Cái'; // Mặc định là 'Cái'
-
-// Xử lý trường hợp dữ liệu hàng hóa cũ bị gói trong selectedData.data (nếu có)
-// Ví dụ: khi Select2 load thông tin đầy đủ sau khi chọn
-if (!selectedData.tag && selectedData.data) {
-    // Nếu có data, ta lấy từ đó
-    tenHang = selectedData.data.tenHang || tenHang;
-    loaiHang = selectedData.data.loaiHang || loaiHang;
-}
-// Nếu là Tag mới, tên hàng lấy từ id
-if (selectedData.tag) {
-    tenHang = selectedData.id;
-    loaiHang = 'Cái';
-}
-
-let productObj = {
-    ma: selectedData.id,
-    ten: tenHang,
-    dvt: loaiHang,
-    sl: sl, // Bổ sung sl (số lượng) bị thiếu trong logic cũ
-    dg: dg,
-    stt: Date.now() // Unique ID tạm
-};
-
-                // Xử lý trường hợp Hàng mới (Tag)
+                // Lấy thông tin chi tiết của hàng hóa
+                let tenHang = selectedData.tenHang || selectedData.text || selectedData.id;
+                let loaiHang = selectedData.loaiHang || 'Cái'; 
+                
+                // Trường hợp tag mới (maHang = tenHang = id)
                 if (selectedData.tag) {
-                     const newProduct = {
-                         maHang: productObj.ma,
-                         tenHang: productObj.ma, // Hàng mới thì tên = mã
-                         loaiHang: productObj.dvt,
-                         giaVon: productObj.dg,
-                         tonKho: 0
-                     };
-                     
-                     if (!currentHangHoas.some(h => h.maHang === newProduct.maHang)) {
-                        currentHangHoas.push(newProduct);
-                        // Cần reload select2 nhưng vẫn giữ lựa chọn hiện tại
-                        initSelect2(productObj.ma); 
-                     }
+                    tenHang = selectedData.id;
+                    loaiHang = 'Cái';
                 }
 
-                // 4. Kiểm tra trùng lặp trong Cart
+                let productObj = {
+                    ma: selectedData.id,
+                    ten: tenHang,
+                    dvt: loaiHang,
+                    sl: sl, 
+                    dg: dg,
+                    stt: Date.now() // Unique ID tạm
+                };
+
+                // Kiểm tra trùng lặp trong Cart
                 const existingIndex = cartProducts.findIndex(p => p.ma === productObj.ma);
                 if (existingIndex >= 0) {
-                    if(confirm(`Hàng hóa ${productObj.ten} đã có trong phiếu. Bạn có muốn cộng dồn số lượng và cập nhật đơn giá mới nhất không?`)) {
-                         cartProducts[existingIndex].sl += sl;
-                         cartProducts[existingIndex].dg = dg; // Cập nhật giá mới nhất
+                    if(confirm(`Hàng hóa ${productObj.ten} đã có trong Phiếu. Bạn có muốn cộng dồn số lượng và cập nhật đơn giá mới nhất không?`)) {
+                        cartProducts[existingIndex].sl += sl;
+                        cartProducts[existingIndex].dg = dg; // Cập nhật giá mới nhất
                     }
                 } else {
                     cartProducts.push(productObj);
                 }
 
-                // 5. Render lại bảng & Reset form
+                // Render lại bảng & Reset form
                 renderCartTable();
                 
                 // Reset form
@@ -391,22 +422,19 @@ let productObj = {
                 $('#inpThanhTienPreview').val(0);
             });
 
-            // --- 6. RENDER BẢNG DANH SÁCH ---
+            // --- 4. RENDER BẢNG DANH SÁCH ---
             function renderCartTable() {
                 const $tbody = $('#tblProducts tbody');
                 $tbody.empty();
                 let tongTienHang = 0;
 
                 if (cartProducts.length === 0) {
-                    $tbody.append('<tr><td colspan="7" class="text-center text-muted py-3">Chưa có hàng hóa nào trong phiếu</td></tr>');
+                    $tbody.append('<tr><td colspan="7" class="text-center text-muted py-3">Chưa có hàng hóa nào trong Phiếu</td></tr>');
                     updateFooter(0);
                     return;
                 }
 
-                // Sắp xếp hàng mới thêm lên đầu
-                // Bỏ reverse để hiển thị theo thứ tự thêm vào (có thể cần sắp xếp theo mã)
-                // Giữ nguyên logic cũ: const displayList = [...cartProducts].reverse();
-                const displayList = cartProducts; // Hiển thị theo thứ tự thêm vào
+                const displayList = cartProducts; 
 
                 displayList.forEach((p, index) => {
                     const thanhTien = p.sl * p.dg;
@@ -415,7 +443,10 @@ let productObj = {
                     const row = `
                         <tr>
                             <td>${index + 1}</td>
-                            <td><span class="fw-bold text-primary">${p.ma}</span><br/>${p.ten}</td>
+                            <td>
+                                <span class="fw-bold text-primary">${p.ma}</span><br/>
+                                <span class="text-muted small">${p.ten}</span>
+                            </td>
                             <td class="text-center">${p.dvt}</td>
                             <td class="text-center fw-bold">${p.sl}</td>
                             <td class="text-end">${formatCurrency(p.dg)}</td>
@@ -430,15 +461,17 @@ let productObj = {
                     $tbody.append(row);
                 });
                 
-                // Cập nhật tổng tiền dưới footer (Dùng tổng tiền gốc)
+                // Cập nhật tổng tiền dưới footer
                 updateFooter(tongTienHang);
             }
 
             // Xóa item khỏi danh sách
             $(document).on('click', '.btn-remove-item', function() {
                 const stt = $(this).data('stt');
-                cartProducts = cartProducts.filter(p => p.stt !== stt);
-                renderCartTable();
+                if(confirm('Bạn có chắc chắn muốn xóa hàng hóa này khỏi phiếu nhập?')) {
+                    cartProducts = cartProducts.filter(p => p.stt !== stt);
+                    renderCartTable();
+                }
             });
 
             // Xóa tất cả
@@ -449,16 +482,14 @@ let productObj = {
                 }
             });
 
-            // --- 7. TÍNH TOÁN FOOTER ---
+            // --- 5. TÍNH TOÁN THANH TOÁN ---
             function updateFooter(tongTienHang) {
                 $('#txtTongTienHang').text(formatCurrency(tongTienHang) + ' ₫');
                 $('#txtTongCong').text(formatCurrency(tongTienHang) + ' ₫');
-                
-                // Tính tiền thừa/nợ
                 calculateDebt(tongTienHang);
             }
 
-            // Cập nhật giá trị đã trả và tính nợ khi nhập
+            // Định dạng tiền tệ cho ô Thanh toán
             $('#txtTienThanhToan').on('input', function() {
                 let val = parseCurrency($(this).val());
                 $(this).val(formatCurrency(val));
@@ -469,43 +500,60 @@ let productObj = {
             
             // Cập nhật giá trị đã trả và tính nợ khi focusout
             $('#txtTienThanhToan').on('blur', function() {
-                 const tongTien = parseCurrency($('#txtTongCong').text());
-                 calculateDebt(tongTien);
+                const tongTien = parseCurrency($('#txtTongCong').text());
+                calculateDebt(tongTien);
             });
             
             function calculateDebt(tongTien) {
                 let daTra = parseCurrency($('#txtTienThanhToan').val());
-                let conNo = tongTien - daTra; // Nếu dương là còn nợ, âm là thừa (hiện tại đang là nợ)
+                let conNo = tongTien - daTra; 
                 
                 $('#txtTienThua').val(formatCurrency(conNo));
+                
+                // conNo > 0: Còn Nợ (text-danger), conNo <= 0: Đã thanh toán đủ (hoặc thừa) (text-success)
                 $('#txtTienThua').removeClass('text-danger text-success').addClass(conNo > 0 ? 'text-danger' : 'text-success');
+                
+                // Nếu chưa nhập gì, coi như chưa thanh toán
+                if (daTra === 0 && tongTien > 0) {
+                    $('#txtTienThua').val(formatCurrency(tongTien)).addClass('text-danger');
+                }
             }
 
-            // --- 8. SUBMIT PHIẾU NHẬP (LƯU DB) ---
+            // --- 6. SUBMIT Phiếu Nhập (LƯU DB) ---
             $('#btnHoanTatNhap').click(function() {
-                const maNCC = $('#slNhaCungCap').val();
+                const maNCC = $('#slNhaCungCap').val(); 
+                if (!maNCC) { alert("Chưa chọn Nhà Cung Cấp!"); return; }
                 
-                if (!maNCC) { alert("Chưa chọn Nhà cung cấp!"); return; }
                 if (cartProducts.length === 0) { alert("Danh sách hàng hóa đang trống!"); return; }
 
-                // Map dữ liệu sang Model ChiTietPhieuNhap
                 const chiTiet = cartProducts.map(p => ({
                     MaHH: p.ma,
-                    SoLuong: p.sl,
-                    DonGiaNhap: p.dg,
-                    ThanhTien: p.sl * p.dg
+                    Sl: p.sl, 
+                    Dg: p.dg,
+                    ThanhTien: p.sl * p.dg 
                 }));
+                
+                const tongTienHang = cartProducts.reduce((sum, p) => sum + (p.sl * p.dg), 0);
+                // Giả sử GiamGia và TongGiaTri không sử dụng trong logic này
+                const giamGia = 0; // Để 0 nếu không có input giảm giá
+                
+                // Lấy tiền thanh toán thực tế (để gửi lên server lưu nợ)
+                const daThanhToan = parseCurrency($('#txtTienThanhToan').val());
+                const conNo = tongTienHang - daThanhToan;
 
                 const formData = {
-                    MaNCC: maNCC,
-                    NgayNhap: $('#txtNgayNhap').val(),
+                    MaPN: $('#txtMaPN').val(), // Nếu server tự tạo thì không cần, nếu không thì cần
+                    NgayNhap: $('#txtNgayNhap').val(), 
                     GhiChu: $('#txtGhiChu').val(),
-                    TongGiaTri: cartProducts.reduce((sum, p) => sum + (p.sl * p.dg), 0),
-                    // ChiTiet (hoặc tên property mà Controller nhận)
+                    MaNCC: maNCC,
+                    TongTienHang: tongTienHang, // Tổng tiền hàng chưa trừ giảm giá
+                    TongGiaTri: tongTienHang, // Giả sử Tổng giá trị = Tổng tiền hàng nếu không có giảm giá
+                    TienDaThanhToan: daThanhToan, // Tiền thực tế đã trả
+                    TienConNo: conNo, // Tiền còn nợ
                     ChiTiet: chiTiet 
                 };
                 
-                // Gọi AJAX (Giữ nguyên logic cũ của bạn)
+                // Gọi AJAX
                 const $btn = $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Đang lưu...');
                 
                 $.ajax({
@@ -515,7 +563,7 @@ let productObj = {
                     data: JSON.stringify(formData),
                     success: function (res) {
                         if (res.success) {
-                            alert("Thành công! Mã Phiếu Nhập: " + res.maPhieuNhap); // Giả định server trả về mã PN
+                            alert("Thành công! Mã Phiếu Nhập: " + res.maPhieuNhap); 
                             window.location.href = '@Url.Action("Index", "NhapHang")';
                         } else {
                             alert("Lỗi: " + res.message);
@@ -529,9 +577,11 @@ let productObj = {
                 });
             });
             
-            // Khởi tạo các hàm tính toán ban đầu
+            // Khởi tạo các giá trị ban đầu
             updatePreviewTotal();
             renderCartTable();
+            const initialTongCong = parseCurrency($('#txtTongCong').text() || '0');
+            calculateDebt(initialTongCong); 
         });
     </script>
 }

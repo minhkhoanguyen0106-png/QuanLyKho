@@ -1,3 +1,6 @@
+@using System.Linq @* DÒNG MỚI: Cần thiết để dùng phương thức .Any() *@
+@model IEnumerable<QuanLyKho.Models.PhieuXuat> 
+
 @{
     ViewBag.Title = "Danh sách phiếu xuất";
     Layout = "/Views/Shared/_Layout.cshtml";
@@ -34,7 +37,7 @@
         height: 38px; display: flex; align-items: center; justify-content: center;
         padding-top: 0; padding-bottom: 0;
     }
-
+    #phieuXuatTable tbody tr td:nth-child(3) { max-width: 200px; word-break: break-word; white-space: normal; }
     /* 3. RESPONSIVE */
     @@media (max-width: 767.98px) {
         .app-header h4 { max-width: 50%; font-size: 1.1rem; }
@@ -152,34 +155,43 @@
                                 <tr>
                                     <th><input type="checkbox" id="selectAll" /></th>
                                     <th>Mã phiếu</th>
-                                    <th>Khách hàng</th>
+                                    <th>Tên hàng hóa</th>
                                     <th>Ngày tạo</th>
                                     <th>Người tạo</th>
                                     <th>Tổng tiền</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr data-chinhanh="CN Nguyễn Văn Cừ - Cần Thơ" data-nguoitao="Nguyễn Văn B">
-                                    <td><input type="checkbox" /></td>
-                                    <td class="fw-bold text-success">PX001</td>
-                                    <td>Khách hàng A</td>
-                                    <td>05/11/2025</td>
-                                    <td>Nguyễn Văn B</td>
-                                    <td class="fw-bold">8,000,000 ₫</td>
-                                </tr>
-                                <tr data-chinhanh="CN Nguyễn Văn Cừ - Cần Thơ" data-nguoitao="Trần Thị C">
-                                    <td><input type="checkbox" /></td>
-                                    <td class="fw-bold text-success">PX002</td>
-                                    <td>Khách hàng B</td>
-                                    <td>06/11/2025</td>
-                                    <td>Trần Thị C</td>
-                                    <td class="fw-bold">12,500,000 ₫</td>
-                                </tr>
+                                @if (Model != null)
+                                {
+                                   @foreach (var item in Model)
+                                {
+                                <tr 
+                                data-chinhanh="@(item.NhaCungCap?.TenNCC)" @* VẪN GIỮ NGUYÊN (Cho bộ lọc JS) *@
+                                data-nguoitao="@(item.NhanVien?.TenNV)"> @* VẪN GIỮ NGUYÊN (Cho bộ lọc JS) *@
+                                <td><input type="checkbox" /></td>
+                                <td class="fw-bold text-success">@item.MaPX</td>
+                                <td class="column-sanpham">
+                                    @if (item.ChiTietPhieuXuat != null && item.ChiTietPhieuXuat.Any())
+                                    {
+                                        <span>@item.ChiTietPhieuXuat.First().MaHH</span>
+                                        <span>(...@item.ChiTietPhieuXuat.Count() mặt hàng)</span> 
+                                    }
+                                    else
+                                    {
+                                        <span>Không có chi tiết</span>
+                                    }
+                                </td>
+                                <td>@(item.NgayXuat?.ToString("dd/MM/yyyy"))</td>
+                                <td>@(item.NhanVien?.TenNV)</td> @* Hiển thị Tên Người tạo *@
+                                <td class="fw-bold">@item.TongGiaTri?.ToString("N0") ₫</td> </tr>
+                                }
+                                }
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="text-center py-5 text-muted" id="noResults" style="display:none;">
+                    <div class="text-center py-5 text-muted" id="noResults" 
+                         style="@(Model == null || !Model.Any() ? "" : "display:none;")">
                         <i class="fas fa-inbox fa-3x text-secondary"></i>
                         <p class="mt-2">Không tìm thấy kết quả</p>
                     </div>

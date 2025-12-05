@@ -23,7 +23,11 @@ namespace QuanLyKho.Controllers
         // =========================================================
         public IActionResult Index()
         {
-            var phieuNhaps = _context.PhieuNhaps.Include(p => p.NhaCungCap).ToList();
+            var phieuNhaps = _context.PhieuNhaps
+            .Include(p => p.NhaCungCap)
+            .Include(p => p.NhanVien)
+            .OrderByDescending(px => px.NgayNhap)
+            .ToList();
             return View(phieuNhaps);
         }
 
@@ -42,12 +46,29 @@ namespace QuanLyKho.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] PhieuNhapCreateModel model)
         {
-           
             
+            // Dù request là JSON, vẫn nên kiểm tra cơ bản
+            if (model == null || model.ChiTiet == null || !model.ChiTiet.Any())
+            {
+                return Json(new { success = false, message = "Dữ liệu phiếu nhập không được trống." });
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // TÍNH TOÁN TỔNG GIÁ TRỊ PHIẾU NHẬP TRÊN SERVER (Đảm bảo tính nhất quán)
+                    decimal totalCalculated = model.ChiTiet.Sum(ct => ct.Sl * ct.Dg); 
+
+                    // ----------------------------------------------------
+                    // LƯU Ý: Nếu hệ thống xác thực chưa có hoặc trả về null, sử dụng giá trị mặc định "MANV001".
+                    string maNhanVien = User.Identity.Name; 
+                    if (string.IsNullOrEmpty(maNhanVien))
+                    {
+                        maNhanVien = "MANV001"; // Giá trị MaNV mặc định/tạm thời (PHẢI TỒN TẠI TRONG BẢNG NhanVien)
+                    }
+                    // ----------------------------------------------------
+
                     // 1. Tự động tạo mã PN mới (Ví dụ: PN0001)
                     var lastMaPN = _context.PhieuNhaps.OrderByDescending(p => p.MaPN).Select(p => p.MaPN).FirstOrDefault();
                     int nextIdPN = 1;
@@ -70,36 +91,43 @@ namespace QuanLyKho.Controllers
                     {
                         MaPN = newMaPN, 
                         MaNCC = model.MaNCC, 
-
                         NgayNhap = ngayNhapValue.HasValue ? ngayNhapValue.Value : DateTime.Now.Date,
-                        TongGiaTri = model.TongTienHang, 
-                        GhiChu = model.GhiChu
+                        TongGiaTri = totalCalculated, // <<< SỬ DỤNG GIÁ TRỊ TÍNH TOÁN TỪ SERVER
+                        GhiChu = model.GhiChu,
+                        MaNV = maNhanVien
                     };
                     _context.PhieuNhaps.Add(phieuNhap);
                     
-                    // 4. Thêm chi tiết phiếu nhập & Cập nhật/Thêm mới Hàng hóa
+                    // 4. Lặp qua chi tiết, cập nhật tồn kho/giá vốn và tạo ChiTietPhieuNhap
                     foreach (var chiTietDto in model.ChiTiet)
                     {
-                        // a. Lấy Hàng hóa hiện tại
                         var hangHoa = _context.HangHoas.FirstOrDefault(h => h.MaHang == chiTietDto.MaHH);
                         
-                        // NOTE: Sử dụng chiTietDto.Sl và chiTietDto.Dg như trong code gốc của bạn
                         if (hangHoa != null)
                         {
-                            // Hàng hóa ĐÃ TỒN TẠI: Cập nhật tồn kho và giá vốn
+                            // Cập nhật tồn kho
                             hangHoa.TonKho += chiTietDto.Sl;
-                            hangHoa.GiaVon = chiTietDto.Dg;
-                            _context.HangHoas.Update(hangHoa); // Đánh dấu là cần cập nhật
+                            
+                            // Cập nhật giá vốn - LƯU Ý: Đây là phương pháp Giá Vốn Nhập Sau Cùng (LIC)
+                            hangHoa.GiaVon = chiTietDto.Dg; 
+                            
+                            // Nếu muốn dùng Giá Vốn Trung Bình, cần tính toán phức tạp hơn:
+                            // decimal oldTotalCost = hangHoa.TonKho * hangHoa.GiaVon;
+                            // decimal newTotalCost = oldTotalCost + (chiTietDto.Sl * chiTietDto.Dg);
+                            // hangHoa.GiaVon = newTotalCost / (hangHoa.TonKho + chiTietDto.Sl);
+
+                            _context.HangHoas.Update(hangHoa);
                         }
                         else
                         {
                             // Hàng hóa CHƯA TỒN TẠI: TẠO MỚI bản ghi HangHoa
+                            // LƯU Ý: Nên có logic kiểm tra tính hợp lệ của MaHang, TenHang nếu nó được điền từ form.
                             hangHoa = new HangHoa 
                             {
                                 MaHang = chiTietDto.MaHH,
                                 TenHang = "Hàng hóa mới: " + chiTietDto.MaHH, 
                                 LoaiHang = "Chưa rõ", 
-                                GiaBan = chiTietDto.Dg * 1.2M, // Giá bán = Giá vốn * 1.2 (20% lợi nhuận)
+                                GiaBan = chiTietDto.Dg * 1.2M, 
                                 GiaVon = chiTietDto.Dg,
                                 TonKho = chiTietDto.Sl,
                                 ThoiGianTao = DateTime.Now
@@ -120,8 +148,8 @@ namespace QuanLyKho.Controllers
                     var ncc = _context.NCCs.FirstOrDefault(n => n.MaNCC == model.MaNCC);
                     if (ncc != null) 
                     {
-                        ncc.TongMua += model.TongTienHang;
-                        _context.NCCs.Update(ncc); // Đánh dấu là cần cập nhật
+                        ncc.TongMua += totalCalculated; // <<< SỬ DỤNG GIÁ TRỊ TÍNH TOÁN TRÊN SERVER
+                        _context.NCCs.Update(ncc); 
                     }
 
 
@@ -141,12 +169,12 @@ namespace QuanLyKho.Controllers
                         LoaiGiaoDich = "Nhập hàng",
                         ThoiGian = DateTime.Now, 
                         DoiTac = ncc?.TenNCC ?? "N/A",
-                        GiaTri = model.TongTienHang,
+                        GiaTri = totalCalculated, // <<< SỬ DỤNG GIÁ TRỊ TÍNH TOÁN TRÊN SERVER
                         TrangThai = "Hoàn thành" 
                     };
                     _context.LichSuGiaoDichs.Add(giaoDich);
                     
-                    // 7. LƯU TẤT CẢ THAY ĐỔI
+                    // 7. LƯU TẤT CẢ THAY ĐỔI trong một transaction
                     _context.SaveChanges(); 
 
                     return Json(new { success = true, message = "Thêm phiếu nhập thành công.", maPN = newMaPN });
@@ -154,15 +182,21 @@ namespace QuanLyKho.Controllers
                 catch (DbUpdateException ex)
                 {
                     var innerExceptionMessage = ex.InnerException?.InnerException?.Message ?? ex.InnerException?.Message;
-                    return Json(new { success = false, message = "Lỗi Database (Kiểm tra kiểu dữ liệu/Khóa ngoại khác): " + (innerExceptionMessage ?? ex.Message), detail = ex.ToString() });
+                    // Log the full exception detail for server-side debugging
+                    Console.WriteLine("DbUpdateException: " + ex.ToString());
+                    return Json(new { success = false, message = "Lỗi Database: Kiểm tra khóa ngoại, giá trị NULL hoặc kiểu dữ liệu. Chi tiết: " + (innerExceptionMessage ?? ex.Message) });
                 }
                 catch (Exception ex)
                 {
-                    return Json(new { success = false, message = "Lỗi khi lưu dữ liệu.", detail = ex.Message });
+                    // Log the full exception detail for server-side debugging
+                    Console.WriteLine("General Exception: " + ex.ToString());
+                    return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
                 }
             }
+            
             // Trả về JSON lỗi khi ModelState không hợp lệ
-            return Json(new { success = false, message = "Dữ liệu đầu vào không hợp lệ." });
+            var errors = ModelState.Where(x => x.Value.Errors.Any()).Select(x => new { x.Key, x.Value.Errors }).ToList();
+            return Json(new { success = false, message = "Dữ liệu đầu vào không hợp lệ.", errors = errors });
         }
 
         // =========================================================
@@ -210,4 +244,4 @@ namespace QuanLyKho.Controllers
         }
 
     } 
-} 
+}

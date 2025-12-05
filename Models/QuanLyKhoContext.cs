@@ -9,7 +9,6 @@ namespace QuanLyKho.Models
         }
 
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<NhanVien> NhanViens { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<NCC> NCCs { get; set; }
         public DbSet<KiemKeKho> KiemKeKhos { get; set; }
@@ -17,6 +16,8 @@ namespace QuanLyKho.Models
          public DbSet<LichSuGiaoDich> LichSuGiaoDichs { get; set; }
 
          public DbSet<ChiTietPhieuNhap> ChiTietPhieuNhaps { get; set; }
+
+         public DbSet<ChiTietPhieuXuat> ChiTietPhieuXuats { get; set; }
         
         public DbSet<DatHangNhap> DatHangNhaps { get; set; }
         public DbSet<HangHoa> HangHoas { get; set; }

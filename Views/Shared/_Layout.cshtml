@@ -8,6 +8,7 @@
     
     // 1. Lấy đường dẫn hiện tại để xử lý Active Menu
     var currentPath = Context.Request.Path.ToString().ToLower();
+    string pathLower = currentPath.ToLower(); // Sử dụng pathLower cho nhất quán
 }
 
 <!DOCTYPE html>
@@ -105,7 +106,7 @@
         <aside class="main-sidebar sidebar-light-success elevation-4">
             <a href="/Home/Index" class="brand-link">
                 <i class="fas fa-motorcycle brand-image img-circle elevation-1 d-flex justify-content-center align-items-center" 
-                   style="width: 33px; height: 33px; background: @primaryGreen; color: white; font-size: 18px;"></i>
+                    style="width: 33px; height: 33px; background: @primaryGreen; color: white; font-size: 18px;"></i>
                 <span class="brand-text">Kho Ebike</span>
             </a>
 
@@ -113,97 +114,84 @@
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
                         
-                        <li class="nav-item">
-                            <a href="/Home/Index" class="nav-link @(currentPath == "/" || currentPath.Contains("/home/index") || currentPath.Contains("tongquan") ? "active" : "")"> 
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>Tổng quan</p>
-                            </a>
-                        </li>
+                        
                         
                         @if (role == "Manager")
                         {
-                            <li class="nav-item has-treeview @(currentPath.Contains("/ncc/") ? "menu-open" : "")">
-                                <a href="#" class="nav-link @(currentPath.Contains("/ncc/") ? "active" : "")">
+                            <li class="nav-item">
+                            <a href="/Home/Index" class="nav-link @(pathLower == "/" || pathLower.Contains("/home/index") || pathLower.Contains("tongquan") ? "active" : "")"> 
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>Tổng quan</p>
+                            </a>
+                            </li>
+                            <li class="nav-item has-treeview @(pathLower.Contains("/ncc/") ? "menu-open" : "")">
+                                <a href="#" class="nav-link @(pathLower.Contains("/ncc/") ? "active" : "")">
                                     <i class="nav-icon fas fa-shipping-fast"></i>
                                     <p>Nhà cung cấp <i class="right fas fa-angle-left"></i></p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <li class="nav-item"><a href="/NCC/DanhSachNCC" class="nav-link @(currentPath.Contains("danhsachncc") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Danh sách NCC</p></a></li>
-                                    <li class="nav-item"><a href="/NCC/Xuat" class="nav-link @(currentPath.Contains("/ncc/xuat") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Lịch sử xuất</p></a></li>
-                                    <li class="nav-item"><a href="/NCC/Nhap" class="nav-link @(currentPath.Contains("/ncc/nhap") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Lịch sử nhập</p></a></li>
+                                    <li class="nav-item"><a href="/NCC/DanhSachNCC" class="nav-link @(pathLower.Contains("danhsachncc") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Danh sách NCC</p></a></li>
+                                    <li class="nav-item"><a href="/NCC/Xuat" class="nav-link @(pathLower.Contains("/ncc/xuat") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Lịch sử xuất</p></a></li>
+                                    <li class="nav-item"><a href="/NCC/Nhap" class="nav-link @(pathLower.Contains("/ncc/nhap") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Lịch sử nhập</p></a></li>
                                 </ul>
                             </li>
 
-                            <li class="nav-item has-treeview @(currentPath.Contains("/hanghoa/") ? "menu-open" : "")">
-                                <a href="#" class="nav-link @(currentPath.Contains("/hanghoa/") ? "active" : "")">
+                            <li class="nav-item has-treeview @(pathLower.Contains("/hanghoa/") ? "menu-open" : "")">
+                                <a href="#" class="nav-link @(pathLower.Contains("/hanghoa/") ? "active" : "")">
                                     <i class="nav-icon fas fa-boxes"></i>
-                                    <p>Hàng hóa <i class="right fas fa-angle-left"></i></p>
+                                    <p>Kho hàng <i class="right fas fa-angle-left"></i></p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <li class="nav-item"><a href="/HangHoa/DanhSach" class="nav-link @(currentPath.Contains("danhsach") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Danh sách</p></a></li>
-                                    <li class="nav-item"><a href="/HangHoa/QuanLyXe" class="nav-link @(currentPath.Contains("quanlyxe") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Quản lý xe</p></a></li>
-                                    <li class="nav-item"><a href="/HangHoa/QuanLyLinhKien" class="nav-link @(currentPath.Contains("quanlylinhkien") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Quản lý linh kiện</p></a></li>
+                                    <li class="nav-item"><a href="/HangHoa/DanhSach" class="nav-link @(pathLower.Contains("danhsach") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Danh sách kho hàng</p></a></li>
+                                    <li class="nav-item"><a href="/HangHoa/QuanLyXe" class="nav-link @(pathLower.Contains("quanlyxe") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Quản lý hàng hóa</p></a></li>
+                                    <li class="nav-item"><a href="/HangHoa/QuanLyLinhKien" class="nav-link @(pathLower.Contains("quanlylinhkien") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Quản lý linh kiện</p></a></li>
                                 </ul>
                             </li>
-
-                            <li class="nav-item has-treeview @(currentPath.Contains("/baocao/") ? "menu-open" : "")">
-                                <a href="#" class="nav-link @(currentPath.Contains("/baocao/") ? "active" : "")">
-                                    <i class="nav-icon fas fa-chart-bar"></i>
-                                    <p>Báo cáo <i class="right fas fa-angle-left"></i></p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item"><a href="/BaoCao/DanhSachBC" class="nav-link @(currentPath.Contains("danhsachbc") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Danh sách báo cáo</p></a></li>
-                                    <li class="nav-item"><a href="/BaoCao/BCNhap" class="nav-link @(currentPath.Contains("bcnhap") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Báo cáo nhập</p></a></li>
-                                    <li class="nav-item"><a href="/BaoCao/BCXuat" class="nav-link @(currentPath.Contains("bcxuat") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Báo cáo xuất</p></a></li>
-                                </ul>
-                            </li>
-                            <li class="nav-item has-treeview @(currentPath.Contains("/giaodich/") ? "menu-open" : "")">
-                                <a href="#" class="nav-link @(currentPath.Contains("/giaodich/") ? "active" : "")">
+                            <li class="nav-item has-treeview @(pathLower.Contains("/giaodich/") ? "menu-open" : "")">
+                                <a href="#" class="nav-link @(pathLower.Contains("/giaodich/") ? "active" : "")">
                                     <i class="nav-icon fas fa-cash-register"></i>
                                     <p>Giao dịch <i class="right fas fa-angle-left"></i></p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <li class="nav-item"><a href="/Giaodich/DatHangNhap" class="nav-link @(currentPath.Contains("dathangnhap") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Đặt Hàng Nhập</p></a></li>
-                                    <li class="nav-item"><a href="/GiaoDich/TraCuu" class="nav-link @(currentPath.Contains("tracuu") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Tra Cứu Lịch Sử</p></a></li>
+                                    <li class="nav-item"><a href="/GiaoDich/TraCuu" class="nav-link @(pathLower.Contains("tracuu") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Tra Cứu Lịch Sử</p></a></li>
                                 </ul>
                             </li>
 
-                            <li class="nav-item has-treeview @(currentPath.Contains("/nhanvien/") ? "menu-open" : "")">
-                                <a href="#" class="nav-link @(currentPath.Contains("/nhanvien/") ? "active" : "")">
+                            <li class="nav-item has-treeview @(pathLower.Contains("/nhanvien/") ? "menu-open" : "")">
+                                <a href="#" class="nav-link @(pathLower.Contains("/nhanvien/") ? "active" : "")">
                                     <i class="nav-icon fas fa-users"></i>
                                     <p>Nhân viên <i class="right fas fa-angle-left"></i></p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <li class="nav-item"><a href="/NhanVien/NhanVien" class="nav-link @(currentPath.Contains("nhanvien/nhanvien") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Danh sách NV</p></a></li>
+                                    <li class="nav-item"><a href="/NhanVien/NhanVien" class="nav-link @(pathLower.Contains("nhanvien/nhanvien") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Danh sách NV</p></a></li>
                                 </ul>
                             </li>
                         }
 
                         @if (role == "Employee")
-                        {
-                            <li class="nav-item has-treeview @(currentPath.Contains("/taobaocao/") ? "menu-open" : "")">
-                                <a href="#" class="nav-link @(currentPath.Contains("/taobaocao/") ? "active" : "")">
-                                    <i class="nav-icon fas fa-edit"></i>
-                                    <p>Tạo báo cáo <i class="right fas fa-angle-left"></i></p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item"><a href="@Url.Action("BaoCaoNhap","TaoBaoCao")" class="nav-link @(currentPath.Contains("baocaonhap") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Báo cáo nhập</p></a></li>
-                                    <li class="nav-item"><a href="@Url.Action("BaoCaoXuat","TaoBaoCao")" class="nav-link @(currentPath.Contains("baocaoxuat") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Báo cáo xuất</p></a></li>
-                                </ul>
+                        { 
+                            <!-- 1. Tổng quan -->
+                            <li class="nav-item">
+                            <a href="/NhanVien/Index" class="nav-link @(pathLower.Contains("/nhanvien/index") || pathLower.Contains("tongquan") ? "active" : "")"> 
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>Tổng quan</p>
+                            </a>
                             </li>
-                            <li class="nav-item has-treeview @(currentPath.Contains("/nhaphang/") || currentPath.Contains("/xuathang/") ? "menu-open" : "")">
-                                <a href="#" class="nav-link @(currentPath.Contains("/nhaphang/") || currentPath.Contains("/xuathang/") ? "active" : "")">
+                            
+                            <!-- 2. Tạo phiếu (Nhập/Xuất) -->
+                            <li class="nav-item has-treeview @(pathLower.Contains("/nhaphang/") || pathLower.Contains("/xuathang/") ? "menu-open" : "")">
+                                <a href="#" class="nav-link @(pathLower.Contains("/nhaphang/") || pathLower.Contains("/xuathang/") ? "active" : "")">
                                     <i class="nav-icon fas fa-file-invoice"></i>
                                     <p>Tạo phiếu <i class="right fas fa-angle-left"></i></p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <li class="nav-item"><a href="@Url.Action("index","NhapHang")" class="nav-link @(currentPath.Contains("nhaphang") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Tạo phiếu nhập</p></a></li>
-                                    <li class="nav-item"><a href="@Url.Action("index","XuatHang")" class="nav-link @(currentPath.Contains("xuathang") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Tạo phiếu xuất</p></a></li>
+                                    <li class="nav-item"><a href="@Url.Action("index","NhapHang")" class="nav-link @(pathLower.Contains("nhaphang") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Tạo phiếu nhập</p></a></li>
+                                    <li class="nav-item"><a href="@Url.Action("index",controller: "XuatHang")" class="nav-link @(pathLower.Contains("xuathang") ? "active" : "")"><i class="far fa-circle nav-icon"></i><p>Tạo phiếu xuất</p></a></li>
                                 </ul>
                             </li>
                             <li class="nav-item">
-                                <a href="@Url.Action("Index","KiemKho")" class="nav-link @(currentPath.Contains("kiemkho") ? "active" : "")">
-                                    <i class="nav-icon fas fa-search-dollar"></i><p>Kiểm kho</p>
+                                <a href="@Url.Action("dathangnhap","GiaoDich")" class="nav-link @(pathLower.Contains("dathangnhap") ? "active" : "")">
+                                    <i class="nav-icon fas fa-truck-loading"></i><p>Đặt hàng nhập</p>
                                 </a>
                             </li>
                         }

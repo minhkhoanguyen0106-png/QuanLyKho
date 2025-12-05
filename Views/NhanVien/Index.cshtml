@@ -1,65 +1,71 @@
 @{
     ViewData["Title"] = "Trang chủ Nhân viên";
-    Layout = "~/Views/Shared/_LayoutNV.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // MÀU SẮC ĐỒNG NHẤT (Xanh lá cây)
+    var uniformColor = "#28a745"; 
 }
 
 <style>
-    /* CSS CŨ ĐÃ BỊ LOẠI BỎ */
-
-    /* CSS MỚI CHO HIỆU ỨNG CARD VIỀN MÀU */
-    .card-task-box {
-        border-radius: 0.25rem;
-        box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.2);
-        margin-bottom: 1rem;
-        transition: transform 0.3s ease;
-        background-color: #fff; /* Nền trắng */
+    /* 1. Thiết lập hiệu ứng hover đồng nhất cho tất cả cards */
+    .custom-card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
     }
 
-    .card-task-box:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    .custom-card-hover:hover {
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* 2. Đảm bảo các card có chiều cao đồng đều (220px) */
+    .action-card-min-height {
+        min-height: 220px; 
     }
 
-    /* Viền màu bên trái */
-    .border-left-info { border-left: 5px solid #17a2b8 !important; }
-    .border-left-warning { border-left: 5px solid #ffc107 !important; }
-    .border-left-primary { border-left: 5px solid #007bff !important; }
-    .border-left-success { border-left: 5px solid #28a745 !important; }
-
-    .card-task-box .card-body {
-        padding: 1.25rem;
-        min-height: 120px; /* Điều chỉnh chiều cao cho card */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+    /* 3. FIX CỐ ĐỊNH FOOTER: Buộc thẻ <a> chiếm toàn bộ chiều cao thẻ cha (card) */
+    .card-link-fill {
+        height: 100% !important;
+    }
+    
+    /* Định nghĩa màu sắc đồng nhất (xanh lá) */
+    .uniform-color {
+        color: @uniformColor !important;
     }
 
-    .card-task-box h3 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
+    .card-outline.card-uniform {
+        border-top: 3px solid @uniformColor;
     }
-
-    .card-task-box p {
-        margin-bottom: 0;
-        font-size: 0.9rem;
-        color: #6c757d;
+    
+    .bg-uniform {
+        background-color: @uniformColor !important;
+        color: white; 
     }
-
-    .card-task-box .footer-link {
-        display: block;
-        margin-top: 10px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        text-align: right;
+    
+    /* Đặt màu chữ cho footer */
+    .bg-uniform .card-footer {
+        color: white !important;
+    }
+    
+    /* Styling cho phần hoạt động gần đây */
+    .recent-activity-list .list-group-item {
+        border-left: 3px solid transparent;
+        transition: border-left 0.2s ease;
+    }
+    .recent-activity-list .list-group-item:hover {
+        border-left: 3px solid @uniformColor;
+        background-color: #f8f9fa;
     }
 </style>
 
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0 text-dark">Tổng quan kho hàng</h1>
+            <div class="col-sm-12">
+                <h1 class="m-0 text-dark font-weight-bold">
+                    <i class="fas fa-home mr-2 uniform-color"></i> TỔNG QUAN NGHIỆP VỤ KHO
+                </h1>
+                <p class="text-muted">Các hành động chính của nhân viên kho.</p>
             </div>
         </div>
     </div>
@@ -68,217 +74,91 @@
 <section class="content">
     <div class="container-fluid">
 
+        <!-- HÀNG 1: 4 TÁC VỤ CHÍNH TRÊN MỘT HÀNG NGANG (col-lg-3) -->
         <div class="row">
 
-            <div class="col-md-6">
-                <div class="row">
-                    <div class="col-lg-6 col-6">
-                        <div class="card-task-box border-left-info">
-                            <div class="card-body">
-                                <div class="text-left">
-                                    <h3>Nhập kho <i class="fas fa-file-import text-info float-right"></i></h3>
-                                    <p>Tạo phiếu nhập</p>
-                                </div>
-                                <a href="@Url.Action("index","NhapHang")" class="text-info footer-link">
-                                    Đi tới <i class="fas fa-arrow-circle-right"></i>
-                                </a>
+            <!-- CARD 1: Nhập kho -->
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    <a href="@Url.Action("index","NhapHang")" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-file-import uniform-color" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold uniform-color mb-0">NHẬP KHO</h4>
+                                <p class="text-muted mb-0">Tạo, phê duyệt và theo dõi các phiếu nhập hàng.</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-lg-6 col-6">
-                        <div class="card-task-box border-left-warning">
-                            <div class="card-body">
-                                <div class="text-left">
-                                    <h3>Xuất kho <i class="fas fa-file-export text-warning float-right"></i></h3>
-                                    <p>Tạo phiếu xuất</p>
-                                </div>
-                                <a href="@Url.Action("index","XuatHang")" class="text-warning footer-link">
-                                    Đi tới <i class="fas fa-arrow-circle-right"></i>
-                                </a>
-                            </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Đi tới <i class="fas fa-arrow-circle-right ml-2"></i></span>
                         </div>
-                    </div>
-
-                    <div class="col-lg-6 col-6">
-                        <div class="card-task-box border-left-primary">
-                            <div class="card-body">
-                                <div class="text-left">
-                                    <h3>Chuyển kho <i class="fas fa-dolly text-primary float-right"></i></h3>
-                                    <p>Luân chuyển hàng</p>
-                                </div>
-                                <a href="@Url.Action("Index","KhoHang")" class="text-primary footer-link">
-                                    Đi tới <i class="fas fa-arrow-circle-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 col-6">
-                        <div class="card-task-box border-left-success">
-                            <div class="card-body">
-                                <div class="text-left">
-                                    <h3>Kiểm kho <i class="fas fa-clipboard-check text-success float-right"></i></h3>
-                                    <p>Thực hiện kiểm kê</p>
-                                </div>
-                                <a href="@Url.Action("Index","KiemKho")" class="text-success footer-link">
-                                    Đi tới <i class="fas fa-arrow-circle-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <div class="card card-danger card-outline h-100">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i> Tỉ lệ sai lệch (Đợt kiểm gần nhất)</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+            <!-- CARD 2: Xuất kho -->
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    <a href="@Url.Action("index","XuatHang")" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-file-export uniform-color" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold uniform-color mb-0">XUẤT KHO</h4>
+                                <p class="text-muted mb-0">Tạo, phê duyệt và theo dõi các phiếu xuất hàng.</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body d-flex align-items-center justify-content-center">
-                        <canvas id="donutChart" style="min-height: 260px; height: 260px; max-height: 260px; max-width: 100%;"></canvas>
-                    </div>
-                    <div class="card-footer p-0">
-                        <ul class="nav nav-pills flex-column">
-                            <li class="nav-item"><a href="#" class="nav-link py-2">Hàng hóa khớp <span class="float-right text-success font-weight-bold">125 mã</span></a></li>
-                            <li class="nav-item"><a href="#" class="nav-link py-2">Lệch thừa <span class="float-right text-warning font-weight-bold">10 mã</span></a></li>
-                            <li class="nav-item"><a href="#" class="nav-link py-2">Lệch thiếu (Mất hàng) <span class="float-right text-danger font-weight-bold">5 mã</span></a></li>
-                        </ul>
-                    </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Đi tới <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
                 </div>
             </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="card card-outline card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-history mr-1"></i>
-                            Lịch sử Phiếu Nhập / Xuất gần đây
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <table id="historyTable" class="table table-bordered table-striped table-hover">
-                            <thead>
-                            <tr>
-                                <th>Mã phiếu</th>
-                                <th>Loại phiếu</th>
-                                <th>Ngày tạo</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th>Chi tiết</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td><a href="#" class="text-dark font-weight-bold">PN-20251119-01</a></td>
-                                <td><span class="badge bg-info"><i class="fas fa-arrow-down"></i> Nhập kho</span></td>
-                                <td>19/11/2025 08:30</td>
-                                <td class="text-success font-weight-bold">15,000,000 ₫</td>
-                                <td><span class="badge badge-success">Hoàn thành</span></td>
-                                <td><button class="btn btn-xs btn-outline-secondary"><i class="fas fa-eye"></i></button></td>
-                            </tr>
-                            <tr>
-                                <td><a href="#" class="text-dark font-weight-bold">PX-20251119-05</a></td>
-                                <td><span class="badge bg-warning text-dark"><i class="fas fa-arrow-up"></i> Xuất kho</span></td>
-                                <td>19/11/2025 09:15</td>
-                                <td class="text-danger font-weight-bold">- 2,500,000 ₫</td>
-                                <td><span class="badge badge-warning">Đang xử lý</span></td>
-                                <td><button class="btn btn-xs btn-outline-secondary"><i class="fas fa-eye"></i></button></td>
-                            </tr>
-                            <tr>
-                                <td><a href="#" class="text-dark font-weight-bold">CK-20251118-01</a></td>
-                                <td><span class="badge bg-primary"><i class="fas fa-exchange-alt"></i> Chuyển kho</span></td>
-                                <td>18/11/2025 16:45</td>
-                                <td class="text-muted">---</td>
-                                <td><span class="badge badge-success">Hoàn thành</span></td>
-                                <td><button class="btn btn-xs btn-outline-secondary"><i class="fas fa-eye"></i></button></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+
+            <!-- CARD 3: Chuyển kho -->
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    <a href="@Url.Action("Index","KhoHang")" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-dolly uniform-color" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold uniform-color mb-0">CHUYỂN KHO</h4>
+                                <p class="text-muted mb-0">Thực hiện luân chuyển hàng hóa giữa các kho.</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Đi tới <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CARD 4: Kiểm kho -->
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    <a href="@Url.Action("Index","KiemKho")" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-clipboard-check uniform-color" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold uniform-color mb-0">KIỂM KHO</h4>
+                                <p class="text-muted mb-0">Lên lịch và thực hiện các đợt kiểm kê hàng hóa.</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Đi tới <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
-
     </div>
 </section>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    
-    <script>
-        $(function () {
-            // 1. CẤU HÌNH DATATABLE VỚI CÁC NÚT CHỨC NĂNG (Excel, PDF...)
-            $("#historyTable").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "autoWidth": false,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "paging": true,
-                "dom": 'Bfrtip',
-                "buttons": [
-                    {
-                        extend: 'copy',
-                        text: '<i class="fas fa-copy"></i> Sao chép',
-                        className: 'btn btn-success btn-sm'
-                    },
-                    {
-                        extend: 'excel',
-                        text: '<i class="fas fa-file-excel"></i> Excel',
-                        className: 'btn btn-success btn-sm'
-                    },
-                    {
-                        extend: 'pdf',
-                        text: '<i class="fas fa-file-pdf"></i> PDF',
-                        className: 'btn btn-success btn-sm'
-                    },
-                    {
-                        extend: 'print',
-                        text: '<i class="fas fa-print"></i> In ấn',
-                        className: 'btn btn-success btn-sm'
-                    },
-                    {
-                        extend: 'colvis',
-                        text: '<i class="fas fa-columns"></i> Cột hiển thị',
-                        className: 'btn btn-success btn-sm'
-                    }
-                ],
-                "language": {
-                    "search": "Tìm kiếm:",
-                    "paginate": { "next": "Sau", "previous": "Trước" },
-                    "info": "Hiển thị START đến END trong TOTAL dòng",
-                    "emptyTable": "Không có dữ liệu"
-                }
-            }).buttons().container().appendTo('#historyTable_wrapper .col-md-6:eq(0)');
-
-
-            // 2. CẤU HÌNH BIỂU ĐỒ (CHART JS) - SỬ DỤNG DỮ LIỆU CỨNG
-            var dataKhop = 125; // Số liệu cứng
-            var dataThua = 10;  // Số liệu cứng
-            var dataThieu = 5;  // Số liệu cứng
-
-            var donutChartCanvas = $('#donutChart').get(0).getContext('2d');
-            var donutData = {
-                labels: ['Hàng khớp', 'Lệch thừa', 'Lệch thiếu'],
-                datasets: [{
-                    data: [dataKhop, dataThua, dataThieu],
-                    backgroundColor : ['#28a745', '#ffc107', '#dc3545'],
-                }]
-            }
-            var donutOptions = {
-                maintainAspectRatio : false,
-                responsive : true,
-                plugins: {
-                    legend: { position: 'left', labels: { boxWidth: 15 } }
-                }
-            }
-            new Chart(donutChartCanvas, { type: 'doughnut', data: donutData, options: donutOptions });
-        });
-    </script>
 }

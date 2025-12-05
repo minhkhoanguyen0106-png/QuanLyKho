@@ -33,11 +33,8 @@ namespace QuanLyKho.Models
         // ============================
         // 4. Người tạo (Nhân viên)
         // ============================
-        [Required]
         [Column(TypeName = "varchar(20)")]
         public string MaNV { get; set; }
-
-        [ForeignKey("MaNV")]
         public Employee NhanVien { get; set; }
 
         // ============================
@@ -60,5 +57,6 @@ namespace QuanLyKho.Models
 
         [ForeignKey("MaPhieuDat")]
         public DatHangNhap? DatHang { get; set; }
+        public ICollection<ChiTietPhieuNhap> ChiTietPhieuNhap { get; set; }
     }
 }

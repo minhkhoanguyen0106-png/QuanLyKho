@@ -1,11 +1,11 @@
-@model IEnumerable<QuanLyKho.Models.PhieuNhap> // Gợi ý: Nên dùng IEnumarable<PhieuNhap> thay vì dynamic cho Model
+@model IEnumerable<QuanLyKho.Models.PhieuNhap> 
 @{
     ViewBag.Title = "Danh sách phiếu nhập";
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
 <style>
-    /* 1. HEADER & CSS CHUNG */
+    /* ... Giữ nguyên phần Style ... */
     .app-header {
         background-color: #28a745; 
         color: white;
@@ -23,7 +23,7 @@
         display: inline-flex; align-items: center; justify-content: center;
     }
 
-    /* 2. NÚT BẤM */
+    /* 2. NÚT BẤM THẲNG HÀNG */
     .action-buttons { display: flex; align-items: center; gap: 5px; height: 100%; }
     .action-buttons .btn {
         white-space: nowrap !important; height: 38px;
@@ -35,6 +35,7 @@
         height: 38px; display: flex; align-items: center; justify-content: center;
         padding-top: 0; padding-bottom: 0;
     }
+    #phieuNhapTable tbody tr td:nth-child(3) { max-width: 200px; word-break: break-word; white-space: normal; }
 
     /* 3. RESPONSIVE */
     @@media (max-width: 767.98px) {
@@ -57,7 +58,7 @@
 </style>
 
 <div class="app-header">
-    <h4 class="m-0 font-weight-bold"><i class="fas fa-file-import mr-2"></i> Phiếu nhập hàng</h4>
+    <h4 class="m-0 font-weight-bold"><i class="fas fa-file-export mr-2"></i> Phiếu nhập hàng</h4>
     <div class="btn-header-group d-flex d-md-none">
         <a href="@Url.Action("Create", "NhapHang")" class="btn btn-white-green-text">
             <i class="fas fa-plus"></i>
@@ -87,7 +88,28 @@
                                 <option value="CN Ninh Kiều">CN Ninh Kiều</option>
                             </select>
                         </div>
-
+                        
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold text-dark">Người tạo</label>
+                            <select class="form-control" id="nguoiTaoFilter">
+                                <option value="">Tất cả</option>
+                                @if (Model != null)
+                                {
+                                    var creatorNames = Model.Where(p => p.NhanVien != null).Select(p => p.NhanVien.TenNV).Distinct();
+                                    foreach (var name in creatorNames)
+                                    {
+                                        <option value="@name">@name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold text-dark">Tổng tiền (Từ - Đến)</label>
+                            <div class="d-flex">
+                                <input type="number" class="form-control mr-2" id="minTotalFilter" placeholder="Từ" min="0" />
+                                <input type="number" class="form-control" id="maxTotalFilter" placeholder="Đến" min="0" />
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label font-weight-bold text-dark">Thời gian</label>
                             <div class="form-check">
@@ -100,16 +122,6 @@
                             </div>
                             <input type="date" class="form-control" id="dateFilter" style="display:none;" /> 
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold text-dark">Người tạo</label>
-                            <select class="form-control" id="nguoiTaoFilter">
-                                <option value="">Tất cả</option>
-                                <option value="Nguyễn Văn B">Nguyễn Văn B</option>
-                                <option value="Trần Thị C">Trần Thị C</option>
-                            </select>
-                        </div>
-
                         <button class="btn btn-success btn-block font-weight-bold mt-3" id="applyFilter">
                             <i class="fas fa-filter"></i> Áp dụng bộ lọc
                         </button>
@@ -120,7 +132,7 @@
             <div class="col-12 col-md-9">
                 <div class="d-flex align-items-center mb-3">
                     <div class="input-group flex-grow-1 mr-2">
-                        <input type="text" class="form-control" id="searchInput" placeholder="Theo mã phiếu, nhà cung cấp..." />
+                        <input type="text" class="form-control" id="searchInput" placeholder="Theo mã phiếu, khách hàng..." />
                         <div class="input-group-append">
                             <button class="btn btn-success" id="searchBtn"><i class="fas fa-search"></i></button>
                         </div>
@@ -134,7 +146,9 @@
                         <a href="@Url.Action("Create", "NhapHang")" class="btn btn-success font-weight-bold mr-2">
                             <i class="fas fa-plus"></i> Tạo phiếu nhập
                         </a>
-                       
+                        <button class="btn btn-outline-success mr-2" id="btnPrint">
+                            <i class="fas fa-print mr-1"></i> In danh sách
+                        </button>
                         <button class="btn btn-outline-secondary" id="btnExport">
                             <i class="fas fa-file-excel mr-1"></i> Xuất Excel
                         </button>
@@ -146,49 +160,50 @@
                         Danh sách phiếu nhập
                     </div>
                     <div class="card-body p-0 table-responsive">
-                        <table class="table table-hover align-middle mb-0 text-center" id="phieuNhapTable">
+                         <table class="table table-hover align-middle mb-0 text-center" id="phieuNhapTable">
                             <thead class="bg-success text-white">
                                 <tr>
                                     <th><input type="checkbox" id="selectAll" /></th>
                                     <th>Mã phiếu</th>
-                                    <th>Nhà cung cấp</th>
+                                    <th>Tên hàng hóa</th>
                                     <th>Ngày tạo</th>
+                                    <th>Người tạo</th>
                                     <th>Tổng tiền</th>
-                                    </tr>
+                                </tr>
                             </thead>
                             <tbody>
-@if (Model != null)
-{
-    // Lấy lookup data từ Controller
-    var nccLookup = ViewBag.NhaCungCaps as Dictionary<string, string>;
-    var nvLookup = ViewBag.NhanVienLookup as Dictionary<string, string>;
-    
-    foreach (var item in Model)
-    {
-        // Lookup Tên NCC và Tên NV
-        string tenNCC = nccLookup != null && nccLookup.ContainsKey(item.MaNCC) ? nccLookup[item.MaNCC] : item.MaNCC;
-        
-        // Giả lập chi nhánh cho mục đích lọc demo
-        string chiNhanhDemo = item.MaNCC == "VIPOMALL" ? "CN Nguyễn Văn Cừ - Cần Thơ" : "CN Ninh Kiều"; 
-
-        <tr data-chinhanh="@chiNhanhDemo" >
-            <td><input type="checkbox" /></td>
-            <td class="fw-bold text-success">@item.MaPN</td>
-            <td>@tenNCC</td>
-            @* DÒNG ĐÃ SỬA: Sử dụng toán tử ?. và ?? để xử lý null an toàn *@
-            <td>@(item.NgayNhap?.ToString("dd/MM/yyyy") ?? "")</td> 
-          
-            <td class="fw-bold">@string.Format("{0:N0} ₫", item.TongGiaTri)</td>
-        </tr>
-    }
-}
-                                
-
+                                @if (Model != null)
+                                {
+                                   @foreach (var item in Model)
+                                {
+                                <tr 
+                                data-chinhanh="@(item.NhaCungCap?.TenNCC)" @* VẪN GIỮ NGUYÊN (Cho bộ lọc JS) *@
+                                data-nguoitao="@(item.NhanVien?.TenNV)"> @* VẪN GIỮ NGUYÊN (Cho bộ lọc JS) *@
+                                <td><input type="checkbox" /></td>
+                                <td class="fw-bold text-success">@item.MaPN</td>
+                                <td class="column-sanpham">
+                                    @if (item.ChiTietPhieuNhap != null && item.ChiTietPhieuNhap.Any())
+                                    {
+                                        <span>@item.ChiTietPhieuNhap.First().MaHH</span>
+                                        <span>(...@item.ChiTietPhieuNhap.Count() mặt hàng)</span> 
+                                    }
+                                    else
+                                    {
+                                        <span>Không có chi tiết</span>
+                                    }
+                                </td>
+                                <td>@(item.NgayNhap?.ToString("dd/MM/yyyy"))</td>
+                                <td>@(item.NhanVien?.TenNV)</td> @* Hiển thị Tên Người tạo *@
+                                <td class="fw-bold">@item.TongGiaTri?.ToString("N0") ₫</td> </tr>
+                                }
+                                }
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="text-center py-5 text-muted" id="noResults" style="display:none;">
+                    @* CẬP NHẬT ĐIỀU KIỆN HIỂN THỊ NO-RESULTS DỰA TRÊN MODEL *@
+                    <div class="text-center py-5 text-muted" id="noResults" 
+                         style="@(Model == null || !Model.Any() ? "" : "display:none;")">
                         <i class="fas fa-inbox fa-3x text-secondary"></i>
                         <p class="mt-2">Không tìm thấy kết quả</p>
                     </div>
@@ -244,22 +259,39 @@
                 var cn = $('#chiNhanhFilter').val();
                 var user = $('#nguoiTaoFilter').val();
                 var date = $('input[name="thoigian"]:checked').val() === 'custom' ? $('#dateFilter').val() : '';
+                
+                // Lấy giá trị lọc Tổng tiền
+                var minTotal = parseFloat($('#minTotalFilter').val()) || 0;
+                var maxTotal = parseFloat($('#maxTotalFilter').val()) || Infinity;
+
                 var visibleCount = 0;
 
                 $('#phieuNhapTable tbody tr').each(function () {
                     var row = $(this);
                     var rCN = row.data('chinhanh');
                     var rUser = row.data('nguoitao');
-                    var rDate = row.find('td:eq(3)').text().trim(); // Ngày tạo
+                    var rDate = row.find('td:eq(3)').text().trim();
+                    
+                    // Lấy giá trị Tổng tiền từ cột thứ 6 (index 5) và chuyển thành số
+                    // Loại bỏ ký tự không phải số và dấu phân cách (dấu chấm)
+                    var rTotalText = row.find('td:eq(5)').text().replace(/[^0-9.]/g, ''); 
+                    var rTotal = parseFloat(rTotalText.replace(/\./g, '')) || 0;
 
                     var show = true;
+                    // Lọc Chi nhánh
                     if (cn && rCN.indexOf(cn) === -1) show = false;
+                    
+                    // Lọc Người tạo
                     if (user && rUser !== user) show = false;
                     
+                    // Lọc Ngày tạo
                     if (date) {
                         var fDate = date.split('-').reverse().join('/');
                         if (rDate !== fDate) show = false;
                     }
+
+                    // Lọc Tổng tiền (Phạm vi)
+                    if (rTotal < minTotal || rTotal > maxTotal) show = false;
 
                     if (show) { row.show(); visibleCount++; } else { row.hide(); }
                 });

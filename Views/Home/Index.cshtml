@@ -1,27 +1,81 @@
 ﻿﻿@using Microsoft.AspNetCore.Http
 @{
     ViewData["Title"] = "Tổng quan Kho hàng";
+        Layout = "/Views/Shared/_Layout.cshtml";
+
     
-    // MÀU SẮC CHỦ ĐẠO ADMINLTE CHUYÊN NGHIỆP:
+    // MÀU SẮC CHỦ ĐẠO ADMINLTE
+    // Sử dụng màu xanh lá cây đồng nhất "#28a745"
     var primaryColorAdminLTE = "#28a745"; 
-    var successColor = "#28a745";
-    var infoColor = "#17a2b8";
-    var warningColor = "#ffc107";
-    var dangerColor = "#dc3545";
+    var uniformColor = "#28a745"; 
+    var darkColor = "#343a40"; 
     
-    // Giả lập dữ liệu Tỉ lệ (Sẽ được thay thế bằng Model/ViewData)
+    // Giữ các biến giả lập dữ liệu, dù không dùng trong các card mới
     var tiLeLechKho = "0.5%";
     var tiLeNhapVsXuat = "120%"; 
     var hangDuoiDinhMuc = "8.2%"; 
     var tiLeChiếmDụngKho = "75%"; 
+    var soLuongSKU = "450";
+    var tongTriGiaTon = "4.5 Tỷ VNĐ";
 }
+
+<style>
+    /* 1. Thiết lập hiệu ứng hover đồng nhất cho tất cả cards */
+    .custom-card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .custom-card-hover:hover {
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* 2. Đảm bảo các card có chiều cao đồng đều (220px theo yêu cầu) */
+    .action-card-min-height {
+        min-height: 220px; 
+    }
+
+    /* 3. FIX CỐ ĐỊNH FOOTER: Buộc thẻ <a> chiếm toàn bộ chiều cao thẻ cha (card) */
+    /* Dùng !important để ghi đè các style xung đột khác */
+    .card-link-fill {
+        height: 100% !important;
+    }
+    
+    /* Thiết kế lại Header Title */
+    .dashboard-header {
+        border-bottom: 3px solid @primaryColorAdminLTE;
+        padding: 10px 0;
+        margin-bottom: 15px;
+    }
+
+    /* Định nghĩa màu sắc đồng nhất (xanh lá) */
+    .card-outline.card-uniform {
+        border-top: 3px solid @uniformColor;
+    }
+    
+    .bg-uniform {
+        background-color: @uniformColor !important;
+        color: white; 
+    }
+    
+    .text-uniform {
+        color: @uniformColor !important;
+    }
+
+    /* Đặt màu chữ cho footer của card uniform */
+    .bg-uniform .card-footer {
+        color: white !important;
+    }
+</style>
 
 <div class="content-header">
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center p-3 rounded shadow-sm"
-             style="background-color: @primaryColorAdminLTE; color: white;">
-            <h4 class="m-0 font-weight-bold"><i class="fas fa-warehouse mr-2"></i> Tổng quan Kho hàng & Tồn kho</h4>
-            <span>Chi nhánh: <strong>Kho Tổng</strong></span>
+        <div class="dashboard-header d-flex justify-content-between align-items-center">
+            <h3 class="m-0 font-weight-bold text-dark">
+                <i class="fas fa-warehouse mr-2 text-@primaryColorAdminLTE"></i> Tổng quan Kho hàng
+            </h3>
+            <span class="text-muted">Chi nhánh: <strong>Kho Tổng</strong> | Ngày: @DateTime.Now.ToString("dd/MM/yyyy")</span>
         </div>
     </div>
 </div>
@@ -29,128 +83,147 @@
 <section class="content">
     <div class="container-fluid">
         
-        <div class="row mt-3">
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-white border-left border-info shadow-sm" style="border-left-width: 5px !important;">
-                    <div class="inner">
-                        <h3 class="text-info">@tiLeLechKho</h3>
-                        <p>Tỷ lệ Lệch kho (Kiểm kê)</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-balance-scale text-info" style="opacity: 0.3"></i>
-                    </div>
+        <!-- HÀNG 1: QUẢN LÝ ĐỐI TÁC VÀ HÀNG HÓA CỐT LÕI -->
+        <div class="row">
+            
+            <!-- CARD 1: DANH SÁCH NHÀ CUNG CẤP -->
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                @* LAYOUT FIX: Thẻ card là Flex container dọc *@
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    @* SỬ DỤNG CLASS CÀI ĐẶT CỨNG card-link-fill THAY CHO h-100 *@
+                    <a asp-controller="NCC" asp-action="DanhSachNCC" class="text-decoration-none d-flex flex-column card-link-fill">
+                        @* Giữ flex-grow-1 để body chiếm hết chiều cao còn lại và đẩy footer xuống đáy *@
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1"> 
+                            <div class="mr-3">
+                                <i class="fas fa-handshake text-uniform" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold text-uniform mb-0">DANH SÁCH NHÀ CUNG CẤP</h4>
+                                <p class="text-muted mb-0">Xem danh sách nhà cung cấp/ Thêm nhà cung cấp </p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Xem Chi Tiết <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
                 </div>
             </div>
             
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-white border-left border-success shadow-sm" style="border-left-width: 5px !important;">
-                    <div class="inner">
-                        <h3 class="text-success">@tiLeNhapVsXuat</h3>
-                        <p>Tỷ lệ Nhập / Xuất (Theo Giá trị)</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-exchange-alt text-success" style="opacity: 0.3"></i>
-                    </div>
+            <!-- CARD 2: QUẢN LÝ KHO HÀNG (Hàng hóa chung) -->
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                @* LAYOUT FIX: Thẻ card là Flex container dọc *@
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    @* SỬ DỤNG CLASS CÀI ĐẶT CỨNG card-link-fill THAY CHO h-100 *@
+                    <a asp-controller="HangHoa" asp-action="DanhSach" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-box-open text-uniform" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold text-uniform mb-0">QUẢN LÝ KHO HÀNG</h4>
+                                <p class="text-muted mb-0">Xem danh sách hàng hóa trong kho/ Thêm hàng hóa</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Xem Chi Tiết <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
                 </div>
             </div>
             
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-white border-left border-warning shadow-sm" style="border-left-width: 5px !important;">
-                    <div class="inner">
-                        <h3 class="text-warning">@hangDuoiDinhMuc</h3>
-                        <p>Tỷ lệ SKU dưới Định mức tối thiểu</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle text-warning" style="opacity: 0.3"></i>
-                    </div>
-                </div>
-            </div>
-            
-            
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-white border-left border-primary shadow-sm" style="border-left-width: 5px !important;">
-                    <div class="inner">
-                        <h3 class="text-primary">@tiLeChiếmDụngKho</h3>
-                        <p>Tỷ lệ Vị trí/Kệ đang chứa hàng</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-truck-box text-primary" style="opacity: 0.3"></i>
-                    </div>
+            <!-- CARD 3: QUẢN LÝ LINH KIỆN -->
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                @* LAYOUT FIX: Thẻ card là Flex container dọc *@
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    @* SỬ DỤNG CLASS CÀI ĐẶT CỨNG card-link-fill THAY CHO h-100 *@
+                    <a asp-controller="HangHoa" asp-action="QuanLyLinhKien" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-cogs text-uniform" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold text-uniform mb-0">QUẢN LÝ LINH KIỆN</h4>
+                                <p class="text-muted mb-0">Xem danh sách linh kiện/ Thêm linh kiện mới</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Xem Chi Tiết <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
 
+        <!-- HÀNG 2: QUẢN LÝ TÀI SẢN VÀ NGHIỆP VỤ -->
         <div class="row">
-            <div class="col-md-9">
-                <div class="card card-primary card-outline"> 
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i> Cơ cấu Tồn kho theo Nhóm hàng (%)</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart">
-                            <canvas id="chartCoCauTonKho" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                        </div>
-                        <div class="text-center mt-3 text-muted">
-                            <p>Sẽ hiển thị biểu đồ tròn phân bổ Tồn kho theo Nhóm hàng khi Scripts được kích hoạt.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
             
-            <div class="col-md-3">
-                <div class="card card-primary card-outline"> 
-                    <div class="card-header bg-light">
-                        <h3 class="card-title text-primary"><i class="fas fa-clock mr-1"></i> Giao dịch gần nhất</h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <span class="text-success font-weight-bold">PHIẾU XUẤT #PX008</span> vừa được tạo<br>
-                                <b>12,060,000 ₫</b> <small class="text-muted float-right">4h trước</small>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="text-primary font-weight-bold">PHIẾU NHẬP #PN001</span> vừa được nhập<br>
-                                <b>15,090,000 ₫</b> <small class="text-muted float-right">6h trước</small>
-                            </li>
-                             <li class="list-group-item">
-                                <span class="text-success font-weight-bold">PHIẾU XUẤT #PX007</span> vừa được tạo<br>
-                                <b>5,000,000 ₫</b> <small class="text-muted float-right">7h trước</small>
-                            </li>
-                        </ul>
-                    </div>
+            <!-- CARD 4: QUẢN LÝ HÀNG HÓA KHÁC -->
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                @* LAYOUT FIX: Thẻ card là Flex container dọc *@
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    @* SỬ DỤNG CLASS CÀI ĐẶT CỨNG card-link-fill THAY CHO h-100 *@
+                    <a asp-controller="HangHoa" asp-action="QuanLyXe" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-car-side text-uniform" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold text-uniform mb-0">QUẢN LÝ HÀNG HÓA KHÁC</h4>
+                                <p class="text-muted mb-0">Xem danh sách hàng hóa trong kho/ Thêm hàng hóa</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Xem Chi Tiết <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-outline card-primary"> 
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-hourglass-start mr-1"></i> Báo cáo: Hàng hóa tồn kho lâu nhất</h3>
-                    </div>
-                    <div class="card-body">
-                        <table id="topProductsTable" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Mã hàng</th>
-                                    <th>Tên hàng hóa</th>
-                                    <th>Vị trí/Lô</th>
-                                    <th>Ngày nhập kho</th> 
-                                    <th>Số lượng tồn</th>
-                                    <th>Thời gian tồn (Ngày)</th> 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>SP001</td><td>Bình Super Chillwee</td><td>Khu A-01</td><td>20/10/2023</td><td class="text-success font-weight-bold">464</td><td>40</td></tr>
-                                <tr><td>DV002</td><td>Tiền công sửa chữa</td><td>N/A</td><td>N/A</td><td class="text-success font-weight-bold">0</td><td>N/A</td></tr>
-                                <tr><td>VC003</td><td>VOUCHER - 500K</td><td>Khu C-05</td><td>01/11/2023</td><td class="text-success font-weight-bold">84</td><td>29</td></tr>
-                                <tr><td>MBH01</td><td>NÓN BẢO HIỂM EBIKE</td><td>Khu A-02</td><td>10/11/2023</td><td class="text-success font-weight-bold">23</td><td>20</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- CARD 5: QUẢN LÝ NHÂN VIÊN -->
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                @* LAYOUT FIX: Thẻ card là Flex container dọc *@
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    @* SỬ DỤNG CLASS CÀI ĐẶT CỨNG card-link-fill THAY CHO h-100 *@
+                    <a asp-controller="NhanVien" asp-action="NhanVien" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-users-cog text-uniform" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold text-uniform mb-0">QUẢN LÝ NHÂN VIÊN</h4>
+                                <p class="text-muted mb-0">Thêm sửa xóa/ Phân quyền nhân viên</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Xem Chi Tiết <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CARD 6: LỊCH SỬ GIAO DỊCH -->
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                @* LAYOUT FIX: Thẻ card là Flex container dọc *@
+                <div class="card card-outline card-uniform shadow action-card-min-height custom-card-hover d-flex flex-column">
+                    @* SỬ DỤNG CLASS CÀI ĐẶT CỨNG card-link-fill THAY CHO h-100 *@
+                    <a asp-controller="GiaoDich" asp-action="TraCuu" class="text-decoration-none d-flex flex-column card-link-fill">
+                        <div class="card-body d-flex align-items-center p-3 flex-grow-1">
+                            <div class="mr-3">
+                                <i class="fas fa-history text-uniform" style="font-size: 3rem;"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-weight-bold text-uniform mb-0">LỊCH SỬ GIAO DỊCH</h4>
+                                <p class="text-muted mb-0">Xem danh sách/ Tùy chỉnh lịch sử giao dịch</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center bg-uniform" style="padding: 10px 0;">
+                            <span class="text-white font-weight-bold">Xem Chi Tiết <i class="fas fa-arrow-circle-right ml-2"></i></span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
+        
     </div>
 </section>
 

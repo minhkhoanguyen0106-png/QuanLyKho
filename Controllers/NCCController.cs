@@ -234,7 +234,7 @@ namespace QuanLyKho.Controllers
         // ------------------------------------------------------------------
         public async Task<IActionResult> Nhap()
         {
-            var phieuXuatList = await _context.PhieuNhaps
+            var phieuNhapList = await _context.PhieuNhaps
             .Include(px => px.NhaCungCap) 
             .Include(px => px.NhanVien)   
             .ToListAsync();
@@ -242,7 +242,7 @@ namespace QuanLyKho.Controllers
             var supplierList = await _context.NCCs.ToListAsync();
             ViewData["Suppliers"] = supplierList; 
             
-            return View(phieuXuatList); 
+            return View(phieuNhapList); 
         }
 
         // ------------------------------------------------------------------

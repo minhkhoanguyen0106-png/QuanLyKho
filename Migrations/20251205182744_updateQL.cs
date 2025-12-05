@@ -5,7 +5,7 @@
 namespace QuanLyKho.Migrations
 {
     /// <inheritdoc />
-    public partial class updategiaodichmoi : Migration
+    public partial class updateQL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

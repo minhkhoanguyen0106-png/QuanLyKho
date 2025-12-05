@@ -12,8 +12,8 @@ using QuanLyKho.Models;
 namespace QuanLyKho.Migrations
 {
     [DbContext(typeof(QuanLyKhoContext))]
-    [Migration("20251203233952_CTPN")]
-    partial class CTPN
+    [Migration("20251204073122_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -232,10 +232,6 @@ namespace QuanLyKho.Migrations
                     b.Property<string>("MaGiaoDich")
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("ChiNhanh")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("DoiTac")
                         .IsRequired()
                         .HasColumnType("nvarchar(150)");
@@ -250,10 +246,6 @@ namespace QuanLyKho.Migrations
                     b.Property<string>("MaThamChieu")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
-
-                    b.Property<string>("NguoiThucHien")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("ThoiGian")
                         .HasColumnType("datetime2");
@@ -290,35 +282,6 @@ namespace QuanLyKho.Migrations
                     b.HasKey("MaNCC");
 
                     b.ToTable("NhaCungCap");
-                });
-
-            modelBuilder.Entity("QuanLyKho.Models.NhanVien", b =>
-                {
-                    b.Property<int>("NhanVienId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NhanVienId"));
-
-                    b.Property<string>("ChucVu")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HoTen")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SDT")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("NhanVienId");
-
-                    b.ToTable("NhanViens");
                 });
 
             modelBuilder.Entity("QuanLyKho.Models.NhapHang", b =>
@@ -371,6 +334,9 @@ namespace QuanLyKho.Migrations
                     b.Property<DateTime?>("NgayNhap")
                         .HasColumnType("date");
 
+                    b.Property<string>("NhanVienMaNV")
+                        .HasColumnType("varchar(20)");
+
                     b.Property<decimal?>("TongGiaTri")
                         .HasColumnType("decimal(18,0)");
 
@@ -378,11 +344,11 @@ namespace QuanLyKho.Migrations
 
                     b.HasIndex("MaNCC");
 
-                    b.HasIndex("MaNV");
-
                     b.HasIndex("MaPhieuDat")
                         .IsUnique()
                         .HasFilter("[MaPhieuDat] IS NOT NULL");
+
+                    b.HasIndex("NhanVienMaNV");
 
                     b.ToTable("PhieuNhap");
                 });
@@ -470,15 +436,13 @@ namespace QuanLyKho.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("QuanLyKho.Models.Employee", "NhanVien")
-                        .WithMany()
-                        .HasForeignKey("MaNV")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("QuanLyKho.Models.DatHangNhap", "DatHang")
                         .WithOne("PhieuNhap")
                         .HasForeignKey("QuanLyKho.Models.PhieuNhap", "MaPhieuDat");
+
+                    b.HasOne("QuanLyKho.Models.Employee", "NhanVien")
+                        .WithMany()
+                        .HasForeignKey("NhanVienMaNV");
 
                     b.Navigation("DatHang");
 

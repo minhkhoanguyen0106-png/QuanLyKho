@@ -165,14 +165,63 @@ namespace QuanLyKho.Controllers
         // ===============================
         public IActionResult TraCuu()
         {
-            // Lấy toàn bộ dữ liệu lịch sử giao dịch để truyền sang View
-            // Sắp xếp giảm dần theo thời gian
-            var lichSuGiaoDich = _context.LichSuGiaoDichs
-                .OrderByDescending(x => x.ThoiGian)
+            // --- 1. Ánh xạ (Map) từ Phiếu Đặt Hàng Nhập (Purchase Order - PO) ---
+            var giaoDichPO = _context.DatHangNhaps
+                .Include(d => d.NhaCungCap)
+                .Select(d => new LichSuGiaoDich
+                {
+                    MaGiaoDich = "GD-DHN-" + d.MaPhieuDat, // Phân biệt GD đặt hàng
+                    MaThamChieu = d.MaPhieuDat, // Mã PO là mã tham chiếu
+                    LoaiGiaoDich = "Tạo Đặt Hàng Nhập",
+                    ThoiGian = d.ThoiGian,
+                    DoiTac = d.NhaCungCap != null ? d.NhaCungCap.TenNCC : "N/A",
+                    GiaTri = d.TongTien,
+                    TrangThai = d.TrangThai
+                });
+
+
+            // --- 2. Ánh xạ (Map) từ Phiếu Nhập (Receipt Note - RN) ---
+            var giaoDichNhap = _context.PhieuNhaps
+                .Include(p => p.NhaCungCap) // Lấy tên Nhà cung cấp
+                .Select(p => new LichSuGiaoDich
+                {
+                    MaGiaoDich = "GD-PN-" + p.MaPN, // Phân biệt GD phiếu nhập
+                    MaThamChieu = p.MaPhieuDat, // Mã PO liên kết
+                    LoaiGiaoDich = "Nhập hàng",
+                    ThoiGian = p.NgayNhap ?? DateTime.MinValue,
+                    DoiTac = p.NhaCungCap != null ? p.NhaCungCap.TenNCC : "N/A",
+                    GiaTri = p.TongGiaTri ?? 0,
+                    // LƯU Ý: Nếu PhieuNhap thiếu trường TrangThai, cần thay thế "Hoàn tất" bằng logic trạng thái thực tế.
+                    TrangThai = "Hoàn tất" 
+                });
+
+
+            // --- 3. Ánh xạ (Map) từ Phiếu Xuất (Issue Note - IN) ---
+            var giaoDichXuat = _context.PhieuXuats
+                .Include(x => x.NhaCungCap) // Giả sử navigation property này là Khách hàng/Đối tác nhận hàng
+                .Select(x => new LichSuGiaoDich
+                {
+                    MaGiaoDich = "GD-PX-" + x.MaPX, // Phân biệt GD phiếu xuất
+                    MaThamChieu = x.MaPX, // Dùng Mã PX làm mã tham chiếu (hoặc Mã đơn hàng bán nếu có)
+                    LoaiGiaoDich = "Xuất hàng",
+                    ThoiGian = x.NgayXuat ?? DateTime.MinValue,
+                    // Giả sử NhaCungCap ở đây là Đối tác nhận hàng/Khách hàng
+                    DoiTac = x.NhaCungCap != null ? x.NhaCungCap.TenNCC : "N/A", 
+                    GiaTri = x.TongGiaTri ?? 0,
+                    // LƯU Ý: Tương tự, nếu PhieuXuat thiếu TrangThai, cần thay thế bằng logic thực tế.
+                    TrangThai = "Hoàn tất"
+                });
+
+
+            // --- 4. Gộp (Union) 3 danh sách giao dịch và sắp xếp ---
+            var lichSuTongHop = giaoDichPO
+                .Union(giaoDichNhap)
+                .Union(giaoDichXuat)
+                .OrderByDescending(gd => gd.ThoiGian)
                 .ToList();
 
             // Trả về View TraCuu.cshtml và truyền dữ liệu LichSuGiaoDich
-            return View(lichSuGiaoDich);
+            return View(lichSuTongHop);
         }
     }
 }
